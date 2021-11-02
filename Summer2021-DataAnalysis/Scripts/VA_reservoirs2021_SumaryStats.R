@@ -20,6 +20,9 @@ median.zoop<-function(vector){
 
 ###############################End of function
 
+#change working directory
+setwd(file.path(getwd(),"Summer2021-DataAnalysis"))
+
 #Read in the csv file that contains all the taxa from the UNH zooplankton key ####
 #http://cfb.unh.edu/cfbkey/html/index.html
 ZoopTaxonomy<-read.csv("Zooplankton-TaxonomicIdentification.csv", fill = TRUE,as.is=TRUE)
@@ -162,7 +165,7 @@ SizeID[,names(ZoopTaxonomy)]<-NA
 substr(SizeID$LowestTaxonomicLevelOfID, 1, 1) <- toupper(substr(SizeID$LowestTaxonomicLevelOfID, 1, 1))
 
 #Figure out which column the taxa ID is
-for(j in 1:length(SizeID$TaxaID)){
+for(j in 1:length(SizeID$TaxaID)){ #why is this failing??
     #Pick out only values with Taxa Level and ID
     if(!is.na(SizeID$LowestTaxonomicLevelOfID[j])&!is.na(SizeID$TaxaID[j])){
     #Get the column that the lowest level of ID

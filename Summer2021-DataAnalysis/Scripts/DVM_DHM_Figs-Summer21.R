@@ -57,20 +57,20 @@ zoop$Hour[grepl("noon",zoop$sample_ID,ignore.case = TRUE)] <- "12:00"
 zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="FCR_50",]
 
 #Create new df with more specific taxonomic groupings (Daphnia, Ceriodaphnia, Bosminiidae, calanoida, cyclopoida, nauplius, keratella, kellicottia, Collothecidae ,Conochilidae, Synchaetidae, Trichocercidae)
-zoop.repmeans.bytaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL, Daphnia_totalbiomass_ug,
-                 Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL, Ceriodaphnia_totalbiomass_ug,
-                 Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL, Bosminidae_totalbiomass_ug,
-                 Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
-                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL,Cyclopoida_totalbiomass_ug,
-                 nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug,
-                 Keratella_density_NopL, Keratella_BiomassConcentration_ugpL, Keratella_totalbiomass_ug,
-                 Kellicottia_density_NopL, Kellicottia_BiomassConcentration_ugpL, Kellicottia_totalbiomass_ug,
-                 Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL, Collothecidae_totalbiomass_ug,
-                 Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL, Conochilidae_totalbiomass_ug,
-                 Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL, Synchaetidae_totalbiomass_ug,
-                 Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,Trichocercidae_totalbiomass_ug) %>%
-                 group_by(sample_ID, site_no, Hour, collect_date) %>%
-                 summarise_at(vars(Daphnia_density_NopL:Trichocercidae_totalbiomass_ug), funs(rep.mean=mean, rep.SE=stderr))
+#zoop.repmeans.bytaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL, Daphnia_totalbiomass_ug,
+#                 Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL, Ceriodaphnia_totalbiomass_ug,
+#                 Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL, Bosminidae_totalbiomass_ug,
+#                 Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
+#                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL,Cyclopoida_totalbiomass_ug,
+#                 nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug,
+#                 Keratella_density_NopL, Keratella_BiomassConcentration_ugpL, Keratella_totalbiomass_ug,
+#                 Kellicottia_density_NopL, Kellicottia_BiomassConcentration_ugpL, Kellicottia_totalbiomass_ug,
+#                 Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL, Collothecidae_totalbiomass_ug,
+#                 Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL, Conochilidae_totalbiomass_ug,
+#                 Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL, Synchaetidae_totalbiomass_ug,
+#                 Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,Trichocercidae_totalbiomass_ug) %>%
+#                 group_by(sample_ID, site_no, Hour, collect_date) %>%
+#                 summarise_at(vars(Daphnia_density_NopL:Trichocercidae_totalbiomass_ug), funs(rep.mean=mean, rep.SE=stderr))
 
 
 ##### Create new df to combine reps over 24 hours
@@ -86,28 +86,28 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
 zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$collect_date), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
 zoop.repmeans$Hour <- as.POSIXct(zoop.repmeans$Hour)
 
-zoop.repmeans.bytaxa$Hour <- strptime(paste0(as.character(zoop.repmeans.bytaxa$collect_date), zoop.repmeans.bytaxa$Hour),format="%Y-%m-%d %H:%M")
-zoop.repmeans.bytaxa$Hour <- as.POSIXct(zoop.repmeans.bytaxa$Hour)
+#zoop.repmeans.bytaxa$Hour <- strptime(paste0(as.character(zoop.repmeans.bytaxa$collect_date), zoop.repmeans.bytaxa$Hour),format="%Y-%m-%d %H:%M")
+#zoop.repmeans.bytaxa$Hour <- as.POSIXct(zoop.repmeans.bytaxa$Hour)
 
 #make sure zoop.repmeans is a dataframe
 zoop.repmeans <- data.frame(zoop.repmeans)
-zoop.repmeans.bytaxa <- data.frame(zoop.repmeans.bytaxa)
+#zoop.repmeans.bytaxa <- data.frame(zoop.repmeans.bytaxa)
 
 #order by hour for plotting
 zoop.repmeans <- zoop.repmeans[order(zoop.repmeans$Hour),]
 
-zoop.repmeans.bytaxa <- zoop.repmeans.bytaxa[order(zoop.repmeans.bytaxa$Hour),]
+#zoop.repmeans.bytaxa <- zoop.repmeans.bytaxa[order(zoop.repmeans.bytaxa$Hour),]
 
 ## Use round_date to round to nearest hour for plotting
 r <- round_date(zoop.repmeans$Hour, "hours")
 
 #subsetting repmeans into new df for DHM analyses/figs
 zoop_DHM<- zoop.repmeans[ zoop.repmeans$site_no=="BVR_50_p" | zoop.repmeans$site_no=="BVR_l",substrEnd(colnames(zoop.repmeans),14)!="Total_rep.mean" & substrEnd(colnames(zoop.repmeans),12)!="Total_rep.SE"]
-zoop_DHM_bytaxa<- zoop.repmeans.bytaxa[zoop.repmeans.bytaxa$site_no=="BVR_50_p" | zoop.repmeans.bytaxa$site_no=="BVR_l",]
+#zoop_DHM_bytaxa<- zoop.repmeans.bytaxa[zoop.repmeans.bytaxa$site_no=="BVR_50_p" | zoop.repmeans.bytaxa$site_no=="BVR_l",]
 
 #convert new dfs fron tibble to dataframe 
 zoop_DHM <- data.frame(zoop_DHM)
-zoop_DHM_bytaxa <- data.frame(zoop_DHM_bytaxa)
+#zoop_DHM_bytaxa <- data.frame(zoop_DHM_bytaxa)
 
 #-------------------#
 #  12-13 Aug 2020   #
@@ -562,9 +562,6 @@ BVR_counts<- BVR_counts[order(match(paste0(BVR_counts$sample_ID,BVR_counts$site_
 
 #add counts and vol to zoop.repmeans
 zoop.repmeans[c(2:4),paste0(colnames(BVR_counts[5:16]))]<- BVR_counts[5:16]
-
-#drop 15jun21
-zoop.repmeans <- zoop.repmeans[zoop.repmeans$collect_date=="2021-06-16",]
 
 #new dfs for DVM data (BVR_pelagic_DVM_raw is just raw #/ug; BVR_pelagic_DVM_vol_calculated is #/L and ug/L)
 BVR_pelagic_DVM<- zoop.repmeans[(zoop.repmeans$site_no=="BVR_50" |zoop.repmeans$site_no=="BVR_50_p") &
