@@ -1,0 +1,1010 @@
+##Visualizing all of the data
+##Created 17Nov2020
+
+### Description of data --> full water column tows and epi tows from FCR + BVR summer 2020 (outside of 12-13Aug 20 MSN)
+    #includes samples collected at macrophyes (BVR_l) and pelagic site (BVR_50_p for epi tows collected during MSN ONLY; BVR_50 for full water column tows and tows outside of 24-hour campaigns)
+    #samples collected from noon (x1), midnight (x1), sunset (x4), and sunrise (x4)
+
+
+#TO DO:
+#figure out rotifer biomass calcs (simple formula is sig different than other equation with l,w,h params, at least for keratella)
+
+#read in libraries
+pacman::p_load(plyr,plotrix,lubridate,dplyr,ggplot2,scales,tidyr,viridis)
+
+#read in zoop summary csv
+zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2020.csv',header = TRUE)
+
+#create function to count characters starting at the end of the string
+substrEnd <- function(x, n){
+  substr(x, nchar(x)-n+1, nchar(x))
+}
+
+#Calculates the standard error####
+stderr <- function(x) {
+  sd(x,na.rm=TRUE)/sqrt(length(na.omit(x)))
+}
+
+#make sure sample_ID is class character
+zoop$sample_ID<- as.character(zoop$sample_ID)
+
+#merge collect_date and hour in a new column
+zoop$date<- paste(zoop$collect_date,zoop$Hour,sep=" ")
+#get times into date format (character here)
+zoop$date<- format(as.POSIXct(zoop$date,format="%Y-%m-%d %H:%M"), format="%Y-%m-%d %H:%M:%S")
+#convert to posixct date format
+zoop$date<- as.POSIXct(zoop$date, format="%Y-%m-%d %H:%M")
+
+#order by site, then hour
+zoop<- arrange(zoop,zoop$site_no,zoop$date)
+
+#pull rep # off as new column
+zoop$rep <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2" | substrEnd(zoop$sample_ID,4)=="rep3"| substrEnd(zoop$sample_ID,4)=="rep4",
+   substrEnd(zoop$sample_ID,1),NA)
+
+#drop rep# from sample ID
+zoop$sample_ID <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2" | substrEnd(zoop$sample_ID,4)=="rep3" | substrEnd(zoop$sample_ID,4)=="rep4",
+                  substr(zoop$sample_ID,1,nchar(zoop$sample_ID)-5),zoop$sample_ID)
+
+#get hour into character format for grouping
+zoop$Hour <- format(round(strptime(paste0(zoop$collect_date, zoop$Hour), format="%Y-%m-%d %H:%M"),units="hours"),format="%H:%M")
+#manually change hour of some samples (rounding problems)
+zoop$Hour[zoop$sample_ID=="B_pel_12Aug20_sunset_epi_h1"] <- "18:00"
+zoop$Hour[zoop$sample_ID=="B_pel_13Aug20_midnight"] <- "00:00"
+zoop$Hour[zoop$sample_ID=="B_pel_13Aug20_noon"] <- "12:00"
+zoop$Hour[zoop$sample_ID=="B_pel_12Aug20_noon"] <- "12:00"
+zoop$Hour[zoop$sample_ID=="B_pel_12Aug20_sunset_epi_h3"] <- "20:00"
+zoop$Hour[zoop$sample_ID=="B_pel_12Aug20_sunset_epi_h4"] <- "21:00"
+            
+#drop 20 um samples
+zoop <- zoop[substrEnd(zoop$sample_ID,2)!="20",]
+
+#drop schindler samples
+zoop <- zoop[substr(zoop$sample_ID,1,20)!="B_pel_12Aug20_schind",]
+
+#drop the 06-29 samples (these were test samples)
+zoop <- zoop[substrEnd(zoop$sample_ID,4)!="filt",]
+
+#Create new df with more specific taxonomic groupings (Daphnia, Ceriodaphnia, Bosminiidae, calanoida, cyclopoida, nauplius, keratella, kellicottia, Collothecidae ,Conochilidae, Synchaetidae, Trichocercidae)
+zoop.repmeans.bytaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL, Daphnia_totalbiomass_ug,
+                 Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL, Ceriodaphnia_totalbiomass_ug,
+                 Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL, Bosminidae_totalbiomass_ug,
+                 Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
+                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL,Cyclopoida_totalbiomass_ug,
+                 nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug,
+                 Keratella_density_NopL, Keratella_BiomassConcentration_ugpL, Keratella_totalbiomass_ug,
+                 Kellicottia_density_NopL, Kellicottia_BiomassConcentration_ugpL, Kellicottia_totalbiomass_ug,
+                 Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL, Collothecidae_totalbiomass_ug,
+                 Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL, Conochilidae_totalbiomass_ug,
+                 Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL, Synchaetidae_totalbiomass_ug,
+                 Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,Trichocercidae_totalbiomass_ug) %>%
+                 group_by(sample_ID, site_no, Hour, collect_date) %>%
+                 summarise_at(vars(Daphnia_density_NopL:Trichocercidae_totalbiomass_ug), funs(rep.mean=mean, rep.SE=stderr))
+
+##### Create new df to combine reps over 24 hours
+zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_L, Volume_unadj, proportional_vol, ZoopDensity_No.pL, OverallCount_n, TotalBiomass_ug,
+                                 BiomassConcentration_ugpL,Cladocera_density_NopL, Cladocera_BiomassConcentration_ugpL, CladoceraCount_n, Cladocera_totalbiomass_ug, Cladocera_PercentOfTotal,
+                                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, CyclopoidaCount_n, Cyclopoida_totalbiomass_ug, Cyclopoida_PercentOfTotal,
+                                 Rotifera_density_NopL,Rotifera_BiomassConcentration_ugpL, RotiferaCount_n, Rotifera_totalbiomass_ug, Rotifera_PercentOfTotal, 
+                                 Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, CalanoidaCount_n, Calanoida_PercentOfTotal, Calanoida_totalbiomass_ug) %>%
+  group_by(sample_ID, site_no, collect_date, Hour) %>%
+  summarise_at(vars(Volume_L:Calanoida_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
+
+#get hour into posixct for graphing
+zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$collect_date), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
+zoop.repmeans$Hour <- as.POSIXct(zoop.repmeans$Hour)
+
+zoop.repmeans.bytaxa$Hour <- strptime(paste0(as.character(zoop.repmeans.bytaxa$collect_date), zoop.repmeans.bytaxa$Hour),format="%Y-%m-%d %H:%M")
+zoop.repmeans.bytaxa$Hour <- as.POSIXct(zoop.repmeans.bytaxa$Hour)
+
+#make sure zoop.repmeans is a dataframe
+zoop.repmeans <- data.frame(zoop.repmeans)
+zoop.repmeans.bytaxa <- data.frame(zoop.repmeans.bytaxa)
+
+#order by hour for plotting
+zoop.repmeans <- zoop.repmeans[order(zoop.repmeans$Hour),]
+
+zoop.repmeans.bytaxa <- zoop.repmeans.bytaxa[order(zoop.repmeans.bytaxa$Hour),]
+
+## Use round_date to round to nearest hour for plotting
+r <- round_date(zoop.repmeans$Hour, "hours")
+
+#subsetting repmeans into new df for DHM analyses/figs
+zoop_DHM<- zoop.repmeans[ zoop.repmeans$site_no=="BVR_50_p" | zoop.repmeans$site_no=="BVR_l",substrEnd(colnames(zoop.repmeans),14)!="Total_rep.mean" & substrEnd(colnames(zoop.repmeans),12)!="Total_rep.SE"]
+zoop_DHM_bytaxa<- zoop.repmeans.bytaxa[zoop.repmeans.bytaxa$site_no=="BVR_50_p" | zoop.repmeans.bytaxa$site_no=="BVR_l",]
+
+#convert new dfs fron tibble to dataframe 
+zoop_DHM <- data.frame(zoop_DHM)
+zoop_DHM_bytaxa <- data.frame(zoop_DHM_bytaxa)
+
+#-------------------#
+#  12-13 Aug 2020   #
+#-------------------#
+
+##Fig - time vs. total density and biomass for MSN #1 (12-13 Aug 2020)
+#jpeg("Figures/2020_ZoopTotalDensityandBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,1))
+par(mar = c(0,1,0,0))
+par(oma = c(3,3,2,3))
+
+plot(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_50_p"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+       xaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(0,max(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"]))+0.3)
+#using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+points(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_50_p"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+       pch=16, type="o", col="dark blue")
+arrows(zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"], zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_50_p"] - 
+       zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_50_p"], zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+       zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_50_p"] +zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_50_p"], 
+       length=0.05, angle=90, code=3)
+points(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+      pch=16, type="o", col="dark green")
+arrows(zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"], zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"] - 
+       zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_l"], zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+       zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"] +zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_l"], 
+       length=0.05, angle=90, code=3)
+box()
+mtext("Density (Individuals/L)", side=2, line=2.5, cex=1.3)
+legend("topleft", legend=c("Pelagic","","Littoral"), col=c("dark blue",NA, "dark green"), 
+       cex=1.5, pch=16, box.lty=0,bg="transparent")
+
+plot(zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_50_p"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+     xaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(0,max(zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_l"]))+20)
+#using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+points(zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_50_p"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+       pch=16, type="o", col="dark blue")
+arrows(zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"], zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_50_p"] - 
+         zoop_DHM$BiomassConcentration_ugpL_rep.SE[zoop_DHM$site_no=="BVR_50_p"], zoop_DHM$Hour[zoop_DHM$site_no=="BVR_50_p"],
+       zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_50_p"] +zoop_DHM$BiomassConcentration_ugpL_rep.SE[zoop_DHM$site_no=="BVR_50_p"], 
+       length=0.05, angle=90, code=3)
+points(zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_l"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+       pch=16, type="o", col="dark green")
+arrows(zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"], zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_l"] - 
+         zoop_DHM$BiomassConcentration_ugpL_rep.SE[zoop_DHM$site_no=="BVR_l"], zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+       zoop_DHM$BiomassConcentration_ugpL_rep.mean[zoop_DHM$site_no=="BVR_l"] +zoop_DHM$BiomassConcentration_ugpL_rep.SE[zoop_DHM$site_no=="BVR_l"], 
+       length=0.05, angle=90, code=3)
+mtext(expression(paste("Biomass (",mu,"g/L)")), side=2, line=2.5, cex=1.3)
+axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)
+title(main="12-13 Aug 2020", outer=TRUE)
+box()
+#dev.off()
+
+
+#-----------------------------------------------------------------------------------------------------#
+##Fig - simplified density plot over time to show littoral DHM 
+#jpeg("Figures/2020_ZoopTotalDensityOverTime_littoral.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(1,1))
+par(mar = c(0,1,0,0))
+par(oma = c(3,3,2,3))
+
+plot(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+       pch=16, type="o", col="dark green", ylim=c(0,500))
+#using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+points(zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"]~zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+        pch=16, type="o", col="dark green")
+arrows(zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"], zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"] - 
+       zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_l"], zoop_DHM$Hour[zoop_DHM$site_no=="BVR_l"],
+       zoop_DHM$ZoopDensity_No.pL_rep.mean[zoop_DHM$site_no=="BVR_l"] +zoop_DHM$ZoopDensity_No.pL_rep.SE[zoop_DHM$site_no=="BVR_l" ], 
+       length=0.05, angle=90, code=3)
+box()
+mtext("Density (Individuals/L)", side=2, line=2.5, cex=1)
+title(main="12-13 Aug 2020", outer=TRUE)
+#dev.off()
+
+
+#----------------------------------------------------------------------------------------------#
+##Fig - crustacean taxa density/biomass over 24 hrs
+taxa<- c("Cladocera","Rotifera","Cyclopoida","Calanoida")
+
+#jpeg("Figures/2020_ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+
+for(taxa.i in 1:length(taxa)){
+  plot(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")), 
+       ylim=c(0,(max(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]) + 
+                   max(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),], na.rm=TRUE))))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"],
+         pch=16, type="o", col="dark blue")
+  arrows(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"], zoop_DHM[zoop_DHM$site_no=="BVR_50_p",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),], zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"],
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] + zoop_DHM[zoop_DHM$site_no=="BVR_50_p",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),],
+           length=0.05, angle=90, code=3)
+  points(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"], zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),], zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] + zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),],
+           length=0.05, angle=90, code=3)
+
+  #add axis limits
+  if(taxa.i==3 | taxa.i==4) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  if(taxa.i==1 | taxa.i==3){axis(2,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep="")]))}
+  if(taxa.i==2 | taxa.i==4){axis(4,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep="")], n=3))}
+  #Label axis labels and panels for each taxa
+  mtext("Density (individuals/L)", side=2, line=2.5, cex=1.1, outer=TRUE)
+  mtext("Density (individuals/L)", side=4, line=2.5, cex=1.1, outer=TRUE)
+  mtext(taxa[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2)
+  #add legend at bottom right
+  if(taxa.i==2){legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"), 
+         cex=0.8, pch=16, horiz = FALSE, box.lty=0, bg="transparent")}
+box()
+title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+
+#----------------------------------------------------------------------------------------------#
+##Fig - simplified density plot over time to show littoral DHM 
+#jpeg("Figures/2020_ZoopTaxaDensityOverTime_littoral.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+
+for(taxa.i in 1:length(taxa)){
+  plot(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]~
+       zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark green",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")), 
+       ylim=c(0,max(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]+ 50 +
+       na.omit(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),]))))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),100000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),]~
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"], 
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),], 
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.mean",sep=""),] + 
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_density_NopL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  #add axis limits
+  if(taxa.i==3 | taxa.i==4) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  if(taxa.i==1 | taxa.i==3) {axis(2,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep="")],n=4))}
+  if(taxa.i==2 | taxa.i==4) {axis(4,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_density_NopL_rep.mean",sep="")], n=3))}
+  
+  #Label axis labels and panels for each taxa
+  mtext("Littoral Density (individuals/L)", side=2, line=2.5, cex=1.5, outer=TRUE)
+  mtext(taxa[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2)
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+  }
+  #dev.off()
+
+#------------------------------------------------------------------------------------------------#
+##Fig - biomass plot over time to show littoral DHM 
+#jpeg("Figures/2020_ZoopTaxaBiomassOverTime_littoral.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+
+for(taxa.i in 1:length(taxa)){
+  plot(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark green",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")), 
+       ylim=c(0,max(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]+
+                      na.omit(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),]))))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"], 
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+         zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  #add axis limits
+  if(taxa.i==3 | taxa.i==4) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  #if(taxa.i==1){axis(2,cex=1.2, at=c(0,3,6,9))} 
+  #if(taxa.i==2){axis(4,cex=1.2, at=c(0,10,20,30,40))} 
+  if(taxa.i==1 | taxa.i==3) {axis(2,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")],n=3))}
+  if(taxa.i==2 | taxa.i==4) {axis(4,cex=1.2, at=pretty(zoop_DHM[zoop_DHM$site_no=="BVR_l",paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")],n=3))}
+  
+  #Label axis labels and panels for each taxa
+  mtext(expression(paste("Biomass (",mu,"g/L)")), side=2, line=2.5, cex=1.1, outer=TRUE)
+  mtext(expression(paste("Biomass (",mu,"g/L)")), side=4, line=2.5, cex=1.1, outer=TRUE)
+  mtext(taxa[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2)
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+
+  
+#----------------------------------------------------------------------------------------------------#
+#jpeg("Figures/2020_ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+
+  for(taxa.i in 1:length(taxa)){
+  plot(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+     zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour",],
+     xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")),
+     ylim=c(0,max(zoop_DHM[(zoop_DHM$site_no=="BVR_50_p"| zoop_DHM$site_no=="BVR_l"), paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")]+
+                  zoop_DHM[(zoop_DHM$site_no=="BVR_50_p"| zoop_DHM$site_no=="BVR_l"), paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep="")],na.rm=TRUE)))
+    #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+    rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+    points(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour",],
+           pch=16, type="o", col="dark blue")
+    arrows(zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"], 
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", "Hour"],
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+           zoop_DHM[zoop_DHM$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+           length=0.05, angle=90, code=3)
+    points(zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour",],
+           pch=16, type="o", col="dark green")
+    arrows(zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"], 
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", "Hour"],
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+           zoop_DHM[zoop_DHM$site_no=="BVR_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+           length=0.05, angle=90, code=3)
+    
+#add axis limits
+if(taxa.i==3 | taxa.i==4) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+if(taxa.i==1 | taxa.i==3) {axis(2,cex=1.2, at=pretty(zoop_DHM[,paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")], n=3))}
+if(taxa.i==2 | taxa.i==4) {axis(4,cex=1.2, at=pretty(zoop_DHM[,paste(taxa[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")]))}
+#Label axis labels and panels for each taxa
+mtext(expression(paste("Biomass (",mu,"g/L)")), side=2, line=2.5, cex=1, outer=TRUE)
+mtext(expression(paste("Biomass (",mu,"g/L)")), side=4, line=2.5, cex=1, outer=TRUE)
+mtext(taxa[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2)
+#add legend at bottom right
+if(taxa.i==2){legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"), 
+                     cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent",xjust=1)}
+box()
+title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+  
+#-------------------------------------------------------------------------------------------------------#
+##Fig - more taxa specific density over 24 hrs
+taxa2<- c("Daphnia","Ceriodaphnia","Bosminidae","Cyclopoida","Calanoida","nauplius","Keratella","Kellicottia","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae")
+
+#jpeg("Figures/2020_ZoopTaxa2Density_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(4,3))
+par(mar = c(1,1,1,1))
+par(oma = c(1,4,1,1))
+
+for(taxa.i in 1:length(taxa2)){
+  plot(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")), 
+       ylim=c(0,(max(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),],zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]) + 
+                   max(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),], na.rm=TRUE))))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"],
+         pch=16, type="o", col="dark blue")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"], zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p" , paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),], zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] + zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]~zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"], zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),], zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] + zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  
+  #add axis limits
+  if(taxa.i>9) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  axis(2,cex=1.2, at=pretty(zoop_DHM_bytaxa[,paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep="")],n=3))
+  
+  #Label axis labels and panels for each taxa
+  mtext("Density (individuals/L)", side=2, line=2.5, cex=1.1, outer=TRUE)
+  if(taxa.i==6) {mtext("Nauplius", side=3, adj=0.02, line=-1.2, cex=1.2) } else(
+    mtext(taxa2[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2))
+  #add legend at top right
+  if(taxa.i==3){legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"), 
+                       cex=0.8, pch=16, horiz = FALSE, box.lty=0, bg="transparent")}
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+}
+  #dev.off()
+  
+#-------------------------------------------------------------------------------------------------#
+#Biomass Fig - all taxa over 24-hours at pelagic and littoral
+#jpeg("Figures/2020_ZoopTaxa2Biomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(4,3))
+par(mar = c(1,1,1,1))
+par(oma = c(1,4,1,1))
+
+for(taxa.i in 1:length(taxa2)){
+  plot(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour",],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")),
+       ylim=c(0,max(zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_50_p"| zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")]+
+                      zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_50_p"| zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep="")],na.rm=TRUE)))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour",],
+         pch=16, type="o", col="dark blue")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_50_p", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  
+  #add axis limits
+  if(taxa.i>9) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  axis(2,cex=1.2, at=pretty(zoop_DHM_bytaxa[,paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")], n=3))
+  #Label axis labels and panels for each taxa
+  mtext(expression(paste("Biomass (",mu,"g/L)")), side=2, line=2.5, cex=1, outer=TRUE)
+  if(taxa.i==6) {mtext("Nauplius", side=3, adj=0.02, line=-1.2, cex=1.2) } else(
+    mtext(taxa2[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2))
+  #add legend at bottom right
+  if(taxa.i==3){legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"), 
+     cex=0.8, pch=16, box.lty=0,bg="transparent",xjust=1)}
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+
+#----------------------------------------------------------------------------------------------#
+#Biomass - littoral taxa
+#jpeg("Figures/2020_ZoopTaxaBiomassOverTime_littoral.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(4,3)) 
+par(mar = c(1,1,1,1))
+par(oma = c(1,4,1,1))
+
+for(taxa.i in 1:length(taxa2)){
+  plot(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",],
+         xaxt='n', yaxt='n', xlab="",pch=16, type="o",col="dark green",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")),
+         ylim=c(0,max(zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")]+
+         zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep="")],na.rm=TRUE)))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),]~
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] -
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep=""),] + 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  #add axis limits
+  if(taxa.i>9) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  axis(2,cex=1.2, at=pretty(zoop_DHM_bytaxa[,paste(taxa2[taxa.i],"_BiomassConcentration_ugpL_rep.mean",sep="")], n=3))
+  #Label axis labels and panels for each taxa
+  mtext(expression(paste("Biomass (",mu,"g/L)")), side=2, line=2.5, cex=1, outer=TRUE)
+  if(taxa.i==6) {mtext("Nauplius", side=3, adj=0.02, line=-1.2, cex=1.2) } else(
+  mtext(taxa2[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2))
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+
+#----------------------------------------------------------------------------------------------#
+#Density - littoral taxa
+#jpeg("Figures/2020_ZoopTaxaDensityOverTime_littoral.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(4,3)) 
+par(mar = c(1,1,1,1))
+par(oma = c(1,4,1,1))
+
+for(taxa.i in 1:length(taxa2)){
+  plot(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]~
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",],
+       xaxt='n', yaxt='n', xlab="",pch=16, type="o",col="dark green",xlim=as.POSIXct(c("2020-08-12 10:40:00","2020-08-13 13:20:00")),
+       ylim=c(0,max(zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep="")]+
+                      zoop_DHM_bytaxa[(zoop_DHM_bytaxa$site_no=="BVR_l"), paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep="")],na.rm=TRUE)))
+  #using rect to shade between 12Aug20 sunset (20:17) and 13Aug20 sunrise (06:37)
+  rect(as.POSIXct("2020-08-12 20:17:00"),-1000,as.POSIXct("2020-08-13 06:37:00"),10000,angle = 45,col = "light gray", border = NA)
+  points(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),]~
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",],
+         pch=16, type="o", col="dark green")
+  arrows(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour",], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] -
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),], 
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", "Hour"],
+         zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep=""),] + 
+           zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l", paste(taxa2[taxa.i],"_density_NopL_rep.SE",sep=""),],
+         length=0.05, angle=90, code=3)
+  #add axis limits
+  if(taxa.i>9) {axis.POSIXct(1,at=seq(r[1],r[25], by="6 hours"), format = "%H:%M", labels=TRUE)}
+  axis(2,cex=1.2, at=pretty(zoop_DHM_bytaxa[zoop_DHM_bytaxa$site_no=="BVR_l",paste(taxa2[taxa.i],"_density_NopL_rep.mean",sep="")], n=4))
+  #Label axis labels and panels for each taxa
+  mtext("Density (individual/L)", side=2, line=2.5, cex=1, outer=TRUE)
+  if(taxa.i==6) {mtext("Nauplius", side=3, adj=0.02, line=-1.2, cex=1.2) } else(
+    mtext(taxa2[taxa.i], side = 3, adj = 0.02,line = -1.2, cex=1.2))
+  box()
+  title(main="12-13 Aug 2020", outer=TRUE)
+}
+#dev.off()
+
+#--------------------------------------#
+#       BVR epi vs hypo figures!!      #
+#Note: oxycline = epi sample depth (4m)#
+#--------------------------------------#
+
+#sum up counts by sample/site/day for DVM analyses + figs
+BVR_counts <- zoop %>% select(sample_ID,site_no,collect_date,Hour, OverallCount_n,
+  CladoceraCount_n, CyclopoidaCount_n, RotiferaCount_n, CalanoidaCount_n) %>%
+  group_by(sample_ID, site_no, Hour, collect_date) %>%
+  summarise_at(vars(OverallCount_n:CalanoidaCount_n), funs(rep.mean=mean, rep.SE=stderr))
+
+#add unadjusted volume
+BVR_counts$Volume_unadj<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_unadj) %>%
+  group_by(sample_ID, site_no, Hour, collect_date) %>%
+  summarise_at(vars(Volume_unadj),funs(rep.mean=mean)))$rep.mean
+
+#add proportional volume for numerator hypo calc
+BVR_counts$proportional_vol<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, proportional_vol) %>%
+  group_by(sample_ID, site_no, Hour, collect_date) %>%
+  summarise_at(vars(proportional_vol),funs(rep.mean=mean)))$rep.mean
+
+#get BVR_counts df in same order as zoop.repmeans df
+BVR_counts<- BVR_counts[order(match(paste0(BVR_counts$sample_ID,BVR_counts$site_no,BVR_counts$collect_date), 
+                                    paste0(zoop.repmeans$sample_ID,zoop.repmeans$site_no,zoop.repmeans$collect_date))),]
+
+#add counts and vol to zoop.repmeans
+zoop.repmeans[,paste0(colnames(BVR_counts[5:16]))]<- BVR_counts[5:16]
+
+#new dfs for DVM data (BVR_pelagic_DVM_raw is just raw #/ug; BVR_pelagic_DVM_vol_calculated is #/L and ug/L)
+BVR_pelagic_DVM<- zoop.repmeans[(zoop.repmeans$site_no=="BVR_50" |zoop.repmeans$site_no=="BVR_50_p") &
+                                 (substrEnd(zoop.repmeans$sample_ID,5)=="night" | substrEnd(zoop.repmeans$sample_ID,4)=="noon" |
+                                 substrEnd(zoop.repmeans$sample_ID,9)=="night_epi" | substrEnd(zoop.repmeans$sample_ID,8)=="noon_epi" |
+                                 substrEnd(zoop.repmeans$sample_ID,5)=="cline"),] 
+
+#only select volume, count, and ug cols (plus SE cols)
+BVR_pelagic_DVM_raw<- BVR_pelagic_DVM[,c(1:4,59,60,which(substrEnd(colnames(BVR_pelagic_DVM),10)=="n_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),11)=="ug_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),8)=="n_rep.SE"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),9)=="ug_rep.SE"))]
+
+BVR_pelagic_DVM_vol_calculated <- BVR_pelagic_DVM[,c(1:4,which(substrEnd(colnames(BVR_pelagic_DVM),16)=="y_No.pL_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),15)=="y_NopL_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),15)=="n_ugpL_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),13)=="n_ugpL_rep.SE"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),14)=="y_No.pL_rep.SE"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),13)=="y_NopL_rep.SE"))]
+
+#another one for percent calcs
+BVR_pelagic_DVM_percent<- BVR_pelagic_DVM[,c(1:4,59,60,which(substrEnd(colnames(BVR_pelagic_DVM),14)=="Total_rep.mean"),
+                                     which(substrEnd(colnames(BVR_pelagic_DVM),12)=="Total_rep.SE"))]
+  
+#initialize df
+BVR.DVM.calcs<- data.frame("Hour"=unique(BVR_pelagic_DVM_raw$Hour))
+  
+#for loop to fill out epi vs hypo calcs 
+#hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
+#NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. 
+column.names<- colnames(BVR_pelagic_DVM_vol_calculated[,c(5:14)])
+variables<- colnames(BVR_pelagic_DVM_raw[,c(7:16)])
+percent<- colnames(BVR_pelagic_DVM_percent[,c(7:10)])
+for(i in 1:length(variables)){
+  BVR.DVM.calcs[,paste0(column.names,"_epi")[i]]<- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
+  BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/0.051)) - 
+                                                     ((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "proportional_vol"]) *  BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]]* (1/0.31)))/
+                                                     (BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj"] - BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "Volume_unadj"])  
+
+}
+density.percent<- colnames(BVR_pelagic_DVM_vol_calculated[,c(6:9)])
+for(i in 1:length(density.percent)){
+for(j in 1:length(unique(BVR.DVM.calcs$Hour))){
+    BVR.DVM.calcs[j,paste0(density.percent,"_epi_percent_density")[i]]<- (BVR.DVM.calcs[j,paste0(density.percent,"_epi")][i]/ sum(BVR.DVM.calcs[j,paste0(density.percent,"_epi")[i]],BVR.DVM.calcs[j,paste0(density.percent,"_hypo")[i]])) *100
+    BVR.DVM.calcs[j,paste0(density.percent,"_hypo_percent_density")[i]]<- (BVR.DVM.calcs[j,paste0(density.percent,"_hypo")][i]/ sum(BVR.DVM.calcs[j,paste0(density.percent,"_epi")[i]],BVR.DVM.calcs[j,paste0(density.percent,"_hypo")[i]])) * 100
+
+}       
+}
+
+#initialize df
+BVR.DVM.calcs.SE<- data.frame("Hour"=unique(BVR_pelagic_DVM_raw$Hour))
+
+#not sure if this is right, but calculating SE of difference between epi mean and hypo mean
+SE.diffMean<- function(x,y){
+  sqrt((sd(x,na.rm=TRUE)^2/length(na.omit(x))) + 
+         (sd(y,na.rm=TRUE)^2/length(na.omit(y))))
+}
+
+#pull only noon/midnight samples
+DVM_samples_raw <- zoop[(substrEnd(zoop$sample_ID,4)=="noon" | substrEnd(zoop$sample_ID,5)=="night" | substrEnd(zoop$sample_ID,8)=="noon_epi" | substrEnd(zoop$sample_ID,9)=="night_epi") & zoop$site_no!="BVR_l",]
+matchingcols <- match(substr(colnames(BVR_pelagic_DVM_raw[1:16]),1,14),substr(colnames(DVM_samples_raw),1,14))
+DVM_samples_raw<- DVM_samples_raw[,unique(matchingcols)]
+                        
+DVM_samples_dens <- zoop[(substrEnd(zoop$sample_ID,4)=="noon" | substrEnd(zoop$sample_ID,5)=="night" | substrEnd(zoop$sample_ID,8)=="noon_epi" | substrEnd(zoop$sample_ID,9)=="night_epi") & zoop$site_no!="BVR_l",]
+matchingcols <- match(substr(colnames(BVR_pelagic_DVM_vol_calculated [,c(1:4,6:9)]),1,14),substr(colnames(DVM_samples_dens),1,14))
+DVM_samples_dens<- DVM_samples_dens[,unique(matchingcols)] 
+
+#separate full vs epi samples
+FullSamples <- unique(DVM_samples_raw$sample_ID)[1:3]
+EpiSamples<- unique(DVM_samples_raw$sample_ID)[4:6]
+
+#calculate hypo SE 
+SEonly<- colnames(DVM_samples_raw)[7:16]
+Percentdens <- colnames(DVM_samples_dens)[5:8]
+
+for(i in 1:length(SEonly)){
+  BVR.DVM.calcs.SE[,paste0(column.names,"_epi_SE")[i]] <- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",substrEnd(colnames(BVR_pelagic_DVM_vol_calculated),2)=="SE"][i]
+  BVR.DVM.calcs.SE[1,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_samples_raw[DVM_samples_raw$sample_ID==FullSamples[1],paste0(SEonly)[i]],
+                                                                      DVM_samples_raw[DVM_samples_raw$sample_ID==EpiSamples[1],paste0(SEonly)[i]])
+  BVR.DVM.calcs.SE[2,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_samples_raw[DVM_samples_raw$sample_ID==FullSamples[2],paste0(SEonly)[i]],
+                                                                       DVM_samples_raw[DVM_samples_raw$sample_ID==EpiSamples[2],paste0(SEonly)[i]])
+  BVR.DVM.calcs.SE[3,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_samples_raw[DVM_samples_raw$sample_ID==FullSamples[3],paste0(SEonly)[i]],
+                                                                       DVM_samples_raw[DVM_samples_raw$sample_ID==EpiSamples[3],paste0(SEonly)[i]])
+  } #Note: just repeating hypo SE calc for each date because I can't figure out the for loop across rows and columns...
+
+
+  for (j in 1:length(Percentdens)){
+  BVR.DVM.calcs.SE[,paste0(Percentdens,"_epi_percent_density_SE")[j]]<- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",substrEnd(colnames(BVR_pelagic_DVM_vol_calculated),11)=="NopL_rep.SE"][j]
+  BVR.DVM.calcs.SE[1,paste0(Percentdens,"_hypo_percent_density_SE")[j]] <- SE.diffMean(DVM_samples_dens[DVM_samples_dens$sample_ID==FullSamples[1],paste0(Percentdens)[j]],
+                                                                                      DVM_samples_dens[DVM_samples_dens$sample_ID==EpiSamples[1],paste0(Percentdens)[j]])
+  BVR.DVM.calcs.SE[2,paste0(Percentdens,"_hypo_percent_density_SE")[j]] <- SE.diffMean(DVM_samples_dens[DVM_samples_dens$sample_ID==FullSamples[2],paste0(Percentdens)[j]],
+                                                                                       DVM_samples_dens[DVM_samples_dens$sample_ID==EpiSamples[2],paste0(Percentdens)[j]])
+  BVR.DVM.calcs.SE[3,paste0(Percentdens,"_hypo_percent_density_SE")[j]] <- SE.diffMean(DVM_samples_dens[DVM_samples_dens$sample_ID==FullSamples[3],paste0(Percentdens)[j]],
+                                                                                          DVM_samples_dens[DVM_samples_dens$sample_ID==EpiSamples[3],paste0(Percentdens)[j]])
+  }
+
+#wide to long for both dfs separately
+BVR.DVM.calcs.long <-  BVR.DVM.calcs %>%
+    gather(metric,value, ZoopDensity_No.pL_rep.mean_epi:Calanoida_density_NopL_rep.mean_hypo_percent_density) %>%
+    mutate(DateTime = strftime(Hour, "%m-%d-%Y %H:%M"))
+BVR.DVM.calcs.SE.long <-  BVR.DVM.calcs.SE %>%
+gather(taxa.metric,SE,ZoopDensity_No.pL_rep.mean_epi_SE:Calanoida_density_NopL_hypo_percent_density_SE)
+
+#add the SE column from df2 to df1 for combined df
+BVR.DVM.calcs.long$SE <- BVR.DVM.calcs.SE.long$SE
+
+#add watercolumn and hour columns
+BVR.DVM.calcs.long$WaterColumn <- ifelse((substrEnd(BVR.DVM.calcs.long$metric,3)=="epi" |substrEnd(BVR.DVM.calcs.long$metric,19)=="epi_percent_density") ,"epilimnion","hypolimnion")
+BVR.DVM.calcs.long$Hour <- ifelse(substrEnd(BVR.DVM.calcs.long$DateTime,5)=="12:00","noon","midnight")
+BVR.DVM.calcs.long$Taxa <- substr(BVR.DVM.calcs.long$metric,1,9)
+
+#shorten date time to just date
+BVR.DVM.calcs.long$DateTime <- substr(BVR.DVM.calcs.long$DateTime,1,nchar(BVR.DVM.calcs.long$DateTime)-6)
+
+#ridiculous way to work with these stupid facet labels
+facet_labeller_bot <- function(variable, value) {
+  rep("",8)
+}
+
+facet_labeller_top <- function(variable, value) {
+  c("","","","Midnight","","","","Noon")
+}
+
+#-------------------------------------------------------#
+#        Create new df with more diverse taxa           # 
+# subsetting repmeans into new df for DVM analyses/figs #
+#-------------------------------------------------------#
+
+#sum up counts by sample/site/day for DVM analyses + figs
+BVR_counts_moretaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, DaphniaCount_n,
+    CeriodaphniaCount_n,BosminidaeCount_n,CalanoidaCount_n,CyclopoidaCount_n,
+    naupliusCount_n,KeratellaCount_n,KellicottiaCount_n,CollothecidaeCount_n,
+    ConochilidaeCount_n,SynchaetidaeCount_n,TrichocercidaeCount_n) %>%
+    group_by(sample_ID, site_no, Hour, collect_date) %>%
+    summarise_at(vars(DaphniaCount_n:TrichocercidaeCount_n), funs(rep.mean=mean, rep.SE=stderr))
+
+#add unadjusted volume
+BVR_counts_moretaxa$Volume_unadj<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_unadj) %>%
+   group_by(sample_ID, site_no, Hour, collect_date) %>%
+   summarise_at(vars(Volume_unadj),funs(rep.mean=mean)))$rep.mean
+
+#add proportional volume (aliquot vol/ total diluted sample volume)
+BVR_counts_moretaxa$proportional_vol <- (zoop %>% select(sample_ID,site_no,collect_date,Hour, proportional_vol) %>%
+  group_by(sample_ID, site_no, Hour, collect_date) %>%
+  summarise_at(vars(proportional_vol),funs(rep.mean=mean)))$rep.mean
+
+#get BVR_counts df in same order as zoop.repmeans df
+BVR_counts_moretaxa<- BVR_counts_moretaxa[order(match(paste0(BVR_counts_moretaxa$sample_ID,BVR_counts_moretaxa$site_no,BVR_counts_moretaxa$collect_date), 
+   paste0(zoop.repmeans.bytaxa$sample_ID,zoop.repmeans.bytaxa$site_no,zoop.repmeans.bytaxa$collect_date))),]
+
+#add counts and vol and SE to zoop.repmeans
+zoop.repmeans.bytaxa[,paste0(colnames(BVR_counts_moretaxa[5:30]))]<- BVR_counts_moretaxa[5:30]
+
+#new dfs for DVM data (BVR_pelagic_DVM_raw is just raw #/ug; BVR_pelagic_DVM_vol_calculated is #/L and ug/L)
+BVR_pelagic_taxa_DVM<- zoop.repmeans.bytaxa[(zoop.repmeans.bytaxa$site_no=="BVR_50" |zoop.repmeans.bytaxa$site_no=="BVR_50_p") &
+     (substrEnd(zoop.repmeans.bytaxa$sample_ID,5)=="night" | substrEnd(zoop.repmeans.bytaxa$sample_ID,4)=="noon" |
+      substrEnd(zoop.repmeans.bytaxa$sample_ID,9)=="night_epi" | substrEnd(zoop.repmeans.bytaxa$sample_ID,8)=="noon_epi" |
+      substrEnd(zoop.repmeans.bytaxa$sample_ID,5)=="cline"),] 
+
+#only select volume, count, and ug cols (plus SE cols)
+BVR_pelagic_taxa_DVM_raw<- BVR_pelagic_taxa_DVM[,c(1:4,101,102,which(substrEnd(colnames(BVR_pelagic_taxa_DVM),10)=="n_rep.mean"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),11)=="ug_rep.mean"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),8)=="n_rep.SE"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),9)=="ug_rep.SE"))]
+
+BVR_pelagic_taxa_DVM_vol_calculated <- BVR_pelagic_taxa_DVM[,c(1:4,which(substrEnd(colnames(BVR_pelagic_taxa_DVM),15)=="y_NopL_rep.mean"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),15)=="n_ugpL_rep.mean"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),13)=="n_ugpL_rep.SE"),
+     which(substrEnd(colnames(BVR_pelagic_taxa_DVM),13)=="y_NopL_rep.SE"))]
+
+#initialize df
+BVR.DVM.taxa.calcs<- data.frame("Hour"=unique(BVR_pelagic_taxa_DVM_raw$Hour))
+
+#for loop to fill out epi vs hypo calcs (using 4m as oxycline for MSN 1, but this should be changed to oxycline sample once available!)
+column.names<- colnames(BVR_pelagic_taxa_DVM_vol_calculated[,c(5:28)])
+variables<- colnames(BVR_pelagic_taxa_DVM_raw[,c(7:30)])
+for(i in 1:length(variables)){
+  BVR.DVM.taxa.calcs[,paste0(column.names,"_epi")[i]]<- BVR_pelagic_taxa_DVM_vol_calculated[substrEnd(BVR_pelagic_taxa_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
+  BVR.DVM.taxa.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)!="epi" , "proportional_vol"]) * BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]]) - 
+                                                             ((1/BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol"]) * BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]])) /
+    (BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj"] - BVR_pelagic_taxa_DVM_raw[substrEnd(BVR_pelagic_taxa_DVM_raw$sample_ID,3)=="epi", "Volume_unadj"])  
+}
+
+#initialize df
+BVR.DVM.taxa.calcs.SE<- data.frame("Hour"=unique(BVR_pelagic_taxa_DVM_raw$Hour))
+
+#pull only noon/midnight samples
+DVM_taxa_samples_raw <- zoop[(substrEnd(zoop$sample_ID,4)=="noon" | substrEnd(zoop$sample_ID,5)=="night" | substrEnd(zoop$sample_ID,8)=="noon_epi" | substrEnd(zoop$sample_ID,9)=="night_epi") & zoop$site_no!="BVR_l",]
+matchingcols <- match(substr(colnames(BVR_pelagic_taxa_DVM_raw[1:30]),1,15),substr(colnames(DVM_taxa_samples_raw),1,15))
+#manually replace NA with 117 (DaphniaCount_n is too short) and manually choose Trichocercidae_totalbiomass_ug (wants to pull percent because string too long; #175)
+matchingcols[7]<-117
+matchingcols[30]<- 175
+DVM_taxa_samples_raw<- DVM_taxa_samples_raw[,unique(matchingcols)]
+
+#calculate epi and hypo SE 
+SEonly<- colnames(DVM_taxa_samples_raw)[7:30]
+for(i in 1:length(SEonly)){
+  BVR.DVM.taxa.calcs.SE[,paste0(column.names,"_epi_SE")[i]] <- BVR_pelagic_taxa_DVM_vol_calculated[substrEnd(BVR_pelagic_taxa_DVM_vol_calculated$sample_ID,3)=="epi",substrEnd(colnames(BVR_pelagic_taxa_DVM_vol_calculated),2)=="SE"][i]
+  BVR.DVM.taxa.calcs.SE[1,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==FullSamples[1],paste0(SEonly)[i]],
+                                                                       DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==EpiSamples[1],paste0(SEonly)[i]])
+  BVR.DVM.taxa.calcs.SE[2,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==FullSamples[2],paste0(SEonly)[i]],
+                                                                       DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==EpiSamples[2],paste0(SEonly)[i]])
+  BVR.DVM.taxa.calcs.SE[3,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==FullSamples[3],paste0(SEonly)[i]],
+                                                                       DVM_taxa_samples_raw[DVM_taxa_samples_raw$sample_ID==EpiSamples[3],paste0(SEonly)[i]])
+} #Note: just repeating hypo SE calc for each date because I can't figure out the for loop across rows and columns...
+
+#wide to long for both dfs separately
+BVR.DVM.taxa.calcs.long <-  BVR.DVM.taxa.calcs %>%
+  gather(metric,value, Daphnia_density_NopL_rep.mean_epi:Trichocercidae_BiomassConcentration_ugpL_rep.mean_hypo) %>%
+  mutate(DateTime = strftime(Hour, "%m-%d-%Y %H:%M"))
+BVR.DVM.taxa.calcs.SE.long <-  BVR.DVM.taxa.calcs.SE %>%
+  gather(taxa.metric,SE,Daphnia_density_NopL_rep.mean_epi_SE:Trichocercidae_BiomassConcentration_ugpL_rep.mean_hypo_SE) 
+
+#add the SE column from df2 to df1 for combined df
+BVR.DVM.taxa.calcs.long$SE <- BVR.DVM.taxa.calcs.SE.long$SE
+
+#add watercolumn and hour columns
+BVR.DVM.taxa.calcs.long$WaterColumn <- ifelse(substrEnd(BVR.DVM.taxa.calcs.long$metric,3)=="epi","epilimnion","hypolimnion")
+BVR.DVM.taxa.calcs.long$Hour <- ifelse(substrEnd(BVR.DVM.taxa.calcs.long$DateTime,5)=="12:00","noon","midnight")
+BVR.DVM.taxa.calcs.long$Taxa <- substr(BVR.DVM.taxa.calcs.long$metric,1,9)
+
+#shorten date time to just date
+BVR.DVM.taxa.calcs.long$DateTime <- substr(BVR.DVM.taxa.calcs.long$DateTime,1,nchar(BVR.DVM.taxa.calcs.long$DateTime)-6)
+
+#-----------------------#
+#  Epi vs Hypo figures  #
+#-----------------------#
+
+#df for percent density calcs
+BVR.DVM.percent.dens.calcs<- BVR.DVM.calcs.long[substrEnd(BVR.DVM.calcs.long$metric,15)=="percent_density",]
+
+#replace NAN with 0
+BVR.DVM.percent.dens.calcs$value <- ifelse(is.na(BVR.DVM.percent.dens.calcs$value), 0, BVR.DVM.percent.dens.calcs$value)
+
+#drop total density and biomass rows
+BVR.DVM.calcs.long<- BVR.DVM.calcs.long[!(BVR.DVM.calcs.long$metric=="ZoopDensity_No.pL_rep.mean_epi" | BVR.DVM.calcs.long$metric=="ZoopDensity_No.pL_rep.mean_hypo" | BVR.DVM.calcs.long$metric=="BiomassConcentration_ugpL_rep.mean_epi" |BVR.DVM.calcs.long$metric=="BiomassConcentration_ugpL_rep.mean_hypo" | substrEnd(BVR.DVM.calcs.long$metric,15)=="percent_density"),] 
+#reorder 
+BVR.DVM.calcs.long$Taxa <- factor(BVR.DVM.calcs.long$Taxa, levels = c("Cladocera","Rotifera_","Cyclopoid","Calanoida"))
+
+#Epi vs hypo taxa density for 12-13 Aug 2020
+#jpeg("Figures/BVR_epivshypo_density_12Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.calcs.long, grepl("density",metric,ignore.case = TRUE) & DateTime =="08-12-2020"), aes(x=WaterColumn, y=value)) +
+    geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+    geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+    facet_wrap(~Taxa, scales= 'free_y',ncol=4, strip.position = "right", labeller=as_labeller(function(variable,value){c("","","","Noon")})) +
+    theme(strip.text.y = element_text(size = 10,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank(), plot.margin = margin(2.8,0,2,0,unit = "cm")) + 
+    scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="12 Aug 2020 Noon") + 
+    scale_fill_manual(values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida"),drop=TRUE) +
+    geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+       axis.text.x=element_text(size=9,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
+    theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1), legend.title = element_text(size=10),legend.key.size = unit(0.3,"cm"),
+        legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),axis.text.y = element_text(size=10, family="Times"))
+#dev.off()
+
+#jpeg("Figures/BVR_epivshypo_biomass_12Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.calcs.long, grepl("biomass",metric,ignore.case = TRUE) & DateTime =="08-12-2020"), aes(x=WaterColumn, y=value)) +
+  geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=as_labeller(function(variable,value){c("","","","Noon")})) +
+  theme(strip.text.y = element_text(size = 10,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank(), plot.margin = margin(2.8,0,2,0,unit = "cm")) + 
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="12 Aug 2020 Noon") + 
+  scale_fill_manual(values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
+  geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+     axis.text.x=element_text(size=9,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
+  theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1), legend.title = element_text(size=10),legend.key.size = unit(0.3,"cm"),
+        legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),axis.text.y = element_text(size=10, family="Times"))
+#dev.off()
+
+  #jpeg("Figures/BVR_epivshypo_density_13Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.calcs.long, grepl("density",metric,ignore.case = TRUE) & DateTime=="08-13-2020"), aes(x=WaterColumn, y=value)) +
+    geom_rect(data=subset(BVR.DVM.calcs.long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
+         aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
+    geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+    geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+    facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
+    theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+    scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="13 Aug 2020") + guides(alpha=FALSE) +
+    scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
+    geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+         axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
+    theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), axis.text.y = element_text(size=13, family="Times"),
+          legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
+   #dev.off()
+
+ #Epi vs hypo taxa biomass 
+#jpeg("Figures/BVR_epivshypo_biomass_13Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.calcs.long, grepl("biomass",metric,ignore.case = TRUE) & DateTime=="08-13-2020"), aes(x=WaterColumn, y=value)) +
+   geom_rect(data=subset(BVR.DVM.calcs.long,Hour == 'midnight' &grepl("biomass",metric,ignore.case = TRUE)),
+           aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
+   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
+   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+   scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="13 Aug 2020") +  guides(alpha=FALSE) +
+   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
+   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+            axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
+      theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), axis.text.y = element_text(size=13, family="Times"),
+            legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
+  #dev.off()
+  
+#reorder taxa
+BVR.DVM.percent.dens.calcs$Taxa <- factor(BVR.DVM.percent.dens.calcs$Taxa, levels = c("Cladocera","Rotifera_","Cyclopoid","Calanoida"))
+
+####Epi vs hypo taxa percent density figs ####
+#jpeg("Figures/BVR_epivshypo_percent_density_12Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.percent.dens.calcs,  DateTime=="08-12-2020"), aes(x=WaterColumn, y=value)) +
+  geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=as_labeller(function(variable,value){c("","","","noon")})) +
+  theme(strip.text.y = element_text(size = 13 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="12 Aug 2020") + guides(alpha=FALSE) + 
+  scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
+  geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+                                  axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Percent Density") +
+  theme(legend.position = "bottom", legend.margin = margin(1, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), axis.text.y = element_text(size=13, family="Times"), axis.title.y = element_text(size=14, family="Times"), 
+        legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
+#dev.off()
+
+  #jpeg("Figures/BVR_epivshypo_percent_density_13Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.percent.dens.calcs,  DateTime=="08-13-2020"), aes(x=WaterColumn, y=value)) +
+    geom_rect(data=subset(BVR.DVM.percent.dens.calcs,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
+         aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
+    geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+    geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) + ylim(-20,150)+
+    facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
+    theme(strip.text.y = element_text(size = 13 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+    scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="13 Aug 2020") + guides(alpha=FALSE) + 
+    scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
+    geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+         axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Percent Density") +
+    theme(legend.position = "bottom", legend.margin = margin(1, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), axis.text.y = element_text(size=13, family="Times"), axis.title.y = element_text(size=14, family="Times"), 
+         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
+  #dev.off()
+
+
+###################################################
+# more diverse taxa figs
+
+#order taxa to get bars in correct order
+BVR.DVM.taxa.calcs.long$Taxa <- factor(BVR.DVM.taxa.calcs.long$Taxa, levels= c("Daphnia_d","Daphnia_B","Ceriodaph","Bosminida",
+             "Cyclopoid","Calanoida","nauplius_","Keratella","Kellicott","Collothec","Conochili","Synchaeti","Trichocer"))
+
+#jpeg("Figures/BVR_moretaxa_epivshypo_density_12Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.taxa.calcs.long, grepl("density",metric,ignore.case = TRUE) & DateTime =="08-12-2020"), aes(x=WaterColumn, y=value)) +
+  geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(~Taxa, scales= 'free',ncol=6, strip.position = "right", labeller=as_labeller(function(variable,value){c("","","","","","")}),drop=TRUE) +
+  theme(strip.text.y = element_text(size = 10,margin = margin(0, -0.03, 0,0.1, "cm")),strip.background = element_blank(), plot.margin = margin(1,0,1,0,unit = "cm")) + 
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="12 Aug 2020 Noon") + 
+  scale_fill_manual(values=rainbow(12),labels=taxa2) +
+  geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
+  theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1), legend.title = element_text(size=10),legend.key.size = unit(0.3,"cm"),
+        legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),axis.text.y = element_text(size=10, family="Times"))
+#dev.off()
+
+#jpeg("Figures/BVR_moretaxa_epivshypo_biomass_12Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.taxa.calcs.long, grepl("biomass",metric,ignore.case = TRUE) & DateTime =="08-12-2020"), aes(x=WaterColumn, y=value)) +
+  geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(~Taxa, scales= 'free',ncol=6, strip.position = "right", labeller=as_labeller(function(variable,value){c("","","","","","")})) +
+  theme(strip.text.y = element_text(size = 10,margin = margin(0, -0.03, 0,0.1, "cm")),strip.background = element_blank(), plot.margin = margin(1,0,1,0,unit = "cm")) + 
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="12 Aug 2020 Noon") + 
+  scale_fill_manual(values=rainbow(12),labels=taxa2) +
+  geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        axis.text.x=element_text(size=7,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
+  theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1), legend.title = element_text(size=10),legend.key.size = unit(0.3,"cm"),
+        legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),axis.text.y = element_text(size=10, family="Times"))
+#dev.off()
+
+#ridiculous way to work with these stupid facet labels
+facet_labeller_bot <- function(variable, value) {
+  rep("",24)
+}
+
+facet_labeller_top <- function(variable, value) {
+  c("","","","","","Midnight","","","","","","Midnight","","","","","","Noon","","","","","","Noon")
+}
+
+#Epi vs hypo taxa density and biomass 13 Aug2020
+  #jpeg("Figures/BVR_epivshypo_density_13Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.taxa.calcs.long, grepl("density",metric,ignore.case = TRUE) & DateTime=="08-13-2020"), aes(x=WaterColumn, y=value)) +
+    geom_rect(data=subset(BVR.DVM.taxa.calcs.long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
+           aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
+    geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+    geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+    facet_wrap(Hour~Taxa, scales= 'free',ncol=6, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
+    theme(strip.text.y = element_text(size = 0 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+    scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="13 Aug 2020") + 
+    scale_fill_manual("Taxa",values=rainbow(12),labels=taxa2) +
+    geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+          axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
+    theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0.6,0,0.3,unit = "cm"), axis.text.y = element_text(size=9, family="Times"),
+          legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),legend.title = element_text(size=9),legend.key.size = unit(0.3,"cm"))
+  #dev.off()
+
+  #jpeg("Figures/BVR_moretaxa_epivshypo_biomass_13Aug2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(BVR.DVM.taxa.calcs.long, grepl("biomass",metric,ignore.case = TRUE) & DateTime=="08-13-2020"), aes(x=WaterColumn, y=value)) +
+    geom_rect(data=subset(BVR.DVM.taxa.calcs.long,Hour == 'midnight' &grepl("biomass",metric,ignore.case = TRUE)),
+          aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
+    geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
+    geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+    facet_wrap(Hour~Taxa, scales= 'free',ncol=6, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
+    theme(strip.text.y = element_text(size = 0 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+    scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="13 Aug 2020") + 
+    scale_fill_manual("Taxa",values=rainbow(12),labels=taxa2) +
+    geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+          axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
+    theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0.6,0,0.3,unit = "cm"), axis.text.y = element_text(size=9, family="Times"),
+          legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),legend.title = element_text(size=9),legend.key.size = unit(0.3,"cm"))
+  #dev.off()
+
+
+#----------------------------------------------#
+# Super simple plot of temp and DO during MSNs #
+#----------------------------------------------#
+#read in CTD data
+CTD<- read.csv('./RawData/081220_bvr50.csv', header=TRUE)
+
+#order df for plotting purposes
+CTD<- CTD %>% group_by(Date) %>% arrange(Depth_m, by_group=TRUE)
+
+
+#jpeg("Figures/2020_Temp_O2_profile.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(1,1))
+par(mar = c(4,0,0,0))
+par(oma = c(2,4,4,4))
+
+plot(CTD$Depth_m~CTD$DO_mgL, ylim=c(11,0), pch=16, type='o',col="blue",xlim=c(0,7.5), ylab="", xlab="",cex.axis=1.5, cex.lab=1.5)
+par(new=TRUE)
+plot(CTD$Depth_m~CTD$Temp_C,pch=16,type='o',col="red", yaxt='n',xaxt='n',xlab=" ",ylab=" ",ylim=c(11,0),xlim=c(8,28))
+axis(3,at=seq(round(min(CTD$Temp_C),-1),round(max(CTD$Temp_C),-1),length.out=6), cex.axis=1.5, cex.lab=1.5)
+text(11.5,0.5,"12 Aug 2020", cex=1.6)
+
+mtext(expression(paste("Temperature (",degree,"C)")),side=3, line=2.4, cex=1.5, outer = TRUE)
+mtext("Dissolved Oxygen (mg/L)",side=1, line=-1.8, cex=1.5, outer = TRUE)
+mtext("          Depth (m)",side=2, line=2.4, cex=1.5, outer = TRUE)
+legend("bottomright", legend=c("Dissolved Oxygen","Temperature"), col=c("blue", "red"), 
+       cex=1.1, pch=16, box.lty=0,bg="transparent",xjust=1)
+#dev.off()

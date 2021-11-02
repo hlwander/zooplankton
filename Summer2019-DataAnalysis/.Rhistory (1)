@@ -1,0 +1,512 @@
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+#jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+#jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+dev.off()
+#jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,25), by=5)
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pc(0,3,6,9,12))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12,15))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,10,20,30,40))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12,15))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,9,18,27,36))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12,15))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,60,12,180))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,9,18,27,36))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12,15))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+jpeg("ZoopTaxaBiomass_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,60,120,180))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_BiomassConcentration_ugpL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Biomass",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,9,18,27,36))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Biomass",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=c(0,3,6,9,12,15))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+#jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+#jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,7,14,21,28,32))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,7,14,21,28,32))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
+dev.off()
+jpeg("ZoopTaxaDensity_littoralvsPelagic.jpg", width = 6, height = 5, units = "in",res = 300)
+par(mfrow=c(2,2))
+par(mar = c(0,0,0,0))
+par(oma = c(3,4,2,5))
+for(taxa.i in 1:length(taxa)){
+plot(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_p", "Hour",],
+xaxt='n', yaxt='n', xlab="",pch=16, type="o", col="dark blue",ylim=c(-1,max(zoop[paste(taxa[taxa.i],"_density_NopL",sep="")])+0.8))
+points(zoop[zoop$site_no=="BVR_50_l", paste(taxa[taxa.i],"_density_NopL",sep=""),]~zoop[zoop$site_no=="BVR_50_l", "Hour",],
+pch=16, type="o", col="dark green")
+if(taxa.i==1) {
+mtext(paste(taxa[1]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,8,16,24,32))}
+if(taxa.i==2) {
+mtext(paste(taxa[2]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+legend("topright", legend=c("Pelagic","Littoral"), col=c("dark blue", "dark green"),
+cex=0.8, pch=16, horiz = TRUE, box.lty=0,bg="transparent")}
+if(taxa.i==3) {
+mtext(paste(taxa[3]," Density",sep=""), side=2, line=2.5, cex=1)
+axis(2,cex=1.2, at=c(0,5,10,15,20,25))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+if(taxa.i==4){
+mtext(paste(taxa[4]," Density",sep=""), side=4, line=2.5, cex=1)
+axis(4,cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", paste(taxa[taxa.i],"_density_NopL",sep="")]))
+axis.POSIXct(1, cex=1.2, at=pretty(zoop[zoop$site_no=="BVR_50_p", "Hour",]))}
+}
+dev.off()
