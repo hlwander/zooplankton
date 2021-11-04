@@ -63,7 +63,7 @@ CrustaceanBiomassConversions$Suborder[CrustaceanBiomassConversions$Family=="Daph
 year<-2019
 
 #Names of the two files for a particular year
-dataFiles<-c(paste("FCR",year,"_ZooplanktonCounting_Density_DataEntry.csv",sep=""),paste("FCR",year,"_ZooplanktonCounting_SizeID_DataEntry.csv",sep=""))
+dataFiles<-c(paste("RawData/FCR",year,"_ZooplanktonCounting_Density_DataEntry.csv",sep=""),paste("RawData/FCR",year,"_ZooplanktonCounting_SizeID_DataEntry.csv",sep=""))
 
 #Create Density and SizeID data frames for that year
 Density<-read.csv(dataFiles[1], fill = TRUE,as.is=TRUE)
@@ -127,11 +127,12 @@ ZoopDensityCalcs$InitialSampleVolume_mL<-aggregate(InitialSampleVolume_mL~sample
 #convert to integer so can export at the end
 ZoopDensityCalcs$InitialSampleVolume_mL<- as.numeric(as.character(ZoopDensityCalcs$InitialSampleVolume_mL))
 
-#Average depth of tows
+#Average depth of tows and mesh size
 ZoopDensityCalcs$DepthOfTow_m<-aggregate(DepthOfTow_m~sample_ID,data=Density,FUN=mean,na.action=na.omit)[,2]
+ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,FUN=mean,na.action=na.pass)[,2]
 
 #Keep important colums
-keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol")
+keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
 #Calculate the zooplankton density
@@ -364,7 +365,7 @@ ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_Percen
 ZoopFinal$INT<-as.character(ZoopFinal$INT)
 
 #Export the final Zoop table
-write.csv(ZoopFinal,paste("FCR_ZooplanktonSummary",year,".csv",sep=""),row.names = FALSE)
+write.csv(ZoopFinal,paste("SummaryStats/FCR_ZooplanktonSummary",year,".csv",sep=""),row.names = FALSE)
 
 
 ZoopFinal$BiomassConcentration_ugpL
