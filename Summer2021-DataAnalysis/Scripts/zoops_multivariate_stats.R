@@ -30,7 +30,7 @@ zoops2021 <- zoops2021 %>% select("sample_ID","site_no","collect_date","DepthOfT
                                   "Daphnia_density_NopL", "Ceriodaphnia_density_NopL","nauplius_density_NopL",
                                   "Synchaetidae_density_NopL", "Conochilidae_density_NopL")
 
-#add collotheca column for 2021 (none found so column was not created
+#add collotheca column for 2021 (none found so column was not created)
 zoops2021$Collothecidae_density_NopL <- 0
 
 #combine all zoop datasets
@@ -149,11 +149,6 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-
-#-------------------------------------------------------------------------------#
-#              want to make some kind of tracking time NMDS fig                 #
-#-------------------------------------------------------------------------------#
-
 #jpeg("Figures/2019-2020_NMDS_1v2_bray_timegroups.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',2], pch=21,bg="cornsilk")
@@ -191,3 +186,156 @@ ordiellipse(ord, zoop_epi_tows$timegroup, display = "sites", kind="sd",draw="lin
 legend("bottomright", legend=c('sunrise1', 'sunrise2', 'sunrise3', 'noon1', 'noon2', 'noon3', 'sunset1', 'sunset2', 'sunset3', 'midnight1', 'midnight2', 'midnight3'), pch=21,
        pt.bg=c('cornsilk', 'yellow','yellow3','lightpink','indianred','red','palegreen','mediumseagreen','darkgreen','lightsteelblue','skyblue','steelblue'),bty = "n") 
 #dev.off()
+
+
+#-------------------------------------------------------------------------------#
+#           Averaging zoops by time and campaign/day for new NMDS               #
+#-------------------------------------------------------------------------------#
+
+#first average times for each 24-hour campaign so there are 10 points per day (basically just averaging noon and midnight)
+zoop_epi_tows$order <- ifelse(zoop_epi_tows$Hour=="4:",1,ifelse(zoop_epi_tows$Hour=="5:",2,ifelse(
+  zoop_epi_tows$Hour=="6:",3,ifelse(zoop_epi_tows$Hour=="7:",4,ifelse(zoop_epi_tows$time=="noon",5,ifelse(
+    zoop_epi_tows$Hour=="18",6,ifelse(zoop_epi_tows$Hour=="19",7,ifelse(zoop_epi_tows$Hour=="20",8,ifelse(zoop_epi_tows$Hour=="21",9,10)))))))))
+
+#average by groups, site, then order
+zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
+  summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
+
+#pelagic df
+zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
+zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
+
+#only select data cols
+zoop_temporal_avg_dens <- zoop_avg[,c(4:14)]
+zoop_pel_dens <- zoop_pel[,c(4:14)]
+zoop_lit_dens <- zoop_lit[,c(4:14)]
+
+#transforming data - hellinger transformation because gives low weight to low/zero values
+#converts species abundances from absolute to relative - use w/ bray curtis
+zoop_temporal_dens_avg_trans <- hellinger(zoop_temporal_avg_dens)
+zoop_pel_dens_trans <- hellinger(zoop_pel_dens)
+zoop_lit_dens_trans <- hellinger(zoop_lit_dens)
+
+#now do NMDS using averages
+NMDS_temporal_avg_bray <- metaMDS(zoop_temporal_dens_avg_trans, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_temporal_avg_bray$stress
+
+NMDS_pel_bray <- metaMDS(zoop_pel_dens_trans, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_pel_bray$stress
+
+NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_lit_bray$stress
+
+#-------------------------------------------------------------------------------#
+#                                 Tracking figs                                 #
+#-------------------------------------------------------------------------------#
+
+#jpeg("Figures/2019-2020_NMDS_1v2_bray_temporal_avg_days.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2], col="tomato3")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",2], col="tomato")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("tomato",10),rep("tomato3",10)))
+
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",2], col="tan4")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",2], col="tan1")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("tan1",10),rep("tan4",10)))
+
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",2], col="steelblue4")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",2], col="steelblue1")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("steelblue1",10),rep("steelblue4",10)))
+
+legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3'), pch=21, pt.bg=c("tomato3","tomato","tan4","tan1", "steelblue4","steelblue1"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
+#jpeg("Figures/2019-2020_NMDS_1v3_bray_temporal_avg_days.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
+ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",3], col="tomato3")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",3], col="tomato")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("tomato",10),rep("tomato3",10)))
+
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",3], col="tan4")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",3], col="tan1")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("tan1",10),rep("tan4",10)))
+
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",3], col="steelblue4")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",3], col="steelblue1")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("steelblue1",10),rep("steelblue4",10)))
+
+legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3'), pch=21, pt.bg=c("tomato3","tomato","tan4","tan1", "steelblue4","steelblue1"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
+#pelagic only tracking density through time
+#jpeg("Figures/2019-2020_NMDS_1v2_bray_pelagic_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], col="tomato3")
+points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="tomato3")
+
+lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], col="tan4")
+points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="tan4")
+
+lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], col="steelblue4")
+points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="steelblue4")
+
+legend("bottomright", legend=c('day1','day2','day3'), pch=21, pt.bg=c("tomato3","tan4","steelblue4"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
+#jpeg("Figures/2019-2020_NMDS_1v3_bray_pelagic_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
+ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], col="tomato3")
+points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="tomato3")
+
+lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], col="tan4")
+points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="tan4")
+
+lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], col="steelblue4")
+points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="steelblue4")
+
+legend("bottomright", legend=c('day1','day2','day3'), pch=21, pt.bg=c("tomato3","tan4","steelblue4"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
+#jpeg("Figures/2019-2020_NMDS_1v2_bray_littoral_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], col="tomato")
+points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="tomato")
+
+lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], col="tan1")
+points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="tan1")
+
+lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], col="steelblue1")
+points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="steelblue1")
+
+legend("bottomright", legend=c('day1','day2','day3'), pch=21, pt.bg=c("tomato","tan1","steelblue1"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
+#jpeg("Figures/2019-2020_NMDS_1v3_bray_littoral_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
+ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
+         col = c("tomato3","tan1","steelblue4"), alpha = 75,cex = 2)
+lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], col="tomato")
+points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="tomato")
+
+lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], col="tan1")
+points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="tan1")
+
+lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], col="steelblue1")
+points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="steelblue1")
+
+legend("bottomright", legend=c('day1','day2','day3'), pch=21, pt.bg=c("tomato","tan1","steelblue1"),bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+#dev.off()
+
