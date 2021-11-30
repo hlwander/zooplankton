@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv)
+pacman::p_load(dplyr, vegan, labdsv, goeveg)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -496,4 +496,8 @@ points(euclidean_drivers_df$avg_dens[5],euclidean_drivers_df$euc_dist[5], bg="ca
 points(euclidean_drivers_df$avg_dens[6],euclidean_drivers_df$euc_dist[6], bg="mediumpurple4",pch=21,cex=3)
 legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
 #dev.off()
+
+#should have done this at the very beginning, but creating a scree plot to make sure 3 is the right number of axes to be using 
+dimcheckMDS(zoop_temporal_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+
   
