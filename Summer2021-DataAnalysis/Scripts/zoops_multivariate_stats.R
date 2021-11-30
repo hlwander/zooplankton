@@ -339,3 +339,161 @@ legend("bottomright", legend=c('day1','day2','day3'), pch=21, pt.bg=c("tomato","
 legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
 #dev.off()
 
+
+#-------------------------------------------------------------------------------#
+#                     Calculating euclidean distance                            #
+#-------------------------------------------------------------------------------#
+
+#step 1: take NMDS output for each site using NMDS coordinates
+zoop_pel_euc <- as.matrix(vegdist(NMDS_pel_bray$points, method='euclidean'))
+zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
+
+#step 2: select and sum the 10 distances between connecting points for each of the 3 days
+pel_day1 <- sum(zoop_pel_euc[1,2],zoop_pel_euc[2,3],zoop_pel_euc[3,4],zoop_pel_euc[4,5],zoop_pel_euc[5,6],
+                zoop_pel_euc[6,7],zoop_pel_euc[7,8],zoop_pel_euc[8,9],zoop_pel_euc[9,10])
+
+pel_day2 <- sum(zoop_pel_euc[11,12], zoop_pel_euc[12,13],zoop_pel_euc[13,14],zoop_pel_euc[14,15],zoop_pel_euc[15,16],
+                zoop_pel_euc[16,17],zoop_pel_euc[17,18],zoop_pel_euc[18,19],zoop_pel_euc[19,20])
+
+pel_day3 <- sum(zoop_pel_euc[21,22], zoop_pel_euc[22,23],zoop_pel_euc[23,24],zoop_pel_euc[24,25],zoop_pel_euc[25,26],
+                zoop_pel_euc[26,27],zoop_pel_euc[27,28],zoop_pel_euc[28,29],zoop_pel_euc[29,30])
+
+lit_day1 <- sum(zoop_lit_euc[1,2],zoop_lit_euc[2,3],zoop_lit_euc[3,4],zoop_lit_euc[4,5],zoop_lit_euc[5,6],
+                zoop_lit_euc[6,7],zoop_lit_euc[7,8],zoop_lit_euc[8,9],zoop_lit_euc[9,10])
+
+lit_day2 <- sum(zoop_lit_euc[11,12],zoop_lit_euc[12,13],zoop_lit_euc[13,14],zoop_lit_euc[14,15],zoop_lit_euc[15,16],
+                zoop_lit_euc[16,17],zoop_lit_euc[17,18],zoop_lit_euc[18,19],zoop_lit_euc[19,20])
+
+lit_day3 <- sum(zoop_lit_euc[21,22],zoop_lit_euc[22,23],zoop_lit_euc[23,24],zoop_lit_euc[24,25],zoop_lit_euc[25,26],
+                zoop_lit_euc[26,27],zoop_lit_euc[27,28],zoop_lit_euc[28,29],zoop_lit_euc[29,30])
+
+#step 3: make a dataset of data
+euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3),littoral=c(lit_day1,lit_day2,lit_day3))
+
+#plot littoral vs pelagic euclidean distances
+#jpeg("Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="pelagic", 
+     main="Daily euclidean distance sums", cex=2.8, pch=21, cex.lab = 1.5)
+points(euc_distances_df$littoral[1],euc_distances_df$pelagic[1], bg="orangered3",pch=21,cex=3)
+points(euc_distances_df$littoral[2],euc_distances_df$pelagic[2], bg="cadetblue",pch=21,cex=3)
+points(euc_distances_df$littoral[3],euc_distances_df$pelagic[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#driver data df
+euclidean_drivers_df <- data.frame(site = c("pel_day1","pel_day2","pel_day3","lit_day1","lit_day2","lit_day3"),
+                                   euc_dist = c(euc_distances_df$pelagic,euc_distances_df$littoral))
+
+#read in DO and temp from sampling days
+a <- read.csv("RawData/071019_bvr50_a.csv")
+b <- read.csv("RawData/072419_bvr50_a.csv")
+c <- read.csv("RawData/081220_bvr50.csv")
+
+#pull 0.1 and 9m 
+a <- a[a$Depth_m >=0.1 & a$Depth_m<=0.13 | a$Depth_m >=9 & a$Depth_m<=9.03,]
+b <- b[b$Depth_m >=0.1 & b$Depth_m<0.112 | b$Depth_m >=9 & b$Depth_m<=9.03,][c(1,3),]
+c <- c[c$Depth_m ==0.1 | c$Depth_m >=9 & c$Depth_m<=9.01,]
+
+ctd <- rbind(a,b,c)
+
+#add ctd cols to df
+euclidean_drivers_df$DO_0.1m <- c(ctd$DO_mgL[c(1,3,5)],NA,NA,NA)
+euclidean_drivers_df$DO_9m <- c(ctd$DO_mgL[c(2,4,6)],NA,NA,NA)
+euclidean_drivers_df$temp_0.1m <- c(ctd$Temp_C[c(1,3,5)],NA,NA,NA)
+euclidean_drivers_df$temp_9m <- c(ctd$Temp_C[c(2,4,6)],NA,NA,NA)
+euclidean_drivers_df$chl_0.1m <- c(ctd$Chla_ugL[c(1,3,5)],NA,NA,NA)
+euclidean_drivers_df$chl_9m <- c(ctd$Chla_ugL[c(2,4,6)],NA,NA,NA)
+euclidean_drivers_df$sp_cond_0.1m <- c(ctd$Spec_Cond_uScm[c(1,3,5)],NA,NA,NA)
+euclidean_drivers_df$sp_cond_9m <- c(ctd$Spec_Cond_uScm[c(2,4,6)],NA,NA,NA)
+euclidean_drivers_df$percent_DO_0.1m <- c(ctd$DO_pSat[c(1,3,5)],NA,NA,NA)
+euclidean_drivers_df$percent_DO_9m <- c(ctd$DO_pSat[c(2,4,6)],NA,NA,NA)
+  
+#calculate avg density col for each day at both sites
+euclidean_drivers_df$avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==1]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==2]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==3]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==1]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==2]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==3]))
+
+#plot response variable (euclidean distances) against environmental/biological data
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epiDO.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$DO_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$DO_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypoDO.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$DO_9m,euclidean_drivers_df$euc_dist, xlab="Hypo DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$DO_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_temp.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$temp_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$temp_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_temp.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$temp_9m,euclidean_drivers_df$euc_dist, xlab="Hypo temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$temp_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("topright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_sp_cond.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$sp_cond_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi sp. cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$sp_cond_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$sp_cond_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$sp_cond_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_sp_cond.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$sp_cond_9m,euclidean_drivers_df$euc_dist, xlab="Hypo sp. cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$sp_cond_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$sp_cond_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$sp_cond_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_chla.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$chl_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi chla", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$chl_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$chl_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$chl_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_chla.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$chl_9m,euclidean_drivers_df$euc_dist, xlab="Hypo chla", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$chl_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$chl_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$chl_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_pel_zoop_dens.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$avg_dens[1:3],euclidean_drivers_df$euc_dist[1:3], xlab="Avg pelagic zoop dens", ylab="distance",cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$avg_dens[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$avg_dens[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$avg_dens[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_lit_zoop_dens.jpg", width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$avg_dens[4:6],euclidean_drivers_df$euc_dist[4:6], xlab="Avg littoral zoop dens", ylab="distance",cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$avg_dens[4],euclidean_drivers_df$euc_dist[4], bg="orangered3",pch=21,cex=3)
+points(euclidean_drivers_df$avg_dens[5],euclidean_drivers_df$euc_dist[5], bg="cadetblue",pch=21,cex=3)
+points(euclidean_drivers_df$avg_dens[6],euclidean_drivers_df$euc_dist[6], bg="mediumpurple4",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#dev.off()
+  
