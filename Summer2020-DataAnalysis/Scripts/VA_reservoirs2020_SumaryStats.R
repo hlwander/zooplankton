@@ -134,6 +134,9 @@ ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,F
 keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
+#Net efficiencies from NetEfficiencyCalcs script
+NetEfficiency2020 <- c(0.03485029, 0.05279169)
+
 #Calculate the zooplankton density 2 different ways (tows vs. schindler/horiz traps)
 #multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2020 (n=2)) 
 ZoopDensityCalcs$ZoopDensity_No.pL<- ifelse(ZoopDensityCalcs$site_no=="BVR_trap" | ZoopDensityCalcs$site_no=="BVR_schind", ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No./ZoopDensityCalcs$Volume_unadj,
@@ -213,7 +216,7 @@ for(k in 1:length(SizeID$TaxaID)){
         #Convert from volume to fresh weight using a specific gravity of 1 kg/m3 (1000 ug/mm3)
         Freshweight_ug<-Volume_mm3*1000
         #Convert to dry weight assuming ratio of 0.1 (dry:wet) - dry weight = wet * 0.1
-        SizeID[k,"Biomass_ug"]<-Freshweight_ug*0.1
+        SizeID[k,"Biomass_ug"]<- Freshweight_ug*0.1
         #break the for loop
         break
         #End of if loop to find which id matches
@@ -221,15 +224,14 @@ for(k in 1:length(SizeID$TaxaID)){
       #End of looping through taxonomy
     }
     
-    
     #End of Rotifer if else
   }else if(!is.na(SizeID[k,"Subphylum"])&SizeID[k,"Subphylum"]=="Crustacea"){
     #If it is a copepod nauplius
     if(SizeID$Nauplius[k]=="nauplius"&SizeID$Subclass[k]=="Copepoda"){  
       #Find the conversion for Copepod nauplius
-      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Genus)]
       #choose the a that matches that b
-      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Genus)]
       #Convert to dry mass using the equation w=e^(a+b(ln(L)) where L is length in mm
       SizeID[k,"Biomass_ug"]<-conversion.parameter.a*(SizeID[k,"Size_mm"]^conversion.parameter.b)
     }else{
@@ -266,6 +268,8 @@ for(k in 1:length(SizeID$TaxaID)){
   #End of loop through the individuals
 }
 
+#asplanchna WW:DW is 0.039 according to 2016 EPA SOP so multiplying this value by .39 (0.039 = 0.1 * 0.39) for all asplanchna biomass values
+SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)] <-  SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)]*0.39
 
 ####################################################
 ####THIS SECTION IS USED TO CONFIRM THE BIOMASS CONVERSION IS WORKING####
@@ -288,6 +292,8 @@ length(SizeID$Biomass_ug)
 sum(SizeID$Phylum=="Rotifera"&!is.na(SizeID$Phylum))
 sum(SizeID$Subphylum=="Crustacea"&!is.na(SizeID$Subphylum))
 sum(!is.na(SizeID$Biomass_ug))
+#SizeID[which(is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Phylum)),]
+#SizeID[which(!is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Biomass_ug)),]
 ##########################################################
 
 #Create new dataframe that is incorporating all the data from density calc and size
@@ -307,8 +313,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae")
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family")
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae","Lepadella","Monostyla","Lecane") #no holopedium this year
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family","Genus","Genus","Genus")
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)
@@ -365,16 +371,11 @@ ZoopFinal$BiomassConcentration_ugpL<-ifelse(ZoopFinal$site_no=="BVR_trap" | Zoop
          ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal$BiomassConcentration_ugpL <- ZoopFinal$TotalBiomass_ug *(1/NetEfficiency2020[2])/ ZoopFinal$Volume_L, 
                 ZoopFinal$BiomassConcentration_ugpL <- ZoopFinal$TotalBiomass_ug / ZoopFinal$Volume_L)))
   
-#Replace NA with 0's for the relevant cells (count, density, biomass, biomass concentration)
+#Replace NA with 0's for the relevant cells (count, density, biomass, biomass concentration) NOTE - if this doesn't work, then at least one taxa is not found across all samples and should be removed!
 ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))][is.na(ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))])] <- 0
 
 #Convert the initials to characters for export
 ZoopFinal$INT<-as.character(ZoopFinal$INT)
-
-#flatten list to character vector to get it to save properly
-ZoopFinal[,c(5:179)] <- lapply(ZoopFinal[,c(5:179)],as.character)
-
-#convert date back to date format
 
 #Export the final Zoop table
 write.csv(ZoopFinal,paste("SummaryStats/FCR_ZooplanktonSummary",year,".csv",sep=""),row.names = FALSE)

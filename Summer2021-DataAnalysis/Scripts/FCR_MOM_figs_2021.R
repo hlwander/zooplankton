@@ -41,6 +41,14 @@ zoop$rep <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID
 zoop$sample_ID <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2",
                          substr(zoop$sample_ID,1,nchar(zoop$sample_ID)-5),zoop$sample_ID)
 
+#replace count for first 2 samples with the zoop # (rep1 SizeID data was lost in the digitization process)
+zoop$OverallCount_n[c(1,2)] <-c(zoop$Zooplankton_No.[1],zoop$Zooplankton_No.[2])
+
+#remove sample where sizeid was not digitized 
+zoop <- zoop[!is.na(zoop$OverallMeanSize_mm),]
+
+#Replace NAs with 0
+zoop[20:204][is.na(zoop[20:204])] <- 0
 
 ##### Create new df to combine reps over 24 hours
 zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_L, Volume_unadj, proportional_vol, ZoopDensity_No.pL, OverallCount_n, TotalBiomass_ug,
@@ -57,9 +65,6 @@ FCR_taxa_DVM_raw<- zoop.repmeans[,c(1:4,6,7,which(substrEnd(colnames(zoop.repmea
                                                    which(substrEnd(colnames(zoop.repmeans),11)=="ug_rep.mean"),
                                                    which(substrEnd(colnames(zoop.repmeans),8)=="n_rep.SE"),
                                                    which(substrEnd(colnames(zoop.repmeans),9)=="ug_rep.SE"))]
-
-#FCR_taxa_DVM_raw$OverallCount_n_rep.mean[2] <- mean(c(115,133)) #because the size id is missing so not calculating automatically
-#FCR_taxa_DVM_raw$OverallCount_n_rep.SE [2] <- stderr(c(115,133))
 
 
 FCR_taxa_DVM_vol_calculated <- zoop.repmeans[,c(1:4,8,35,which(substrEnd(colnames(zoop.repmeans),15)=="y_NopL_rep.mean"),
@@ -87,18 +92,21 @@ for(i in 1:length(variables)){
   FCR_DVM_calcs_raw[,paste0(variables,"_hypo")[i]] <- FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi",paste0(variables)[i]] - FCR_DVM_calcs_raw[,paste0(variables,"_epi")[i]]
 }
 
+#Net efficiencies calculated in the NetEfficiencyCalcs script
+NetEfficiency2021 <- c(0.03844206, 0.06146684)
+epi_neteff_2021<- 0.9452998
+
 #hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
-#NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. Note including the net efficiency to correct for the tows when using raw counts
+#NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. AND including the net efficiency to correct for the tows when using raw counts
 column.names<- colnames(FCR_taxa_DVM_vol_calculated[,c(5,7:15)])
 variables<- colnames(FCR_taxa_DVM_raw)[c(7:16)]
 percent<- colnames(FCR_DVM_percent[,c(5:8)])
 for(i in 1:length(variables)){
   FCR_DVM_calcs_vol_calc[,paste0(column.names,"_epi")[i]]<- FCR_taxa_DVM_vol_calculated[substrEnd(FCR_taxa_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
-  FCR_DVM_calcs_vol_calc[,paste0(column.names,"_hypo")[i]] <- (((FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol_rep.mean"]) * FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]]) * (1/0.053)) - 
-                                                        ((FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol_rep.mean"]) *  FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]] * (1/0.31))/ #both these net efficiencies are calculated from 2020 data (and epi is using 2.2/2.5m tows)
-    (FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj_rep.mean"] - FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "Volume_unadj_rep.mean"])  
-  } #Note - not really sure why, but total density w/ net efficiency taken into account results in a million zoops in the hypo (and some of the other taxa seem unreasonably high)
-    #second note is that I was initially doing 1/proportional volume, but changed to multiplying only by proportional vol and now have MUCH more reasonable values!
+  FCR_DVM_calcs_vol_calc[,paste0(column.names,"_hypo")[i]] <- (((FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol_rep.mean"]) * FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]]) * (1/NetEfficiency2021[2])) - 
+                                                        ((FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol_rep.mean"]) *  FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]] * (1/epi_neteff_2021))/ #both these net efficiencies are calculated from 2021 data (and epi is using 4.3/4.4m tows)
+    (FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj_rep.mean"] - FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "Volume_unadj_rep.mean"])                                                                     
+  } 
 
 #percent density
 density.percent<- colnames(FCR_taxa_DVM_vol_calculated[,c(7:10)]) 
@@ -117,7 +125,7 @@ for(i in 1:length(density.percent)){
 #need reps from zoop df to calculate SE for raw and vol_calculated
 matchingcols <- match(substr(colnames(FCR_taxa_DVM_raw[,c(1:4,6:16)]),1,14),substr(colnames(zoop),1,14))
 DVM_samples_raw<- zoop[,unique(matchingcols)]
-DVM_samples_raw$OverallCount_n[1] <-115
+
 
 matchingcols <- match(substr(colnames(FCR_taxa_DVM_vol_calculated[,c(1:4,7:10)]),1,14),substr(colnames(zoop),1,14))
 DVM_samples_dens<- zoop[,unique(matchingcols)] 
@@ -194,17 +202,20 @@ facet_labeller_top <- function(variable, value) {
 FCR_DVM_calcs_long <- FCR_DVM_calcs_long[substr(FCR_DVM_calcs_long$metric,1,17)!="ZoopDensity_No.pL" & substr(FCR_DVM_calcs_long$metric,1,17)!="BiomassConcentrat",]
 
 #reorder taxa
-FCR_DVM_calcs_long$Taxa <- factor(FCR_DVM_calcs_long$Taxa, levels = c("Cladocera","Rotifera_","Cyclopoid","Calanoida"))
+FCR_DVM_calcs_long$Taxa <- factor(FCR_DVM_calcs_long$Taxa, levels = c("Cladocera","Rotifera_","Cyclopoid","Calanoida", "ZoopDensi", "BiomassCo"))
 
-#jpeg("Figures/FCR_epivshypo_density_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
-  geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
+#taxa list
+taxa <- c("Cladocera", "Rotifera_", "Cyclopoid", "Calanoida")
+
+#jpeg("Figures/FCR_epivshypo_density_10-11Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, Taxa %in%taxa & grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
+  geom_rect(data=subset(FCR_DVM_calcs_long, Taxa %in%taxa & Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Jun 2021") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Jun 2021") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
@@ -212,15 +223,15 @@ ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & s
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
 #dev.off()
 
-#jpeg("Figures/FCR_epivshypo_biomass_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("biomass",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
-  geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("biomass",metric,ignore.case = TRUE)),
+#jpeg("Figures/FCR_epivshypo_biomass_10-11Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, Taxa %in%taxa & grepl("biomass",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
+  geom_rect(data=subset(FCR_DVM_calcs_long,Taxa %in%taxa & Hour == 'midnight' &grepl("biomass",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Jun 2021") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Jun 2021") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
@@ -228,15 +239,15 @@ ggplot(subset(FCR_DVM_calcs_long, grepl("biomass",metric,ignore.case = TRUE) & s
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
 #dev.off()
 
-#jpeg("Figures/FCR_epivshypo_percent_dens_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)=="density"), aes(x=WaterColumn, y=value)) +
-  geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
+#jpeg("Figures/FCR_epivshypo_percent_dens_10-11Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, Taxa %in%taxa & grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)=="density"), aes(x=WaterColumn, y=value)) +
+  geom_rect(data=subset(FCR_DVM_calcs_long,Taxa %in%taxa & Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) + ylim(-20,150) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Jun 2021") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Jun 2021") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Percent Density") +
@@ -248,21 +259,52 @@ ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & s
 #----------------------------------------------#
 # Super simple plot of temp and DO during MSNs #
 #----------------------------------------------#
-#read in CTD data
-CTD<- read.csv('./RawData/081220_bvr50.csv', header=TRUE)
 
-#order df for plotting purposes
-CTD<- CTD %>% group_by(Date) %>% arrange(Depth_m, by_group=TRUE)
+inUrl2  <- "https://pasta.lternet.edu/package/data/eml/edi/198/10/b3bd353312f9e37ca392e2a5315cc9da" 
+infile2 <- tempfile()
+try(download.file(inUrl2,infile2,method="curl"))
+if (is.na(file.size(infile2))) download.file(inUrl2,infile2,method="auto")
+
+ysi <-read.csv(infile2,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Depth_m",     
+                 "Temp_C",     
+                 "DO_mgL",     
+                 "DOSat",     
+                 "Cond_uScm",     
+                 "Sp_cond_uScm",     
+                 "PAR_umolm2s",     
+                 "ORP_mV",     
+                 "pH",     
+                 "Flag_DateTime",     
+                 "Flag_Temp",     
+                 "Flag_DO",     
+                 "Flag_DOSat",     
+                 "Flag_Cond",     
+                 "Flag_Sp_Cond",     
+                 "Flag_PAR",     
+                 "Flag_ORP",     
+                 "Flag_pH"    ), check.names=TRUE)
 
 
-#jpeg("Figures/2020_Temp_O2_profile.jpg", width = 6, height = 5, units = "in",res = 300)
+ysi <- ysi[,c(1:7)]
+ysi$DateTime <- as.Date(ysi$DateTime)
+ysi <- ysi[ysi$DateTime=="2021-06-10" | ysi$DateTime=="2021-06-11",]
+
+
+#jpeg("Figures/2021_Temp_O2_profile.jpg", width = 6, height = 5, units = "in",res = 300)
 par(mfrow=c(1,1))
 par(mar = c(4,0,0,0))
 par(oma = c(2,4,4,4))
 
-plot(CTD$Depth_m~CTD$DO_mgL, ylim=c(11,0), pch=16, type='o',col="blue",xlim=c(0,7.5), ylab="", xlab="",cex.axis=1.5, cex.lab=1.5)
+plot(ysi$Depth_m~ysi$DO_mgL, ylim=c(11,0), pch=16, type='o',col="blue",xlim=c(0,7.5), ylab="", xlab="",cex.axis=1.5, cex.lab=1.5)
 par(new=TRUE)
-plot(CTD$Depth_m~CTD$Temp_C,pch=16,type='o',col="red", yaxt='n',xaxt='n',xlab=" ",ylab=" ",ylim=c(11,0),xlim=c(8,28))
+plot(ysi$Depth_m~ysi$Temp_C,pch=16,type='o',col="red", yaxt='n',xaxt='n',xlab=" ",ylab=" ",ylim=c(11,0),xlim=c(8,28))
 axis(3,at=seq(round(min(CTD$Temp_C),-1),round(max(CTD$Temp_C),-1),length.out=6), cex.axis=1.5, cex.lab=1.5)
 text(11.5,0.5,"12 Aug 2020", cex=1.6)
 
@@ -273,9 +315,30 @@ legend("bottomright", legend=c("Dissolved Oxygen","Temperature"), col=c("blue", 
        cex=1.1, pch=16, box.lty=0,bg="transparent",xjust=1)
 #dev.off()
 
+#------------------------------------------------------------------------------#
+#Look at schindler data because tows aren't super interesting
 
+schindlers <- zoop[zoop$mesh_size_μm==61 & !is.na(zoop$mesh_size_μm) & zoop$site_no=="FCR_schind",]
 
+#order depth by decreasing number
+schindlers <- schindlers[with(schindlers,order(DepthOfTow_m)),]
 
+#select the specific taxa
+schindlers <- schindlers[,c(1:6,8,38,46,54,62)]
 
+#wide to long
+schindlers_long <- schindlers %>% gather(metric,value,Zooplankton_No.:RotiferaCount_n)
 
+#jpeg("Figures/Schindler_density_vs_depth.jpg", width = 6, height = 5, units = "in",res = 300)
+ggplot(data=schindlers_long,aes(x=value/30, y=DepthOfTow_m,color=collect_date)) + geom_point() +
+  scale_y_reverse() + geom_path() + facet_grid(metric~site_no+collect_date)
+#dev.off()
+
+#summarize schindler_totalCount so one # per depth
+Schindler_avgCount <- schindlers_long %>% group_by(site_no, DepthOfTow_m, collect_date, metric) %>% summarise(mean_num = mean(value))
+
+#jpeg("Figures/AvgSchindler_density_vs_depth.jpg", width = 6, height = 5, units = "in",res = 300)
+ggplot(data=Schindler_avgCount,aes(x=mean_num/30, y=DepthOfTow_m,color=collect_date)) + geom_point() +
+  scale_y_reverse() + geom_path() + xlab("Zooplankton (#/L)") + ylab("Depth (m)")  + facet_wrap(metric~site_no, scales="free")
+#dev.off()
 

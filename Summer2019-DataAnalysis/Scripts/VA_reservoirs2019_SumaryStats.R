@@ -135,6 +135,8 @@ ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,F
 keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
+NetEfficiency2016<- 0.06138154
+
 #Calculate the zooplankton density
 #multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2016) 
 ZoopDensityCalcs$ZoopDensity_No.pL<-ZoopDensityCalcs$Zooplankton_No. * (1/NetEfficiency2016)/ZoopDensityCalcs$Volume_L
@@ -229,9 +231,9 @@ for(k in 1:length(SizeID$TaxaID)){
     #If it is a copepod nauplius
     if(SizeID$Nauplius[k]=="nauplius"&SizeID$Subclass[k]=="Copepoda"){  
       #Find the conversion for Copepod nauplius
-      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Genus)]
       #choose the a that matches that b
-      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Genus)]
       #Convert to dry mass using the equation w=e^(a+b(ln(L)) where L is length in mm
       SizeID[k,"Biomass_ug"]<-conversion.parameter.a*(SizeID[k,"Size_mm"]^conversion.parameter.b)
     }else{
@@ -268,6 +270,8 @@ for(k in 1:length(SizeID$TaxaID)){
   #End of loop through the individuals
 }
 
+#asplanchna WW:DW is 0.039 according to 2016 EPA SOP so multiplying this value by .39 (0.039 = 0.1 * 0.39) for all asplanchna biomass values
+SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)] <-  SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)]*0.39
 
 ####################################################
 ####THIS SECTION IS USED TO CONFIRM THE BIOMASS CONVERSION IS WORKING####
@@ -290,6 +294,9 @@ length(SizeID$Biomass_ug)
 sum(SizeID$Phylum=="Rotifera"&!is.na(SizeID$Phylum))
 sum(SizeID$Subphylum=="Crustacea"&!is.na(SizeID$Subphylum))
 sum(!is.na(SizeID$Biomass_ug))
+#SizeID[which(is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Phylum)),]
+#SizeID[which(!is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Biomass_ug)),]
+
 ##########################################################
 
 #Create new dataframe that is incorporating all the data from density calc and size
@@ -309,8 +316,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae")
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family")
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae","Holopedium","Lepadella","Monostyla","Lecane")
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family","Genus","Genus","Genus","Genus")
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)

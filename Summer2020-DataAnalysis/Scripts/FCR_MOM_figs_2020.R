@@ -27,6 +27,31 @@ SE.diffMean<- function(x,y){
 #read in zoop summary csv
 zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2020.csv',header = TRUE)
 
+#only select FCR tows
+zoop <- zoop[zoop$site_no=="FCR_50"& zoop$mesh_size_μm==80,]
+
+#manually set hour to midnight or noon
+zoop$Hour <- ifelse(substr(zoop$sample_ID,10,17)=="midnight", 00,12)
+
+#pull rep # off as new column
+zoop$rep <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2",
+                   substrEnd(zoop$sample_ID,1),NA)
+
+#drop reps from sampleIDs
+zoop$sample_ID <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2",
+                         substr(zoop$sample_ID,1,nchar(zoop$sample_ID)-5),zoop$sample_ID)
+
+#Replace NAs with 0
+zoop[20:204][is.na(zoop[20:204])] <- 0
+
+#select noon/midnight pairs
+zoop <- zoop[zoop$collect_date== "2020-06-28"|zoop$collect_date== "2020-06-29"|
+               zoop$collect_date== "2020-09-10"|zoop$collect_date== "2020-09-11"|
+               zoop$collect_date== "2020-09-14"|zoop$collect_date== "2020-09-15",]
+
+#drop oxy samples(s)
+zoop <- zoop[substrEnd(zoop$sample_ID,3)!="oxy",]
+
 ##### Create new df to combine reps over 24 hours
 zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_L, Volume_unadj, proportional_vol, ZoopDensity_No.pL, OverallCount_n, TotalBiomass_ug,
                                  BiomassConcentration_ugpL,Cladocera_density_NopL, Cladocera_BiomassConcentration_ugpL, CladoceraCount_n, Cladocera_totalbiomass_ug, Cladocera_PercentOfTotal,
@@ -36,30 +61,12 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_L, 
   group_by(sample_ID, site_no, collect_date, Hour) %>%
   summarise_at(vars(Volume_L:Calanoida_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
 
-#get hour into posixct for graphing
-zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$collect_date), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
-zoop.repmeans$Hour <- as.POSIXct(zoop.repmeans$Hour)
 
 
 #----------------------------------------------------------------------#
 #                       FCR noon + midnight                            #
 #       creating new dfs for density and raw count/biomass data        #
 #----------------------------------------------------------------------#
-
-#df for all FCR samples
-FCR_pelagic_DVM<- zoop.repmeans[substr(zoop.repmeans$sample_ID,1,1)=="F",]
-#remove 2020-06-29 
-FCR_pelagic_DVM <- FCR_pelagic_DVM[!FCR_pelagic_DVM$collect_date== "2019-06-13",]
-
-#drop schindlers
-FCR_pelagic_DVM <- FCR_pelagic_DVM[substr(FCR_pelagic_DVM$sample_ID,15,20)!="schind",]
-FCR_pelagic_DVM$sample_ID <- c("F10Sep20_midnight_epi","F10Sep20_midnight", "F11Sep20_noon_epi","F11Sep20_noon")
-
-#select only FCR samples
-zoop.repmeans <- zoop.repmeans[zoop.repmeans$site_no=="FCR_50" & substr(zoop.repmeans$sample_ID,15,20)!="schind",]
-
-#rename epi samples so that they end in epi and also midnight samples (this data is a mess....)
-zoop.repmeans$sample_ID <- c("F10Sep20_midnight_epi","F10Sep20_midnight", "F11Sep20_noon_epi","F11Sep20_noon")
 
 #two dfs for raw (no net efficiency calcs needed) and volume calculated values
 FCR_taxa_DVM_raw<- zoop.repmeans[,c(1:4,6,7,which(substrEnd(colnames(zoop.repmeans),10)=="n_rep.mean"),
@@ -80,8 +87,8 @@ FCR_DVM_percent<- zoop.repmeans[,c(1:4,which(substrEnd(colnames(zoop.repmeans),1
 
 
 #df for calculating epi vs hypo density/biomass
-FCR_DVM_calcs_raw<- data.frame("SampleID"=unique(substr(FCR_pelagic_DVM$sample_ID,1,13)))
-FCR_DVM_calcs_vol_calc<- data.frame("SampleID"=unique(substr(FCR_pelagic_DVM$sample_ID,1,13)))
+FCR_DVM_calcs_raw<- data.frame("SampleID"=unique(substr(zoop$sample_ID,1,13)))
+FCR_DVM_calcs_vol_calc<- data.frame("SampleID"=unique(substr(zoop$sample_ID,1,13)))
 
 #for loop to fill out epi vs hypo calcs RAW counts and ug
 variables<- colnames(FCR_taxa_DVM_raw)[c(7:16)] #change range
@@ -90,6 +97,9 @@ for(i in 1:length(variables)){
   FCR_DVM_calcs_raw[,paste0(variables,"_hypo")[i]] <- FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi",paste0(variables)[i]] - FCR_DVM_calcs_raw[,paste0(variables,"_epi")[i]]
 }
 
+#Net efficiencies from NetEfficiencyCalcs script
+NetEfficiency2020 <- c(0.03491837, 0.05757148)
+
 #hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
 #NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. Note including the net efficiency to correct for the tows when using raw counts
 column.names<- colnames(FCR_taxa_DVM_vol_calculated[,c(5,7:15)])
@@ -97,11 +107,11 @@ variables<- colnames(FCR_taxa_DVM_raw)[c(7:16)]
 percent<- colnames(FCR_DVM_percent[,c(5:8)])
 for(i in 1:length(variables)){
   FCR_DVM_calcs_vol_calc[,paste0(column.names,"_epi")[i]]<- FCR_taxa_DVM_vol_calculated[substrEnd(FCR_taxa_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
-  FCR_DVM_calcs_vol_calc[,paste0(column.names,"_hypo")[i]] <- (((1/FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol_rep.mean"]) * FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]]) * (1/0.053)) - 
-    ((1/FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol_rep.mean"]) *  FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]] * (1/0.31))/ #both these net efficiencies are calculated from 2020 data (and epi is using 2.2/2.5m tows)
+  FCR_DVM_calcs_vol_calc[,paste0(column.names,"_hypo")[i]] <- (((1/FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol_rep.mean"]) * FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]]) * (1/NetEfficiency2020[2])) - 
+    ((1/FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol_rep.mean"]) *  FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]]) / #both these net efficiencies are calculated from 2020 data (since these tows are <4m, net efficiency ~100%!)
     (FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj_rep.mean"] - FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "Volume_unadj_rep.mean"])  
 } #Note - not really sure why, but total density w/ net efficiency taken into account results in a million zoops in the hypo (and some of the other taxa seem unreasonably high)
-#second note is that I was initially doing 1/proportional volume is right - see notebook from 250ct21
+#second note is that I was initially doing 1/proportional volume, which is right - see notebook from 250ct21
 
 
 #percent density
@@ -119,10 +129,10 @@ for(i in 1:length(density.percent)){
 
 #need reps from zoop df to calculate SE for raw and vol_calculated (but don't have reps here...)
 matchingcols <- match(substr(colnames(FCR_taxa_DVM_raw[,c(1:4,6:16)]),1,14),substr(colnames(zoop.repmeans),1,14))
-DVM_samples_raw<- zoop.repmeans[,unique(matchingcols)]
+DVM_samples_raw<- zoop[,unique(matchingcols)]
 
 matchingcols <- match(substr(colnames(FCR_taxa_DVM_vol_calculated[,c(1:4,7:10)]),1,14),substr(colnames(zoop.repmeans),1,14))
-DVM_samples_dens<- zoop.repmeans[,unique(matchingcols)] 
+DVM_samples_dens<- zoop[,unique(matchingcols)] 
 
 #separate full vs epi samples
 FullSamples <- unique(DVM_samples_raw$sample_ID[substrEnd(DVM_samples_raw$sample_ID,3)!="epi"])
@@ -171,7 +181,7 @@ FCR_DVM_calcs_long$WaterColumn <- ifelse(substrEnd(FCR_DVM_calcs_long$metric,3)=
 FCR_DVM_calcs_long$Hour <- ifelse(substrEnd(FCR_DVM_calcs_long$SampleID,4)=="midn","midnight","noon")
 FCR_DVM_calcs_long$Taxa <- substr(FCR_DVM_calcs_long$metric,1,9)
 
-x#----------------------------------------------------------------------#
+#----------------------------------------------------------------------#
 #                           FCR figures                                #
 #simple boxplot comparing epi vs hypo in the presence of MOM vs anoxia #
 #----------------------------------------------------------------------#
@@ -190,15 +200,20 @@ FCR_DVM_calcs_long <- FCR_DVM_calcs_long[substr(FCR_DVM_calcs_long$metric,1,17)!
 #reorder taxa
 FCR_DVM_calcs_long$Taxa <- factor(FCR_DVM_calcs_long$Taxa, levels = c("Cladocera","Rotifera_","Cyclopoid","Calanoida"))
 
-#jpeg("Figures/FCR_epivshypo_density_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
+#sample ids
+sep1<- c("F10Sep20_midn", "F11Sep20_noon")
+sep2 <- c("F14Sep20_midn", "F15Sep20_noon")
+noonjun<- c("F28Jun20_noon", "F29Jun20_noon")
+
+#jpeg("Figures/FCR_epivshypo_density_10-11Sep2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"& SampleID %in% sep1), aes(x=WaterColumn, y=value)) +
   geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Jun 2021") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Sep 2020") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Density (individual/L)") +
@@ -206,15 +221,15 @@ ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & s
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
 #dev.off()
 
-#jpeg("Figures/FCR_epivshypo_biomass_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("biomass",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density"), aes(x=WaterColumn, y=value)) +
+#jpeg("Figures/FCR_epivshypo_biomass_10-11Sep2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, grepl("biomass",metric,ignore.case = TRUE) & substrEnd(metric,7)!="density" & SampleID %in% sep1), aes(x=WaterColumn, y=value)) +
   geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("biomass",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Jun 2021") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Sep 2020") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab(expression(paste("Biomass (",mu,"g/L)"))) +
@@ -222,21 +237,46 @@ ggplot(subset(FCR_DVM_calcs_long, grepl("biomass",metric,ignore.case = TRUE) & s
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
 #dev.off()
 
-#jpeg("Figures/FCR_epivshypo_percent_dens_10Jun2021.jpg", width = 6, height = 4, units = "in",res = 300)
-ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)=="density"), aes(x=WaterColumn, y=value)) +
+#jpeg("Figures/FCR_epivshypo_percent_dens_10-11Sep2020.jpg", width = 6, height = 4, units = "in",res = 300)
+ggplot(subset(FCR_DVM_calcs_long, grepl("density",metric,ignore.case = TRUE) & substrEnd(metric,7)=="density"& SampleID %in% sep1), aes(x=WaterColumn, y=value)) +
   geom_rect(data=subset(FCR_DVM_calcs_long,Hour == 'midnight' &grepl("density",metric,ignore.case = TRUE)),
             aes(fill=Hour),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.053,inherit.aes = FALSE) +
   geom_bar(aes(fill=Taxa, alpha=WaterColumn), stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() +
-  #geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) + ylim(-20,150) +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) + ylim(-20,150) +
   facet_wrap(Hour~Taxa, scales= 'free',ncol=4, strip.position = "right", labeller=labeller(Hour=as_labeller(facet_labeller_bot),Taxa=as_labeller(facet_labeller_top))) +
   theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
-  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10 Sep 2020") + guides(alpha=FALSE) +
+  scale_x_discrete(name="", labels=rep(c("epi","hypo"),10)) + labs(title="10-11 Sep 2020") + guides(alpha=FALSE) +
   scale_fill_manual("Taxa",values=viridis(6),labels=c("Cladocera","Rotifera","Cyclopoida","Calanoida")) +
   geom_hline(yintercept=0) +theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                                   axis.text.x=element_text(size=8,family="Times"), plot.title = element_text(hjust = 0.5)) + ylab("Percent Density") +
   theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), axis.text.y = element_text(size=13, family="Times"),
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=10),legend.title = element_text(size=12))
 #dev.off()
+
+
+#------------------------------------------------------------------------------#
+#Look at schindler data because tows aren't super interesting
+
+schindlers <- zoop[zoop$mesh_size_μm==61 & !is.na(zoop$mesh_size_μm) & zoop$site_no=="FCR_schind",]
+
+#order depth by decreasing number
+schindlers <- schindlers[with(schindlers,order(DepthOfTow_m)),]
+
+#jpeg("Figures/Schindler_density_vs_depth.jpg", width = 6, height = 5, units = "in",res = 300)
+ggplot(data=schindlers,aes(x=Zooplankton_No./30, y=DepthOfTow_m,color=collect_date)) + geom_point() +
+  scale_y_reverse() + geom_path() + facet_grid(~site_no+collect_date)
+#dev.off()
+
+
+
+
+
+
+
+
+
+
+
 
 
 #------------------------------------------------------------------------------#

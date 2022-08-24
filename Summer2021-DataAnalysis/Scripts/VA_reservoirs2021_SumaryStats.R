@@ -80,16 +80,15 @@ RadiusOfZoopNet_m_20<-0.099
 AreaOfZoopNet_m2_20<-(RadiusOfZoopNet_m_20^2) *pi
 
 #Calculate the volume counted for each sample using each subsample volume
-#conditional for each of the mesh types/methods; schindler vol= proportional vol * 30L schindler trap; trap volume = proportional vol * .25L
+#conditional for each of the mesh size/method; schindler vol= proportional vol * 30L schindler trap; trap volume = proportional vol * .25L
 Density$Volume_L <- ifelse(Density$site_no=="BVR_trap", Density$Volume_L<- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL) * .25,
                            ifelse(Density$mesh_size_μm==61, Density$Volume_L<- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL) * 30,
                                   ifelse(Density$mesh_size_μm==80, 
-###################   This is the 1-5mL in the counting chamber relative to the ######## This is the volume of the zoop tow    #####  This is conversion 
-##################   concentrated/diluted total volume of the sample (200-1000mL) ######## depth of tow times area of circle (in m3) #####   from m3 to L      
-Density$Volume_L <- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL)    *      (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m^2)   *    1000,                
-ifelse(Density$mesh_size_μm==20, Density$Volume_L<- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL) * (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m_20^2)   *    1000,  Density$Volume_L<-NA))))
+######   This is the 1-5mL in the counting chamber relative to the concentrated/diluted total volume of the sample (200-1000mL) ### This is the volume of the zoop tow = depth of tow times area of circle (in m3)   #####  This is conversion from m3 to L 
+Density$Volume_L <- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL)                                                 * (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m^2)                                        *    1000,                
+ifelse(Density$mesh_size_μm==20, Density$Volume_L<- (Density$SubsampleVolume_mL/Density$InitialSampleVolume_mL)                 * (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m_20^2)                                     *    1000,  Density$Volume_L<-NA))))
 
-#ignoring volume counted for hypo calcs, as this will be accounted for in numerator (proportional_vol)
+#ignoring volume counted for hypo calcs because this will be accounted for in numerator (proportional_vol)
 Density$Volume_unadj <- ifelse(Density$site_no=="BVR_trap", Density$Volume_unadj <-.25,
                                ifelse(Density$mesh_size_μm==80, Density$Volume_unadj <- (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m^2)*1000, 
                                ifelse(Density$mesh_size_μm==20, Density$Volume_unadj<- (Density$DepthOfTow_m*pi*RadiusOfZoopNet_m_20^2)*1000,
@@ -137,11 +136,14 @@ ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,F
 keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
+#Net efficiencies calculated in the NetEfficiencyCalcs script
+NetEfficiency2021 <- c(0.03844206, 0.06146684)
+
 #Calculate the zooplankton density 2 different ways (tows vs. schindler/horiz traps)
 #multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2020 (n=2)) 
 ZoopDensityCalcs$ZoopDensity_No.pL<- ifelse(ZoopDensityCalcs$site_no=="BVR_trap" | ZoopDensityCalcs$site_no=="BVR_schind" | ZoopDensityCalcs$site_no=="FCR_schind", ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No./ZoopDensityCalcs$Volume_unadj,
-                                            ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No.* (1/0.035) / ZoopDensityCalcs$Volume_L, #NetEfficiency2020[1]
-                                                   ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No.* (1/0.053) / ZoopDensityCalcs$Volume_L, #NetEfficiency2020[2]
+                                            ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No.* (1/NetEfficiency2021[1]) / ZoopDensityCalcs$Volume_L, 
+                                                   ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No.* (1/NetEfficiency2021[2]) / ZoopDensityCalcs$Volume_L, 
                                                           ZoopDensityCalcs$ZoopDensity_No.pL <- ZoopDensityCalcs$Zooplankton_No. / ZoopDensityCalcs$Volume_L)))
                                                          
 
@@ -165,10 +167,10 @@ SizeID[,names(ZoopTaxonomy)]<-NA
 substr(SizeID$LowestTaxonomicLevelOfID, 1, 1) <- toupper(substr(SizeID$LowestTaxonomicLevelOfID, 1, 1))
 
 #Figure out which column the taxa ID is
-for(j in 1:length(SizeID$TaxaID)){ #why is this failing??
+for(j in 1:length(SizeID$TaxaID)){ 
     #Pick out only values with Taxa Level and ID
     if(!is.na(SizeID$LowestTaxonomicLevelOfID[j])&!is.na(SizeID$TaxaID[j])){
-    #Get the column that the lowest level of ID
+    #Get the column with the lowest level of ID
     TaxaColumn<-match(SizeID$LowestTaxonomicLevelOfID[j],names(ZoopTaxonomy))
     #Get the row for the correct taxa (it will output the first match)
     TaxaRow<-match(SizeID$TaxaID[j],ZoopTaxonomy[,TaxaColumn])
@@ -216,7 +218,7 @@ for(k in 1:length(SizeID$TaxaID)){
         #Convert from volume to fresh weight using a specific gravity of 1 kg/m3 (1000 ug/mm3)
         Freshweight_ug<-Volume_mm3*1000
         #Convert to dry weight assuming ratio of 0.1 (dry:wet) - dry weight = wet * 0.1
-        SizeID[k,"Biomass_ug"]<-Freshweight_ug*0.1
+        SizeID[k,"Biomass_ug"]<- Freshweight_ug*0.1
         #break the for loop
         break
         #End of if loop to find which id matches
@@ -224,15 +226,14 @@ for(k in 1:length(SizeID$TaxaID)){
       #End of looping through taxonomy
     }
     
-    
     #End of Rotifer if else
   }else if(!is.na(SizeID[k,"Subphylum"])&SizeID[k,"Subphylum"]=="Crustacea"){
     #If it is a copepod nauplius
     if(SizeID$Nauplius[k]=="nauplius"&SizeID$Subclass[k]=="Copepoda"){  
       #Find the conversion for Copepod nauplius
-      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.b<-CrustaceanBiomassConversions$b[is.na(CrustaceanBiomassConversions$Genus)]
       #choose the a that matches that b
-      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Species)]
+      conversion.parameter.a<-CrustaceanBiomassConversions$a[is.na(CrustaceanBiomassConversions$Genus)]
       #Convert to dry mass using the equation w=e^(a+b(ln(L)) where L is length in mm
       SizeID[k,"Biomass_ug"]<-conversion.parameter.a*(SizeID[k,"Size_mm"]^conversion.parameter.b)
     }else{
@@ -269,6 +270,8 @@ for(k in 1:length(SizeID$TaxaID)){
   #End of loop through the individuals
 }
 
+#asplanchna WW:DW is 0.039 according to 2016 EPA SOP so multiplying this value by .39 (0.039 = 0.1 * 0.39) for all asplanchna biomass values
+SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)] <-  SizeID$Biomass_ug[SizeID$Genus=="Asplanchna"& !is.na(SizeID$Genus)]*0.39
 
 ####################################################
 ####THIS SECTION IS USED TO CONFIRM THE BIOMASS CONVERSION IS WORKING####
@@ -288,9 +291,11 @@ names(ZoopTaxonomy)
 
 #Check total lengths to see how many in each taxa of rotifer vs. crustacean vs. neither
 length(SizeID$Biomass_ug) 
-sum(SizeID$Phylum=="Rotifera"&!is.na(SizeID$Phylum))
+sum(SizeID$Phylum=="Rotifera"&!is.na(SizeID$Phylum)) 
 sum(SizeID$Subphylum=="Crustacea"&!is.na(SizeID$Subphylum))
-sum(!is.na(SizeID$Biomass_ug))
+sum(!is.na(SizeID$Biomass_ug)) 
+#SizeID[which(is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Phylum)),]
+#SizeID[which(!is.na(SizeID$MarksInOcularMicrometer_No.)& is.na(SizeID$Biomass_ug)),]
 ##########################################################
 
 #Create new dataframe that is incorporating all the data from density calc and size
@@ -310,8 +315,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Conochilidae","Synchaetidae","Trichocercidae") #,"Collothecidae" bc none observed yet
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family") #,"Family"
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae","Lepadella","Monostyla","Lecane") #,"Holopedium" --> not observed
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family","Genus","Genus","Genus") #,"Genus"
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)
@@ -340,13 +345,13 @@ for(taxa.index in 1:length(taxaOfInterest)){
     ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")]<- ZoopFinal[,paste(taxa,"_biomass_unadj",sep="")] * (ZoopFinal[,paste(taxa,"Count_n",sep="")] / ZoopFinal[,paste(taxa,"_zoops_measured",sep="")])
     #Taxa density
     ZoopFinal[,paste(taxa,"_density_NopL",sep="")]<-ifelse(ZoopFinal$site_no=="BVR_trap" | ZoopFinal$site_no=="BVR_schind" | ZoopDensityCalcs$site_no=="FCR_schind", ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")]/ZoopFinal$Volume_unadj,
-                                                       ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/0.035)/ ZoopFinal$Volume_L, #NetEfficiency2020[1]
-                                                              ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/0.053)/ ZoopFinal$Volume_L, #NetEfficiency2020[2]
+                                                       ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/NetEfficiency2021[1])/ ZoopFinal$Volume_L, 
+                                                              ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/NetEfficiency2021[2])/ ZoopFinal$Volume_L, 
                                                               ZoopFinal[,paste(taxa,"_density_NopL",sep="")] <- ZoopFinal[,paste(taxa,"Count_n",sep="")] / ZoopFinal$Volume_L)))
     #Taxa biomass concentration
     ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<-ifelse(ZoopFinal$site_no=="BVR_trap" | ZoopFinal$site_no=="BVR_schind"| ZoopDensityCalcs$site_no=="FCR_schind", ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] / ZoopFinal$Volume_unadj,
-                                                                ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/0.035)/ ZoopFinal$Volume_L, #NetEfficiency2020[1]
-                                                                       ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/0.053)/ ZoopFinal$Volume_L, #NetEfficiency2020[2]
+                                                                ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="BVR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/NetEfficiency2021[1])/ ZoopFinal$Volume_L, 
+                                                                       ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/NetEfficiency2021[2])/ ZoopFinal$Volume_L, 
                                                                               ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<- ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] / ZoopFinal$Volume_L)))
     #Percent biomass concentration of total
     ZoopFinal[,paste(taxa,"_PercentOftotalbiomassConcentration",sep="")]<-ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]*100/ZoopFinal$BiomassConcentration_ugpL
@@ -368,7 +373,7 @@ ZoopFinal$BiomassConcentration_ugpL<-ifelse(ZoopFinal$site_no=="BVR_trap" | Zoop
          ifelse(substr(ZoopDensityCalcs$site_no,1,3)=="FCR" & ZoopDensityCalcs$DepthOfTow_m > 8, ZoopFinal$BiomassConcentration_ugpL <- ZoopFinal$TotalBiomass_ug *(1/0.053)/ ZoopFinal$Volume_L, #NetEfficiency2020[2]
                 ZoopFinal$BiomassConcentration_ugpL <- ZoopFinal$TotalBiomass_ug / ZoopFinal$Volume_L)))
   
-#Replace NA with 0's for the relevant cells (count, density, biomass, biomass concentration); NOTE that if this throws an error, means that one taxa was not observed at all and should be dropped
+#Replace NA with 0's for the relevant cells (count, density, biomass, biomass concentration); NOTE that if this throws an error, means that at least one taxa was not observed at all and should be dropped
 ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))][
   is.na(ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))])] <- 0
 
