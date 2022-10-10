@@ -57,20 +57,20 @@ zoop$Hour[grepl("noon",zoop$sample_ID,ignore.case = TRUE)] <- "12:00"
 zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="FCR_50",]
 
 #Create new df with more specific taxonomic groupings (Daphnia, Ceriodaphnia, Bosminiidae, calanoida, cyclopoida, nauplius, keratella, kellicottia, Collothecidae ,Conochilidae, Synchaetidae, Trichocercidae)
-#zoop.repmeans.bytaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL, Daphnia_totalbiomass_ug,
-#                 Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL, Ceriodaphnia_totalbiomass_ug,
-#                 Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL, Bosminidae_totalbiomass_ug,
-#                 Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
-#                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL,Cyclopoida_totalbiomass_ug,
-#                 nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug,
-#                 Keratella_density_NopL, Keratella_BiomassConcentration_ugpL, Keratella_totalbiomass_ug,
-#                 Kellicottia_density_NopL, Kellicottia_BiomassConcentration_ugpL, Kellicottia_totalbiomass_ug,
-#                 Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL, Collothecidae_totalbiomass_ug,
-#                 Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL, Conochilidae_totalbiomass_ug,
-#                 Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL, Synchaetidae_totalbiomass_ug,
-#                 Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,Trichocercidae_totalbiomass_ug) %>%
-#                 group_by(sample_ID, site_no, Hour, collect_date) %>%
-#                 summarise_at(vars(Daphnia_density_NopL:Trichocercidae_totalbiomass_ug), funs(rep.mean=mean, rep.SE=stderr))
+zoop.repmeans.bytaxa <- zoop %>% select(sample_ID,site_no,collect_date,Hour, Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL, Daphnia_totalbiomass_ug,
+                                        Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL, Ceriodaphnia_totalbiomass_ug,
+                                        Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL, Bosminidae_totalbiomass_ug,
+                                        Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
+                                        Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL,Cyclopoida_totalbiomass_ug,
+                                        nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug,
+                                        Keratella_density_NopL, Keratella_BiomassConcentration_ugpL, Keratella_totalbiomass_ug,
+                                        Kellicottia_density_NopL, Kellicottia_BiomassConcentration_ugpL, Kellicottia_totalbiomass_ug,
+                                        Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL, Collothecidae_totalbiomass_ug,
+                                        Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL, Conochilidae_totalbiomass_ug,
+                                        Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL, Synchaetidae_totalbiomass_ug,
+                                        Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,Trichocercidae_totalbiomass_ug) %>%
+                                  group_by(sample_ID, site_no, Hour, collect_date) %>%
+                                  summarise_at(vars(Daphnia_density_NopL:Trichocercidae_totalbiomass_ug), funs(rep.mean=mean, rep.SE=stderr))
 
 
 ##### Create new df to combine reps over 24 hours
@@ -86,17 +86,16 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
 zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$collect_date), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
 zoop.repmeans$Hour <- as.POSIXct(zoop.repmeans$Hour)
 
-#zoop.repmeans.bytaxa$Hour <- strptime(paste0(as.character(zoop.repmeans.bytaxa$collect_date), zoop.repmeans.bytaxa$Hour),format="%Y-%m-%d %H:%M")
-#zoop.repmeans.bytaxa$Hour <- as.POSIXct(zoop.repmeans.bytaxa$Hour)
+zoop.repmeans.bytaxa$Hour <- strptime(paste0(as.character(zoop.repmeans.bytaxa$collect_date), zoop.repmeans.bytaxa$Hour),format="%Y-%m-%d %H:%M")
+zoop.repmeans.bytaxa$Hour <- as.POSIXct(zoop.repmeans.bytaxa$Hour)
 
 #make sure zoop.repmeans is a dataframe
 zoop.repmeans <- data.frame(zoop.repmeans)
-#zoop.repmeans.bytaxa <- data.frame(zoop.repmeans.bytaxa)
+zoop.repmeans.bytaxa <- data.frame(zoop.repmeans.bytaxa)
 
 #order by hour for plotting
 zoop.repmeans <- zoop.repmeans[order(zoop.repmeans$Hour),]
-
-#zoop.repmeans.bytaxa <- zoop.repmeans.bytaxa[order(zoop.repmeans.bytaxa$Hour),]
+zoop.repmeans.bytaxa <- zoop.repmeans.bytaxa[order(zoop.repmeans.bytaxa$Hour),]
 
 ## Use round_date to round to nearest hour for plotting
 r <- round_date(zoop.repmeans$Hour, "hours")
@@ -104,11 +103,13 @@ r <- round_date(zoop.repmeans$Hour, "hours")
 #subsetting repmeans into new df for DHM analyses/figs
 zoop_DHM<- zoop.repmeans[ grepl("epi",zoop.repmeans$sample_ID) |grepl("sunrise",zoop.repmeans$sample_ID) | grepl("sunset",zoop.repmeans$sample_ID) | 
                             zoop.repmeans$site_no=="BVR_l",substrEnd(colnames(zoop.repmeans),14)!="Total_rep.mean" & substrEnd(colnames(zoop.repmeans),12)!="Total_rep.SE"]
-#zoop_DHM_bytaxa<- zoop.repmeans.bytaxa[zoop.repmeans.bytaxa$site_no=="BVR_50_p" | zoop.repmeans.bytaxa$site_no=="BVR_l",]
+
+zoop_DHM_bytaxa<- zoop.repmeans.bytaxa[ grepl("epi",zoop.repmeans.bytaxa$sample_ID) |grepl("sunrise",zoop.repmeans.bytaxa$sample_ID) | grepl("sunset",zoop.repmeans.bytaxa$sample_ID) | 
+                                          zoop.repmeans.bytaxa$site_no=="BVR_l",substrEnd(colnames(zoop.repmeans.bytaxa),14)!="Total_rep.mean" & substrEnd(colnames(zoop.repmeans.bytaxa),12)!="Total_rep.SE"]
 
 #convert new dfs fron tibble to dataframe 
 zoop_DHM <- data.frame(zoop_DHM)
-#zoop_DHM_bytaxa <- data.frame(zoop_DHM_bytaxa)
+zoop_DHM_bytaxa <- data.frame(zoop_DHM_bytaxa)
 
 #-------------------#
 #  12-13 Aug 2020   #
@@ -136,8 +137,6 @@ zoop_DHM_long$metric <- substr(zoop_DHM_long$metric,1,nchar(zoop_DHM_long$metric
 sites <- c("Pelagic","Littoral")
 names(sites) <- c("BVR_50","BVR_l")
 
-
-
 #total density and biomass Jun
 ggplot(subset(zoop_DHM_long, metric %in% c("ZoopDensity_No.pL","BiomassConcentration_ugpL") & site_no %in% c("BVR_50","BVR_l") & (collect_date=="2021-06-15" | collect_date=="2021-06-16")), aes(Hour,value,color=site_no)) +
   geom_rect(aes(xmin=as.POSIXct("2021-06-15 11:30:00"),xmax=as.POSIXct("2021-06-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
@@ -145,9 +144,9 @@ ggplot(subset(zoop_DHM_long, metric %in% c("ZoopDensity_No.pL","BiomassConcentra
   geom_rect(aes(xmin=as.POSIXct("2021-06-16 06:00:00"),xmax=as.POSIXct("2021-06-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(site_no=sites)) + xlab("")+ coord_cartesian(clip = 'off') +
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.89,0.15), legend.spacing = unit(0.05, 'cm'),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.93,0.95), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ #ylab("Density (Individuals/L)")+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ #ylab("Density (Individuals/L)")+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jun_zoopdensity_biomass_LittoralvsPelagic.jpg")) 
@@ -163,7 +162,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.89,0.15), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ ylab("Density (Individuals/L)")+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ ylab("Density (Individuals/L)")+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa_density_LittoralvsPelagic.jpg")) 
@@ -178,7 +177,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_BiomassConcentration_ugpL"
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.89,0.9), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa_biomass_LittoralvsPelagic.jpg"))
@@ -193,7 +192,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("ZoopDensity_No.pL","BiomassConcentra
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.12,0.39), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ #ylab("Density (Individuals/L)")+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ #ylab("Density (Individuals/L)")+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jul_zoopdensity_biomass_LittoralvsPelagic.jpg")) 
@@ -209,7 +208,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.12,0.39), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ ylab("Density (Individuals/L)")+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ ylab("Density (Individuals/L)")+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa_density_LittoralvsPelagic.jpg")) 
@@ -224,7 +223,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_BiomassConcentration_ugpL"
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.89,0.9), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#0099CC","#009966")) + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
+  scale_color_manual(values=c("#0099CC","#009966"), guide="none") + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa_biomass_LittoralvsPelagic.jpg"))
@@ -243,7 +242,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.98), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#009966")) + geom_line()+ ylab("Density (Individuals/L)")+ guides(color="none") +
+  scale_color_manual(values=c("#009966"), guide="none") + geom_line()+ ylab("Density (Individuals/L)")+ guides(color="none") +
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa_density_Littoral.jpg")) 
@@ -259,7 +258,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.98), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#009966")) + geom_line()+ ylab("Density (Individuals/L)")+ guides(color="none") +
+  scale_color_manual(values=c("#009966"), guide="none") + geom_line()+ ylab("Density (Individuals/L)")+ guides(color="none") +
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa_density_Littoral.jpg"))
@@ -275,7 +274,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_BiomassConcentration_ugpL"
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.98), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#009966")) + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+ guides(color="none") +
+  scale_color_manual(values=c("#009966"), guide="none") + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+ guides(color="none") +
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa_biomass_Littoral.jpg")) 
@@ -291,20 +290,116 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_BiomassConcentration_ugpL"
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
         axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.98), legend.spacing = unit(0.05, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
-  scale_color_manual(values=c("#009966")) + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+ guides(color="none") +
+  scale_color_manual(values=c("#009966"), guide="none") + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+ guides(color="none") +
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .7,keywidth = 1.7, order=2, override.aes = list(alpha = 1,color="black")))+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa_biomass_Littoral.jpg"))
-
-
-
-
-
   
 #-------------------------------------------------------------------------------------------------------#
 ##Fig - more taxa specific density over 24 hrs
-taxa2<- c("Daphnia","Ceriodaphnia","Bosminidae","Cyclopoida","Calanoida","nauplius","Keratella","Kellicottia","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae")
 
+variables <- c("Daphnia_density_NopL_rep.mean","Daphnia_BiomassConcentration_ugpL_rep.mean","Ceriodaphnia_density_NopL_rep.mean",
+               "Ceriodaphnia_BiomassConcentration_ugpL_rep.mean","Bosminidae_density_NopL_rep.mean","Bosminidae_BiomassConcentration_ugpL_rep.mean",
+               "Calanoida_density_NopL_rep.mean","Calanoida_BiomassConcentration_ugpL_rep.mean","Cyclopoida_density_NopL_rep.mean",
+               "Cyclopoida_BiomassConcentration_ugpL_rep.mean","nauplius_density_NopL_rep.mean","nauplius_BiomassConcentration_ugpL_rep.mean",
+               "Keratella_density_NopL_rep.mean","Keratella_BiomassConcentration_ugpL_rep.mean","Kellicottia_density_NopL_rep.mean",
+               "Kellicottia_BiomassConcentration_ugpL_rep.mean","Collothecidae_density_NopL_rep.mean", "Collothecidae_BiomassConcentration_ugpL_rep.mean",
+               "Conochilidae_density_NopL_rep.mean","Conochilidae_BiomassConcentration_ugpL_rep.mean","Synchaetidae_density_NopL_rep.mean",
+               "Synchaetidae_BiomassConcentration_ugpL_rep.mean","Trichocercidae_density_NopL_rep.mean","Trichocercidae_BiomassConcentration_ugpL_rep.mean")
+
+SE <- c("Daphnia_density_NopL_rep.SE","Daphnia_BiomassConcentration_ugpL_rep.SE","Ceriodaphnia_density_NopL_rep.SE",
+        "Ceriodaphnia_BiomassConcentration_ugpL_rep.SE","Bosminidae_density_NopL_rep.SE","Bosminidae_BiomassConcentration_ugpL_rep.SE",
+        "Calanoida_density_NopL_rep.SE","Calanoida_BiomassConcentration_ugpL_rep.SE","Cyclopoida_density_NopL_rep.SE",
+        "Cyclopoida_BiomassConcentration_ugpL_rep.SE","nauplius_density_NopL_rep.SE","nauplius_BiomassConcentration_ugpL_rep.SE",
+        "Keratella_density_NopL_rep.SE","Keratella_BiomassConcentration_ugpL_rep.SE","Kellicottia_density_NopL_rep.SE",
+        "Kellicottia_BiomassConcentration_ugpL_rep.SE","Collothecidae_density_NopL_rep.SE", "Collothecidae_BiomassConcentration_ugpL_rep.SE",
+        "Conochilidae_density_NopL_rep.SE","Conochilidae_BiomassConcentration_ugpL_rep.SE","Synchaetidae_density_NopL_rep.SE",
+        "Synchaetidae_BiomassConcentration_ugpL_rep.SE","Trichocercidae_density_NopL_rep.SE","Trichocercidae_BiomassConcentration_ugpL_rep.SE")
+
+#only select density and biomass #/ug / L cols
+zoop_DHM_bytaxa <- zoop_DHM_bytaxa[,-c(which(grepl("ug_rep",colnames(zoop_DHM_bytaxa))))]
+
+#convert df from wide to long (kinda hacky way bc having problems doing this)
+df1 <- zoop_DHM_bytaxa %>% gather(metric,value,all_of(variables))
+df2 <- zoop_DHM_bytaxa %>% gather(metric.SE,value.SE, all_of(SE))
+
+#cut and paste to merge df
+zoop_DHM_bytaxa_long <- df1[,c(1:4,29:30)]
+zoop_DHM_bytaxa_long$metric.SE <- df2$metric.SE
+zoop_DHM_bytaxa_long$value.SE <- df2$value.SE
+
+#drop _rep.mean from all metric names
+zoop_DHM_bytaxa_long$metric <- substr(zoop_DHM_bytaxa_long$metric,1,nchar(zoop_DHM_bytaxa_long$metric)-9)
+
+#change BVR_50_p to BVR_50
+zoop_DHM_bytaxa_long$site_no[zoop_DHM_bytaxa_long$site_no=="BVR_50_p"] <- "BVR_50"
+
+metric_taxa <-c("Bosminidae","Bosminidae","Calanoida","Calanoida","Ceriodaphnia","Ceriodaphnia",
+                "Collothecidae","Collothecidae","Conochilidae","Conochilidae",          
+                "Cyclopoida","Cyclopoida","Daphnia","Daphnia","Kellicottia","Kellicottia",
+                "Keratella","Keratella","nauplius","nauplius","Synchaetidae","Synchaetidae",
+                "Trichocercidae","Trichocercidae")
+names(metric_taxa) <- c(sort(unique(zoop_DHM_bytaxa_long$metric)))
+
+#taxa density Jun 15-16
+ggplot(subset(zoop_DHM_bytaxa_long, grepl("density",metric,ignore.case = TRUE) &
+                site_no %in% c("BVR_50","BVR_l") & (collect_date=="2021-06-15" | collect_date=="2021-06-16")), aes(Hour,value,color=site_no)) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-15 11:30:00"),xmax=as.POSIXct("2021-06-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-15 20:42:00"),xmax=as.POSIXct("2021-06-16 05:59:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-16 06:00:00"),xmax=as.POSIXct("2021-06-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(site_no=sites,metric=metric_taxa)) + xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=6), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.96,0.96), legend.spacing = unit(0.05, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
+  scale_color_manual(values=c("#0099CC","#009966"), guide = 'none') + geom_line()+ ylab("Density (Individuals/L)")+
+  scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .5,keywidth = .5, order=2, override.aes = list(alpha = 1,color="black")))+
+  geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa2_density_LittoralvsPelagic.jpg")) 
+
+#taxa biomass Jun 15-16
+ggplot(subset(zoop_DHM_bytaxa_long, grepl("biomass",metric,ignore.case = TRUE) &
+                site_no %in% c("BVR_50","BVR_l") & (collect_date=="2021-06-15" | collect_date=="2021-06-16")), aes(Hour,value,color=site_no)) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-15 11:30:00"),xmax=as.POSIXct("2021-06-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-15 20:42:00"),xmax=as.POSIXct("2021-06-16 05:59:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-06-16 06:00:00"),xmax=as.POSIXct("2021-06-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(site_no=sites,metric=metric_taxa)) + xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=6), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.96,0.96), legend.spacing = unit(0.05, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
+  scale_color_manual(values=c("#0099CC","#009966"), guide = 'none') + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
+  scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .5,keywidth = .5, order=2, override.aes = list(alpha = 1,color="black")))+
+  geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Figures/BVR_2021_jun_taxa2_biomass_LittoralvsPelagic.jpg"))
+
+#taxa density Jul 7-8
+ggplot(subset(zoop_DHM_bytaxa_long, grepl("density",metric,ignore.case = TRUE) &
+                site_no %in% c("BVR_50","BVR_l") & (collect_date=="2021-07-07" | collect_date=="2021-07-08")), aes(Hour,value,color=site_no)) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-07 11:30:00"),xmax=as.POSIXct("2021-07-07 20:42:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-07 20:43:00"),xmax=as.POSIXct("2021-07-08 06:06:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-08 06:07:00"),xmax=as.POSIXct("2021-07-08 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(site_no=sites,metric=metric_taxa)) + xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=6), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.96,0.96), legend.spacing = unit(0.05, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
+  scale_color_manual(values=c("#0099CC","#009966"), guide = 'none') + geom_line()+ ylab("Density (Individuals/L)")+
+  scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .5,keywidth = .5, order=2, override.aes = list(alpha = 1,color="black")))+
+  geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa2_density_LittoralvsPelagic.jpg")) 
+
+#taxa biomass Jul 7-8
+ggplot(subset(zoop_DHM_bytaxa_long, grepl("biomass",metric,ignore.case = TRUE) &
+                site_no %in% c("BVR_50","BVR_l") & (collect_date=="2021-07-07" | collect_date=="2021-07-08")), aes(Hour,value,color=site_no)) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-07 11:30:00"),xmax=as.POSIXct("2021-07-07 20:42:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-07 20:43:00"),xmax=as.POSIXct("2021-07-08 06:06:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2021-07-08 06:07:00"),xmax=as.POSIXct("2021-07-08 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(site_no=sites,metric=metric_taxa)) + xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=6), axis.text = element_text(size=6, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.5,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.96,0.96), legend.spacing = unit(0.05, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank())+ scale_x_datetime(expand = c(0,0)) +
+  scale_color_manual(values=c("#0099CC","#009966"), guide = 'none') + geom_line()+ ylab(expression(paste("Biomass (",mu,"g/L)")))+
+  scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(keyheight = .5,keywidth = .5, order=2, override.aes = list(alpha = 1,color="black")))+
+  geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa2_biomass_LittoralvsPelagic.jpg"))
 
 
 #--------------------------------------#
