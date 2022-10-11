@@ -1,6 +1,6 @@
 #playing around with multivariate analyses using BVR 2020 zoop data
 
-pacman::p_load(dplyr, vegan, labdsv)
+pacman::p_load(dplyr, vegan, labdsv, goeveg)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -25,7 +25,8 @@ zoop <- zoop %>% select("sample_ID","site_no","collect_date","DepthOfTow_m","Hou
 zoop_schind <- zoop[zoop$site_no=="BVR_schind", ] %>% select(!c(site_no,Hour, collect_date, sample_ID)) %>%
   group_by(DepthOfTow_m) %>% summarise(across(everything(),list(mean))) %>% rename(Depth_m = DepthOfTow_m)
 
-zoop_epi_tows <- zoop[zoop$site_no=="BVR_l" | zoop$site_no=="BVR_50_p", ] %>%
+zoop_epi_tows <- zoop[zoop$site_no!="FCR_50" & grepl("epi",zoop$sample_ID) |grepl("sunrise",zoop$sample_ID) | 
+                        grepl("sunset",zoop$sample_ID) | zoop$site_no=="BVR_l", ] %>%
   mutate(Hour=substr(Hour,1,2)) %>% 
   select(!c(DepthOfTow_m, sample_ID)) %>% group_by(site_no,collect_date,Hour) %>%
   summarise(across(everything(),list(mean)))
@@ -34,7 +35,7 @@ zoop_epi_tows$time <-ifelse(zoop_epi_tows$Hour=="12", "noon", ifelse(
   zoop_epi_tows$Hour =="0:", "midnight",ifelse(zoop_epi_tows$Hour=="18"|zoop_epi_tows$Hour=="19" |
   zoop_epi_tows$Hour=="20" | zoop_epi_tows$Hour=="21", "sunset", "sunrise")))
 
-zoop_epi_tows$site <- ifelse(substrEnd(zoop_epi_tows$site_no,1)=="p","pel","lit")
+zoop_epi_tows$site <- ifelse(substrEnd(zoop_epi_tows$site_no,1)=="l","lit","pel")
 
 #------------------------------------------------------------------------------#
 #pull in driver data
@@ -73,10 +74,10 @@ depth_df$zone <- ifelse(depth_df$Depth_m > 4, "hypo","epi")
 #------------------------------------------------------------------------------#
 #Nonmetric multidimensional scaling (NMDS) 
 #relies on rank orders for ordination, no assumptions of linear relationship
-zoop_dens <- depth_df[,c(4,6,8,10,12,14,16,18,20,22,24)]
-zoop_biom <- depth_df[,c(5,7,9,11,13,15,17,19,21,23,25)]
-zoop_temporal_dens <- zoop_epi_tows[,c(6,8,10,12,14,16,18,20,22,24,26)]
-zoop_temporal_biom <- zoop_epi_tows[,c(7,9,11,13,15,17,19,21,23,25,27)]
+zoop_dens <- depth_df[,c(grepl("density_NopL",colnames(depth_df)))]
+zoop_biom <- depth_df[,c(grepl("_BiomassConcentration_ugpL",colnames(depth_df)))]
+zoop_temporal_dens <- zoop_epi_tows[,c(grepl("density_NopL",colnames(zoop_epi_tows)))]
+zoop_temporal_biom <- zoop_epi_tows[,c(grepl("_BiomassConcentration_ugpL",colnames(zoop_epi_tows)))]
 
 #transforming data - hellinger transformation because gives low weight to low/zero values
 #converts species abundances from absolute to relative - use w/ bray curtis
@@ -88,7 +89,10 @@ zoop_temporal_biom_trans <- hellinger(zoop_temporal_biom)
 #-------------------------------------------------------------------------------#
 #              Bray-curtis dissimilarity --> depth NMDS figs                    #
 #-------------------------------------------------------------------------------#
-par(ask=TRUE)
+#scree plot to decide on dimensions
+dimcheckMDS(zoop_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+
+#choosing dim=3 (0.01); technically 2 dim would be great, but want to be consistent with 2019
 NMDS_depth_bray <- metaMDS(zoop_dens_trans, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_depth_bray$stress
 
@@ -131,8 +135,8 @@ ordihull(ord, depth_df$zone, display = "sites", draw = c("polygon"),
 
 #looking at how species comp changes across sites
 #ord <- ordiplot(NMDS_depth_bray,display = c('sites'),choices = c(1,2),type = "points")
-#points(NMDS_depth_bray$points[depth_df$zone=='epi',1], NMDS_depth_bray$points[depth_df$zone=='epi',3], pch=21,bg='black')
-#points(NMDS_depth_bray$points[depth_df$zone=='hypo',1], NMDS_depth_bray$points[depth_df$zone=='hypo',3], pch=21,bg='grey75')
+#points(NMDS_depth_bray$points[depth_df$zone=='epi',1], NMDS_depth_bray$points[depth_df$zone=='epi',2], pch=21,bg='black')
+#points(NMDS_depth_bray$points[depth_df$zone=='hypo',1], NMDS_depth_bray$points[depth_df$zone=='hypo',2], pch=21,bg='grey75')
 #legend("topleft", legend=c('epi','hypo'), pch=21, pt.bg=c('black', 'grey75'),bty = "n") 
 #legend("bottomright",legend = c("k = 3"),cex = 1.4,bty = 'n')
 
@@ -237,7 +241,10 @@ legend("topleft", legend=c('epi','hypo'), pch=21, pt.bg=c("#B47846", "#4682B4"),
 #-------------------------------------------------------------------------------#
 #             Bray-curtis dissimilarity --> temporal NMDS figs                  #
 #-------------------------------------------------------------------------------#
-par(ask=TRUE)
+#scree plot to decide on dimensions
+dimcheckMDS(zoop_temporal_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+
+#choosing dim=3 because stress is between 0.05-0.1 (0.05); technically 2 dims would be good, but want to be consistent with 2019
 NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_bray$stress
 

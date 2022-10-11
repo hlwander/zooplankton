@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv)
+pacman::p_load(dplyr, vegan, labdsv, goeveg)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -57,7 +57,11 @@ zoop_temporal_dens_trans2 <- hellinger(zoop_temporal_dens2)
 #-------------------------------------------------------------------------------#
 #                  Bray-curtis dissimilarity --> NMDS figs                      #
 #-------------------------------------------------------------------------------#
-par(ask=TRUE)
+#scree plot to decide on dimensions
+dimcheckMDS(zoop_temporal_dens_trans1, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+dimcheckMDS(zoop_temporal_dens_trans2, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+
+#choosing dim=3 because stress is between 0.05-0.1 (0.08 and 0.07)
 NMDS_temporal_bray1 <- metaMDS(zoop_temporal_dens_trans1, distance='bray', k=3, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_bray1$stress
 
