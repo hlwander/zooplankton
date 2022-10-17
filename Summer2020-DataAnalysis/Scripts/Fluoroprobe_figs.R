@@ -6,14 +6,14 @@ pacman::p_load(tidyverse, lubridate, akima, reshape2,
                gridExtra, grid, colorRamps,RColorBrewer, rLakeAnalyzer, cowplot)
 
 #read in fp casts
-col_names <- names(read_tsv("./RawData/FluoroprobeData/20160803_BVR_50_a.txt",n_max=0))
+col_names <- names(read_tsv(file.path(getwd(),"Summer2020-DataAnalysis/RawData/FluoroprobeData/20160803_BVR_50_a.txt"),n_max=0))
 
-raw_fp <- dir(path = "./RawData/FluoroprobeData", pattern = "_BVR_50") %>% 
-  map_df(~ read_tsv(file.path(path = "./RawData/FluoroprobeData", .), col_types = cols(.default = "c"), col_names = col_names, skip = 2))
+raw_fp <- dir(path = file.path(getwd(),"Summer2020-DataAnalysis/RawData/FluoroprobeData"), pattern = "_BVR_50") %>% 
+  map_df(~ read_tsv(file.path(getwd(),"Summer2020-DataAnalysis/RawData/FluoroprobeData", .), col_types = cols(.default = "c"), col_names = col_names, skip = 2))
 
 fp <- raw_fp %>%
-  mutate(DateTime = `Date/Time`, GreenAlgae_ugL = as.numeric(`Green Algae`), Bluegreens_ugL = as.numeric(`Bluegreen`),
-         Browns_ugL = as.numeric(`Diatoms`), Mixed_ugL = as.numeric(`Cryptophyta`), YellowSubstances_ugL = as.numeric(`Yellow substances`),
+  mutate(DateTime = `Date/Time`, GreenAlgae_ugL = as.numeric(`Green Algae...2`), Bluegreens_ugL = as.numeric(`Bluegreen...3`),
+         Browns_ugL = as.numeric(`Diatoms...4`), Mixed_ugL = as.numeric(`Cryptophyta...5`), YellowSubstances_ugL = as.numeric(`Yellow substances...9`),
          TotalConc_ugL = as.numeric(`Total conc.`), Transmission_perc = as.numeric(`Transmission`), Depth_m = as.numeric(`Depth`)) %>%
   select(DateTime, GreenAlgae_ugL, Bluegreens_ugL, Browns_ugL, Mixed_ugL, YellowSubstances_ugL,
          TotalConc_ugL, Transmission_perc, Depth_m) %>%
@@ -54,8 +54,8 @@ for (i in 1:length(unique(fp_new$DateTime))){
     gather(GreenAlgae_ugL:TotalConc_ugL, key = spectral_group, value = ugL)
   profile_plot <- ggplot(data = fp_casts, aes(x = ugL, y = Depth_m, group = spectral_group, color = spectral_group))+
     geom_path(size = 1)+  scale_y_reverse()+ ggtitle(castname)+ theme_bw()
-  filename = paste0(getwd(),"/RawData/FluoroprobeData/Figures/",castname,".png")
-  ggsave(filename = filename, plot = profile_plot, device = "png")
+  filename = paste0(file.path(getwd(),"Summer2021-DataAnalysis/RawData/FluoroprobeData/Figures/"),castname,".png")
+#  ggsave(filename = filename, plot = profile_plot, device = "png")
   
 }
 

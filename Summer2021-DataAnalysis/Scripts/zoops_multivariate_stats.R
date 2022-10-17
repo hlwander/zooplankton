@@ -2,17 +2,21 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
   substr(x, nchar(x)-n+1, nchar(x))
 }
 
+#function to find the closest value in a df
+closest<-function(x,y){
+  x[which(abs(x-y)==min(abs(x-y)))] }
+
 #read in zoop data from all 3 years
-zoops2019<- read.csv('/Users/heatherwander/Documents/VirginiaTech/research/zooplankton/Summer2019-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2019.csv',header = TRUE)
-zoops2020<- read.csv('/Users/heatherwander/Documents/VirginiaTech/research/zooplankton/Summer2020-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2020.csv',header = TRUE)
-zoops2021<- read.csv('SummaryStats/FCR_ZooplanktonSummary2021.csv',header = TRUE)
+zoops2019<- read.csv(file.path(getwd(),'Summer2019-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2019.csv'),header = TRUE)
+zoops2020<- read.csv(file.path(getwd(),'Summer2020-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2020.csv'),header = TRUE)
+zoops2021<- read.csv(file.path(getwd(),'Summer2021-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2021.csv'),header = TRUE)
 
 #select density cols to keep
 zoops2019 <- zoops2019 %>% select("sample_ID","site_no","collect_date","DepthOfTow_m","Hour","mesh_size_μm","ZoopDensity_No.pL","Calanoida_density_NopL",
@@ -220,7 +224,7 @@ NMDS_lit_bray$stress
 #-------------------------------------------------------------------------------#
 #                                 Tracking figs                                 #
 #-------------------------------------------------------------------------------#
-#jpeg("Figures/2019-2020_NMDS_1v2_bray_temporal_avg_days.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -249,7 +253,7 @@ legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','li
 legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_temporal_avg_days.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -280,7 +284,7 @@ legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon'
 
 
 #pelagic only tracking density through time
-#jpeg("Figures/2019-2020_NMDS_1v2_bray_pelagic_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -304,7 +308,7 @@ legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21,
 legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_pelagic_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -329,7 +333,7 @@ legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon'
 #dev.off()
 
 #littoral only tracking density through time
-#jpeg("Figures/2019-2020_NMDS_1v2_bray_littoral_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -353,7 +357,7 @@ legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21,
 legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_littoral_tracking_density_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -380,9 +384,10 @@ legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon'
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
 #-------------------------------------------------------------------------------#
+#so I'm technically calculating the euclidean distances from bray-curtis distance matrices
 
 #step 1: take NMDS output for each site using NMDS coordinates
-zoop_pel_euc <- as.matrix(vegdist(NMDS_pel_bray$points, method='euclidean'))
+zoop_pel_euc <- as.matrix(vegdist(NMDS_pel_bray$points, method='euclidean')) 
 zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
 
 #step 2: select and sum the 9 distances between connecting points for each of the 5 days
@@ -421,7 +426,7 @@ euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3,pel_day4,pel
                                littoral=c(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5))
 
 #plot littoral vs pelagic euclidean distances
-#jpeg("Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="pelagic", 
      main="Daily euclidean distance sums", cex=2.8, pch=21, cex.lab = 1.5)
 points(euc_distances_df$littoral[1],euc_distances_df$pelagic[1], bg="#008585",pch=21,cex=3)
@@ -432,124 +437,647 @@ points(euc_distances_df$littoral[5],euc_distances_df$pelagic[5], bg="#C7522B",pc
 legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#FBF2C4","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
-#driver data df
-euclidean_drivers_df <- data.frame(site = c("pel_day1","pel_day2","pel_day3","pel_day4","pel_day5",
-                                            "lit_day1","lit_day2","lit_day3","lit_day4","lit_day5"),
-                                   euc_dist = c(euc_distances_df$pelagic,euc_distances_df$littoral))
+#-----------------------------------------------------------------------------------------#
+# read in all driver data (YSI, CTD, flora, chem?)
+#day1 (10-11 Jul 2019), day2 (24-25 Jul 2019), day3 (12-13 Aug 2020), day4 (15-16 Jun 2021), day5 (7-8 Jul 2021)
 
-#read in DO and temp from sampling days
-a <- read.csv("RawData/071019_bvr50_a.csv")
-b <- read.csv("RawData/072419_bvr50_a.csv")
-c <- read.csv("RawData/081220_bvr50.csv")
-d <- 
-e <- 
+#df to compile euclidean distances for each day/site
+euclidean_drivers_df <- data.frame(site = c("day1","day2","day3","day4","day5"),
+                                   pel_euc_dist = euc_distances_df$pelagic,
+                                   lit_euc_dist = euc_distances_df$littoral)
 
-#pull 0.1 and 9m 
-a <- a[a$Depth_m >=0.1 & a$Depth_m<=0.13 | a$Depth_m >=9 & a$Depth_m<=9.03,]
-b <- b[b$Depth_m >=0.1 & b$Depth_m<0.112 | b$Depth_m >=9 & b$Depth_m<=9.03,][c(1,3),]
-c <- c[c$Depth_m ==0.1 | c$Depth_m >=9 & c$Depth_m<=9.01,]
 
-ctd <- rbind(a,b,c)
+#EDI YSI data
+inUrl2  <- "https://pasta.lternet.edu/package/data/eml/edi/198/10/b3bd353312f9e37ca392e2a5315cc9da" 
+infile2 <- tempfile()
+try(download.file(inUrl2,infile2,method="curl"))
+if (is.na(file.size(infile2))) download.file(inUrl2,infile2,method="auto")
 
-#add ctd cols to df
-euclidean_drivers_df$DO_0.1m <- c(ctd$DO_mgL[c(1,3,5)],NA,NA,NA)
-euclidean_drivers_df$DO_9m <- c(ctd$DO_mgL[c(2,4,6)],NA,NA,NA)
-euclidean_drivers_df$temp_0.1m <- c(ctd$Temp_C[c(1,3,5)],NA,NA,NA)
-euclidean_drivers_df$temp_9m <- c(ctd$Temp_C[c(2,4,6)],NA,NA,NA)
-euclidean_drivers_df$chl_0.1m <- c(ctd$Chla_ugL[c(1,3,5)],NA,NA,NA)
-euclidean_drivers_df$chl_9m <- c(ctd$Chla_ugL[c(2,4,6)],NA,NA,NA)
-euclidean_drivers_df$sp_cond_0.1m <- c(ctd$Spec_Cond_uScm[c(1,3,5)],NA,NA,NA)
-euclidean_drivers_df$sp_cond_9m <- c(ctd$Spec_Cond_uScm[c(2,4,6)],NA,NA,NA)
-euclidean_drivers_df$percent_DO_0.1m <- c(ctd$DO_pSat[c(1,3,5)],NA,NA,NA)
-euclidean_drivers_df$percent_DO_9m <- c(ctd$DO_pSat[c(2,4,6)],NA,NA,NA)
-  
+ysi <-read.csv(infile2,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Depth_m",     
+                 "Temp_C",     
+                 "DO_mgL",     
+                 "DOSat",     
+                 "Cond_uScm",     
+                 "Sp_cond_uScm",     
+                 "PAR_umolm2s",     
+                 "ORP_mV",     
+                 "pH",     
+                 "Flag_DateTime",     
+                 "Flag_Temp",     
+                 "Flag_DO",     
+                 "Flag_DOSat",     
+                 "Flag_Cond",     
+                 "Flag_Sp_Cond",     
+                 "Flag_PAR",     
+                 "Flag_ORP",     
+                 "Flag_pH"    ), check.names=TRUE)
+
+unlink(infile2)
+
+#some of the sites are wrong for 7-8 Jul 2021
+ysi$Site[ysi$DateTime=="2021-07-07 11:37:00"] <- 50
+ysi$Site[ysi$DateTime=="2021-07-08 11:45:00"] <- 50
+
+#change date format
+ysi$DateTime <- as.Date(ysi$DateTime)
+
+#separate ysi by day
+#msn1_ysi <-  ysi[(ysi$DateTime=="2019-07-10" | ysi$DateTime=="2019-07-11")  & ysi$Reservoir=="BVR",] #no ysi data
+#msn2_ysi <-  ysi[(ysi$DateTime=="2019-07-24" | ysi$DateTime=="2019-07-25")  & ysi$Reservoir=="BVR",] #no ysi data
+msn3_ysi <-  ysi[(ysi$DateTime=="2020-08-12" | ysi$DateTime=="2020-08-13")  & ysi$Reservoir=="BVR",]
+msn4_ysi <-  ysi[(ysi$DateTime=="2021-06-15" | ysi$DateTime=="2020-06-16")  & ysi$Reservoir=="BVR",]
+msn5_ysi <-  ysi[(ysi$DateTime=="2021-07-07" | ysi$DateTime=="2021-07-08")  & ysi$Reservoir=="BVR" & ysi$Site==50,]
+
+msn5_ysi_lit <- ysi[(ysi$DateTime=="2021-07-07" | ysi$DateTime=="2021-07-08")  & ysi$Reservoir=="BVR" & ysi$Site==51,]
+
+#read in CTD EDI file
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/200/12/0a62d1946e8d9a511bc1404e69e59b8c" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+ctd <-read.csv(infile1,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "Date",     
+                 "Depth_m",     
+                 "Temp_C",     
+                 "DO_mgL",     
+                 "DO_pSat",     
+                 "Cond_uScm",     
+                 "Spec_Cond_uScm",     
+                 "Chla_ugL",     
+                 "Turb_NTU",     
+                 "pH",     
+                 "ORP_mV",     
+                 "PAR_umolm2s",     
+                 "Desc_rate",     
+                 "Flag_Temp",     
+                 "Flag_DO",     
+                 "Flag_Cond",     
+                 "Flag_SpecCond",     
+                 "Flag_Chla",     
+                 "Flag_Turb",     
+                 "Flag_pH",     
+                 "Flag_ORP",     
+                 "Flag_PAR",     
+                 "Flag_DescRate"    ), check.names=TRUE)
+
+unlink(infile1)
+
+#change date format
+ctd$Date <- as.Date(ctd$Date)
+
+#read in DO and temp from sampling days, select 0.1 and 9m, and then average both day DO
+msn1_ctd <- ctd %>% filter((Date=="2019-07-10" | Date=="2019-07-11") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn2_ctd <- ctd %>% filter((Date=="2019-07-24" | Date=="2019-07-25") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn3_ctd <- ctd %>% filter(Date=="2020-08-12" | Date=="2020-08-13" & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn4_ctd <- ctd %>% filter(Date=="2021-06-15" | Date=="2021-06-16" & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+before_msn5_ctd <- ctd[(ctd$Date=="2021-06-28")  & ctd$Reservoir=="BVR",] #no ctd on day 5
+before_msn5_ctd <-  before_msn5_ctd[before_msn5_ctd$Depth_m==closest(before_msn5_ctd$Depth_m, 0.1) | before_msn5_ctd$Depth_m==closest(before_msn5_ctd$Depth_m, 9),] 
+
+after_msn5_ctd <- ctd[(ctd$Date=="2021-07-12")  & ctd$Reservoir=="BVR",] #no ctd on day 5
+after_msn5_ctd <-  after_msn5_ctd[after_msn5_ctd$Depth_m==closest(after_msn5_ctd$Depth_m, 0.1) | after_msn5_ctd$Depth_m==closest(after_msn5_ctd$Depth_m, 9),] 
+
+#so for now, I'm just going to take the do from 4 days after because I'm assuming that DO doesn't change that much in 4 days...
+msn5_0.1_ctd <- after_msn5_ctd$DO_mgL[after_msn5_ctd$Depth_m<2]
+msn5_9_ctd <- after_msn5_ctd$DO_mgL[after_msn5_ctd$Depth_m>2]
+
+#select every 0.5m from casts
+ctd_final <- ctd %>%
+  dplyr::mutate(rdepth = plyr::round_any(Depth_m, 0.5)) %>% 
+  dplyr::group_by(Date, rdepth, Reservoir, Site) %>%
+  dplyr::summarise(value = mean(Temp_C)) %>% 
+  dplyr::rename(depth = rdepth) 
+
+#calcualte thermocline depth now
+msn1_therm_depth <- ctd_final %>% filter((Date=="2019-07-10" | Date=="2019-07-11") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(depth > 0) %>% mutate(therm_depth = thermo.depth(value,depth))
+
+msn2_therm_depth <- ctd_final %>% filter((Date=="2019-07-24"  | Date=="2019-07-25") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(depth > 0) %>% mutate(therm_depth = thermo.depth(value,depth))
+
+msn3_therm_depth <- ctd_final %>% filter((Date=="2020-08-12"  | Date=="2020-08-13") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(depth > 0) %>% mutate(therm_depth = thermo.depth(value,depth))
+
+msn4_therm_depth <- ctd_final %>% filter((Date=="2021-06-15"  | Date=="2021-06-16") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(depth > 0) %>% mutate(therm_depth = thermo.depth(value,depth))
+
+msn5_therm_depth <- ctd_final %>% filter((Date=="2021-07-12"  | Date=="2021-07-12") & Reservoir=="BVR") %>%
+  group_by(Date) %>% filter(depth > 0) %>% mutate(therm_depth = thermo.depth(value,depth)) #4 days after msn
+
+
+#read in fp data from edi
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/272/6/6b3151c0fdd913e02641363c2b00ae57" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+
+fp <-read.csv(infile1,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Depth_m",     
+                 "GreenAlgae_ugL",     
+                 "Bluegreens_ugL",     
+                 "BrownAlgae_ugL",     
+                 "MixedAlgae_ugL",     
+                 "YellowSubstances_ugL",     
+                 "TotalConc_ugL",     
+                 "Transmission",     
+                 "Temp_degC",     
+                 "RFU_525nm",     
+                 "RFU_570nm",     
+                 "RFU_610nm",     
+                 "RFU_370nm",     
+                 "RFU_590nm",     
+                 "RFU_470nm",     
+                 "Flag_GreenAlgae",     
+                 "Flag_BluegreenAlgae",     
+                 "Flag_BrownAlgae",     
+                 "Flag_MixedAlgae",     
+                 "Flag_TotalConc",     
+                 "Flag_Temp",     
+                 "Flag_Transmission",     
+                 "Flag_525nm",     
+                 "Flag_570nm",     
+                 "Flag_610nm",     
+                 "Flag_370nm",     
+                 "Flag_590nm",     
+                 "Flag_470nm"    ), check.names=TRUE)
+
+unlink(infile1)
+
+#change date format for fp data
+fp$DateTime <- as.Date(fp$DateTime)
+
+#fp for all msns
+msn1_fp <- fp %>% filter((DateTime=="2019-07-10" | DateTime=="2019-07-11") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn2_fp <- fp %>% filter((DateTime=="2019-07-24" | DateTime=="2019-07-25") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE) #nope
+
+msn3_fp <- fp %>% filter((DateTime=="2020-08-12" | DateTime=="2020-08-13") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn4_fp <- fp %>% filter((DateTime=="2021-06-15" | DateTime=="2021-06-16") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE)
+
+msn5_fp <- fp %>% filter((DateTime=="2021-07-07" | DateTime=="2021-07-08") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(abs(Depth_m - 0.1) == min(abs(Depth_m - 0.1)) | (abs(Depth_m - 9) == min(abs(Depth_m - 9)))) %>%
+  distinct(Depth_m, .keep_all = TRUE) #nope
+
+#read in nutreint data from edi
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/199/10/aa2ccc23688fc908f9d61cb217210a3d" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+
+chem <-read.csv(infile1,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Depth_m",     
+                 "Rep",     
+                 "TN_ugL",     
+                 "TP_ugL",     
+                 "NH4_ugL",     
+                 "NO3NO2_ugL",     
+                 "SRP_ugL",     
+                 "DOC_mgL",     
+                 "DIC_mgL",     
+                 "DC_mgL",     
+                 "DN_mgL",     
+                 "Flag_DateTime",     
+                 "Flag_TN",     
+                 "Flag_TP",     
+                 "Flag_NH4",     
+                 "Flag_NO3NO2",     
+                 "Flag_SRP",     
+                 "Flag_DOC",     
+                 "Flag_DIC",     
+                 "Flag_DC",     
+                 "Flag_DN"    ), check.names=TRUE)
+
+unlink(infile1)
+
+#change date format for fp data
+chem$DateTime <- as.Date(chem$DateTime)
+
+#chem for all msns
+msn1_chem <- chem %>% filter((DateTime=="2019-07-10" | DateTime=="2019-07-11") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(Depth_m== 0.1 | Depth_m== 9)
+
+msn2_chem <- chem %>% filter((DateTime=="2019-07-24" | DateTime=="2019-07-25") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(Depth_m== 0.1 | Depth_m== 9)
+
+msn3_chem <- chem %>% filter((DateTime=="2020-08-12" | DateTime=="2020-08-13") & Reservoir=="BVR") %>%
+  group_by(DateTime) %>% filter(Depth_m== 0.1 | Depth_m== 9)
+
+msn4_chem <- chem %>% filter((DateTime=="2021-06-15" | DateTime=="2021-06-16") & Reservoir=="BVR" & Site==50) %>%
+  group_by(DateTime) %>% filter(Depth_m== 0.1 | Depth_m== 9)
+
+msn5_chem <- chem %>% filter((DateTime=="2021-07-11" | DateTime=="2021-07-12") & Reservoir=="BVR" & Site==50) %>%
+  group_by(DateTime) %>% filter(Depth_m== 0.1 | Depth_m== 9)
+
+#add environmental drivers to euclidean distance df
+euclidean_drivers_df$DO_0.1m <- c(mean(msn1_ctd$DO_mgL[msn1_ctd$Depth_m<2]), mean(msn2_ctd$DO_mgL[msn2_ctd$Depth_m<2]),
+                                  mean(msn3_ctd$DO_mgL[msn3_ctd$Depth_m<2]),mean(msn4_ctd$DO_mgL[msn4_ctd$Depth_m<2]),msn5_0.1_ctd)
+
+euclidean_drivers_df$DO_9.0m <- c(mean(msn1_ctd$DO_mgL[msn1_ctd$Depth_m>2]), mean(msn2_ctd$DO_mgL[msn2_ctd$Depth_m>2]),
+                                  mean(msn3_ctd$DO_mgL[msn3_ctd$Depth_m>2]),mean(msn4_ctd$DO_mgL[msn4_ctd$Depth_m>2]),msn5_9_ctd)
+
+euclidean_drivers_df$DOsat_0.1m <- c(mean(msn1_ctd$DO_pSat[msn1_ctd$Depth_m<2]), mean(msn2_ctd$DO_pSat[msn2_ctd$Depth_m<2]),
+                                     mean(msn3_ctd$DO_pSat[msn3_ctd$Depth_m<2]),mean(msn4_ctd$DO_pSat[msn4_ctd$Depth_m<2]),
+                                     after_msn5_ctd$DO_pSat[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$DOsat_9.0m <- c(mean(msn1_ctd$DO_pSat[msn1_ctd$Depth_m>2]), mean(msn2_ctd$DO_pSat[msn2_ctd$Depth_m>2]),
+                                     mean(msn3_ctd$DO_pSat[msn3_ctd$Depth_m>2]),mean(msn4_ctd$DO_pSat[msn4_ctd$Depth_m>2]),
+                                     after_msn5_ctd$DO_pSat[after_msn5_ctd$Depth_m>2])
+
+euclidean_drivers_df$Spcond_0.1m <- c(mean(msn1_ctd$Spec_Cond_uScm[msn1_ctd$Depth_m<2]), mean(msn2_ctd$Spec_Cond_uScm[msn2_ctd$Depth_m<2]),
+                                      mean(msn3_ctd$Spec_Cond_uScm[msn3_ctd$Depth_m<2]),mean(msn4_ctd$Spec_Cond_uScm[msn4_ctd$Depth_m<2]),
+                                      after_msn5_ctd$Spec_Cond_uScm[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$Spcond_9.0m <- c(mean(msn1_ctd$Spec_Cond_uScm[msn1_ctd$Depth_m>2]), mean(msn2_ctd$Spec_Cond_uScm[msn2_ctd$Depth_m>2]),
+                                      mean(msn3_ctd$Spec_Cond_uScm[msn3_ctd$Depth_m>2]),mean(msn4_ctd$Spec_Cond_uScm[msn4_ctd$Depth_m>2]),
+                                      after_msn5_ctd$Spec_Cond_uScm[after_msn5_ctd$Depth_m>2])
+
+euclidean_drivers_df$chla_0.1m <- c(mean(msn1_ctd$Chla_ugL[msn1_ctd$Depth_m<2]), mean(msn2_ctd$Chla_ugL[msn2_ctd$Depth_m<2]),
+                                    mean(msn3_ctd$Chla_ugL[msn3_ctd$Depth_m<2]),mean(msn4_ctd$Chla_ugL[msn4_ctd$Depth_m<2]),
+                                    after_msn5_ctd$Chla_ugL[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$chla_9.0m <- c(mean(msn1_ctd$Chla_ugL[msn1_ctd$Depth_m>2]), mean(msn2_ctd$Chla_ugL[msn2_ctd$Depth_m>2]),
+                                    mean(msn3_ctd$Chla_ugL[msn3_ctd$Depth_m>2]),mean(msn4_ctd$Chla_ugL[msn4_ctd$Depth_m>2]),
+                                    after_msn5_ctd$Chla_ugL[after_msn5_ctd$Depth_m>2])
+
+euclidean_drivers_df$turb_0.1m <- c(mean(msn1_ctd$Turb_NTU[msn1_ctd$Depth_m<2]), mean(msn2_ctd$Turb_NTU[msn2_ctd$Depth_m<2]),
+                                    mean(msn3_ctd$Turb_NTU[msn3_ctd$Depth_m<2]),mean(msn4_ctd$Turb_NTU[msn4_ctd$Depth_m<2]),
+                                    after_msn5_ctd$Turb_NTU[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$turb_9.0m <- c(mean(msn1_ctd$Turb_NTU[msn1_ctd$Depth_m>2]), mean(msn2_ctd$Turb_NTU[msn2_ctd$Depth_m>2]),
+                                    mean(msn3_ctd$Turb_NTU[msn3_ctd$Depth_m>2]),mean(msn4_ctd$Turb_NTU[msn4_ctd$Depth_m>2]),
+                                    after_msn5_ctd$Turb_NTU[after_msn5_ctd$Depth_m>2])
+
+euclidean_drivers_df$temp_0.1m <- c(mean(msn1_ctd$Temp_C[msn1_ctd$Depth_m<2]), mean(msn2_ctd$Temp_C[msn2_ctd$Depth_m<2]),
+                                    mean(msn3_ctd$Temp_C[msn3_ctd$Depth_m<2]),mean(msn4_ctd$Temp_C[msn4_ctd$Depth_m<2]),
+                                    after_msn5_ctd$Temp_C[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$temp_9.0m <- c(mean(msn1_ctd$Temp_C[msn1_ctd$Depth_m>2]), mean(msn2_ctd$Temp_C[msn2_ctd$Depth_m>2]),
+                                    mean(msn3_ctd$Temp_C[msn3_ctd$Depth_m>2]),mean(msn4_ctd$Temp_C[msn4_ctd$Depth_m>2]),
+                                    after_msn5_ctd$Temp_C[after_msn5_ctd$Depth_m>2])
+
+euclidean_drivers_df$par_0.1m <- c(mean(msn1_ctd$PAR_umolm2s[msn1_ctd$Depth_m<2]), mean(msn2_ctd$PAR_umolm2s[msn2_ctd$Depth_m<2]),
+                                    mean(msn3_ctd$PAR_umolm2s[msn3_ctd$Depth_m<2]),mean(msn4_ctd$PAR_umolm2s[msn4_ctd$Depth_m<2]),
+                                    after_msn5_ctd$PAR_umolm2s[after_msn5_ctd$Depth_m<2])
+
+euclidean_drivers_df$par_9.0m <- c(mean(msn1_ctd$PAR_umolm2s[msn1_ctd$Depth_m>2]), mean(msn2_ctd$PAR_umolm2s[msn2_ctd$Depth_m>2]),
+                                   mean(msn3_ctd$PAR_umolm2s[msn3_ctd$Depth_m>2]),mean(msn4_ctd$PAR_umolm2s[msn4_ctd$Depth_m>2]),
+                                   after_msn5_ctd$PAR_umolm2s[after_msn5_ctd$Depth_m>2])
+
+
+euclidean_drivers_df$thermo_depth <- c(mean(c(first(msn1_therm_depth$therm_depth),last(msn1_therm_depth$therm_depth))),
+                                       mean(c(first(msn2_therm_depth$therm_depth),last(msn2_therm_depth$therm_depth))),
+                                       mean(c(first(msn3_therm_depth$therm_depth),last(msn3_therm_depth$therm_depth))),
+                                       mean(c(first(msn4_therm_depth$therm_depth),last(msn4_therm_depth$therm_depth))),
+                                       mean(c(first(msn5_therm_depth$therm_depth),last(msn5_therm_depth$therm_depth))))
+
+euclidean_drivers_df$TN_surf <- c(msn1_chem$TN_ugL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$TN_ugL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$TN_ugL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$TN_ugL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$TN_ugL[msn5_chem$Depth_m==0.1]) 
+
+euclidean_drivers_df$TP_surf <- c(msn1_chem$TP_ugL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$TP_ugL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$TP_ugL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$TP_ugL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$TP_ugL[msn5_chem$Depth_m==0.1]) 
+
+euclidean_drivers_df$NH4_surf <- c(msn1_chem$NH4_ugL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$NH4_ugL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$NH4_ugL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$NH4_ugL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$NH4_ugL[msn5_chem$Depth_m==0.1]) 
+
+euclidean_drivers_df$NO3NO2_surf <- c(msn1_chem$NO3NO2_ugL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$NO3NO2_ugL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$NO3NO2_ugL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$NO3NO2_ugL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$NO3NO2_ugL[msn5_chem$Depth_m==0.1]) 
+
+euclidean_drivers_df$SRP_surf <- c(msn1_chem$SRP_ugL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$SRP_ugL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$SRP_ugL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$SRP_ugL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$SRP_ugL[msn5_chem$Depth_m==0.1]) 
+
+euclidean_drivers_df$DOC_surf <- c(msn1_chem$DOC_mgL[msn1_chem$Depth_m==0.1], 
+                                  msn2_chem$DOC_mgL[msn2_chem$Depth_m==0.1],
+                                  msn3_chem$DOC_mgL[msn3_chem$Depth_m==0.1],
+                                  msn4_chem$DOC_mgL[msn4_chem$Depth_m==0.1],
+                                  msn5_chem$DOC_mgL[msn5_chem$Depth_m==0.1]) 
+
+
+#----------------------------------------------------------------------------------------#
 #calculate avg density col for each day at both sites
-euclidean_drivers_df$avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==1]),
+euclidean_drivers_df$pel_avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==1]),
                                    mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==2]),
                                    mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==3]),
-                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==1]),
-                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==2]),
-                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==3]))
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==4]),
+                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==5]))
+
+
+euclidean_drivers_df$lit_avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==1]),
+                                  mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==2]),
+                                  mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==3]),
+                                  mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==4]),
+                                  mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==5]))
+
+euclidean_drivers_df$oxycline_depth <- c(6.5,5.5,3.5,6.5,5) #see calcs below
 
 #plot response variable (euclidean distances) against environmental/biological data
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epiDO.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$DO_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$DO_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$DO_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$DO_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epiDO.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$DO_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5, ylim=c(0,3))
+points(euclidean_drivers_df$DO_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypoDO.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$DO_9m,euclidean_drivers_df$euc_dist, xlab="Hypo DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$DO_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$DO_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$DO_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypoDO.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$DO_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$DO_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_temp.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$temp_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$temp_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$temp_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$temp_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epitemp.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$temp_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$temp_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_temp.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$temp_9m,euclidean_drivers_df$euc_dist, xlab="Hypo temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$temp_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$temp_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$temp_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("topright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypotemp.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$temp_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$temp_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_sp_cond.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$sp_cond_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi sp. cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$sp_cond_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$sp_cond_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$sp_cond_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epispcond.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Spcond_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Sp Cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Spcond_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_sp_cond.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$sp_cond_9m,euclidean_drivers_df$euc_dist, xlab="Hypo sp. cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$sp_cond_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$sp_cond_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$sp_cond_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypospcond.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Spcond_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Sp Cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Spcond_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_epi_chla.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$chl_0.1m,euclidean_drivers_df$euc_dist, xlab="Epi chla", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$chl_0.1m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$chl_0.1m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$chl_0.1m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epichl.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$chla_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Chl a", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$chla_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$chla_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$chla_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$chla_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$chla_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_hypo_chla.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$chl_9m,euclidean_drivers_df$euc_dist, xlab="Hypo chla", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$chl_9m[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$chl_9m[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$chl_9m[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypochl.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$chla_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Chl a", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$chla_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$chla_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$chla_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$chla_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$chla_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_pel_zoop_dens.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$avg_dens[1:3],euclidean_drivers_df$euc_dist[1:3], xlab="Avg pelagic zoop dens", ylab="distance",cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$avg_dens[1],euclidean_drivers_df$euc_dist[1], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$avg_dens[2],euclidean_drivers_df$euc_dist[2], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$avg_dens[3],euclidean_drivers_df$euc_dist[3], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epiturb.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$turb_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Turb", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$turb_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$turb_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$turb_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$turb_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$turb_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-#jpeg("Figures/2019-2020_euclidean_dist_daily_sums_vs_lit_zoop_dens.jpg", width = 6, height = 5, units = "in",res = 300)
-plot(euclidean_drivers_df$avg_dens[4:6],euclidean_drivers_df$euc_dist[4:6], xlab="Avg littoral zoop dens", ylab="distance",cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$avg_dens[4],euclidean_drivers_df$euc_dist[4], bg="orangered3",pch=21,cex=3)
-points(euclidean_drivers_df$avg_dens[5],euclidean_drivers_df$euc_dist[5], bg="cadetblue",pch=21,cex=3)
-points(euclidean_drivers_df$avg_dens[6],euclidean_drivers_df$euc_dist[6], bg="mediumpurple4",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3"),pch=21, pt.bg=c("orangered3","cadetblue","mediumpurple4"),bty = "n",cex=1.4)
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypoturb.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$turb_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Turb", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$turb_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$turb_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$turb_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$turb_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$turb_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
-  
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epipar.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$par_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi PAR", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$par_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$par_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$par_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$par_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$par_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypopar.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$par_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo PAR", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$par_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$par_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$par_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$par_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$par_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_pelzoopdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$pel_avg_dens,euclidean_drivers_df$pel_euc_dist, xlab="Pel Zoop Dens", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$pel_avg_dens[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$pel_avg_dens[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$pel_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$pel_avg_dens[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$pel_avg_dens[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_litzoopdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$lit_avg_dens,euclidean_drivers_df$pel_euc_dist, xlab="Lit Zoop Dens", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$lit_avg_dens[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$lit_avg_dens[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$lit_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$lit_avg_dens[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$lit_avg_dens[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_thermdepth.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$thermo_depth,euclidean_drivers_df$pel_euc_dist, xlab="Thermocline Depth", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$thermo_depth[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$thermo_depth[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$thermo_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$thermo_depth[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$thermo_depth[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_TN.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$TN_surf,euclidean_drivers_df$pel_euc_dist, xlab="TN (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$TN_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$TN_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$TN_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$TN_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$TN_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_TP.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$TP_surf,euclidean_drivers_df$pel_euc_dist, xlab="TP (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$TP_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$TP_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$TP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$TP_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$TP_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_NH4.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$NH4_surf,euclidean_drivers_df$pel_euc_dist, xlab="NH4 (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$NH4_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$NH4_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$NH4_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$NH4_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$NH4_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_NO3NO2.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$NO3NO2_surf,euclidean_drivers_df$pel_euc_dist, xlab="NO3NO2 (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$NO3NO2_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$NO3NO2_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$NO3NO2_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$NO3NO2_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$NO3NO2_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_SRP.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$SRP_surf,euclidean_drivers_df$pel_euc_dist, xlab="SRP (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$SRP_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$SRP_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$SRP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$SRP_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$SRP_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_DOC.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$DOC_surf,euclidean_drivers_df$pel_euc_dist, xlab="DOC (mg/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$DOC_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$DOC_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$DOC_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DOC_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$DOC_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_oxydepth.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$oxycline_depth,euclidean_drivers_df$pel_euc_dist, xlab="Oxycline Depth", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$oxycline_depth[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$oxycline_depth[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$oxycline_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$oxycline_depth[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$oxycline_depth[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+#dev.off()
+
+
+#ctd 
+ctd_clean <- ctd %>%
+  dplyr::mutate(rdepth = plyr::round_any(Depth_m, 0.5)) %>% 
+  dplyr::filter(!is.na(DO_mgL)) %>%
+  dplyr::group_by(Reservoir,Date,Site, rdepth) %>%
+  dplyr::summarise(value = mean(DO_mgL)) %>% 
+  dplyr::rename(depth = rdepth)  %>%
+  dplyr::group_by(Reservoir,Site, Date) %>% 
+  dplyr::mutate(oxy = min(depth[value<=2], na.rm=TRUE))
+
+depths <- ctd_clean$oxy[(ctd_clean$Date=="2019-07-10" | ctd_clean$Date=="2019-07-24" |
+                          ctd_clean$Date=="2020-08-12" | ctd_clean$Date=="2021-06-16" | ctd_clean$Date=="2021-07-12") & ctd_clean$Reservoir=="BVR" & ctd_clean$Site==50 & ctd_clean$depth>0]
+
+
+#oxygen plots for all 5 MSNs
+ggplot(subset(ctd_clean, depth > 0 & Reservoir=="BVR" & Site==50 & Date %in% c(as.Date("2019-07-10"), as.Date("2019-07-24"),
+                                             as.Date("2020-08-12"), as.Date("2021-06-16"), as.Date("2021-07-12"))), aes(value,depth,color=as.factor(Date))) + 
+  geom_rect(aes(xmin=-Inf, xmax=Inf, ymin= depths, ymax=Inf), fill="red",alpha=0.03) +
+  scale_color_manual("",values=hcl.colors(5,"Geyser"), guide="none") +  xlab("DO (mg/L)") + ylab("Depth (m)") +
+  ylim(10,0) + geom_point() + geom_path() + theme_bw() + facet_wrap(~Date, ncol=5) +
+  theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.position = c(0.76,0.02),
+        legend.background = element_blank(),legend.direction = "horizontal", panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
+        plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), panel.grid.major = element_blank(),
+        legend.title = element_text(size = 4.5),legend.text  = element_text(size = 4.5), panel.spacing=unit(0, "cm"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1,size=6), axis.text.y = element_text(size=6)) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/DO_profiles.jpg"), width=4, height=3) 
+
+       
