@@ -69,7 +69,7 @@ zoop_epi_tows$timegroup <- paste0(zoop_epi_tows$time,zoop_epi_tows$groups)
 zoop_temporal_dens <- zoop_epi_tows[,c(grepl("density_NopL",colnames(zoop_epi_tows)))]  
 
 #transforming data - hellinger transformation because gives low weight to low/zero values
-#converts species abundances from absolute to relative - use w/ bray curtis
+#converts species abundances from absolute to relative - use w/ bray curtis (jaccard might be another one to try later on to look at absolute)
 zoop_temporal_dens_trans <- hellinger(zoop_temporal_dens)
 
 #-------------------------------------------------------------------------------#
@@ -195,6 +195,11 @@ zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
 #pelagic vs littoral dfs
 zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
 zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
+
+#10 dfs for time (sunrise 1-4, noon, sunset 1-4, midnight)
+
+
+#5 dfs for MSN #
 
 #only select data cols
 zoop_temporal_avg_dens <- zoop_avg[,c(grepl("mean",colnames(zoop_avg)))] 
@@ -814,7 +819,6 @@ euclidean_drivers_df$DOC_surf <- c(msn1_chem$DOC_mgL[msn1_chem$Depth_m==0.1],
                                   msn5_chem$DOC_mgL[msn5_chem$Depth_m==0.1]) 
 
 
-#----------------------------------------------------------------------------------------#
 #calculate avg density col for each day at both sites
 euclidean_drivers_df$pel_avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==1]),
                                    mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="pel" & zoop_epi_tows$groups==2]),
@@ -830,6 +834,10 @@ euclidean_drivers_df$lit_avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zo
                                   mean(zoop_epi_tows$ZoopDensity_No.pL_1[zoop_epi_tows$site=="lit" & zoop_epi_tows$groups==5]))
 
 euclidean_drivers_df$oxycline_depth <- c(6.5,5.5,3.5,6.5,5) #see calcs below
+
+#----------------------------------------------------------------------------------------#
+#Now calculate a correlation matrix for euclidean_drivers_df (and just select row 1 for the pel distance vs driver )
+distVsdriver_cor <- cor(euclidean_drivers_df[2:27], method="spearman")[c(1,2),]
 
 #plot response variable (euclidean distances) against environmental/biological data
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epiDO.jpg"), width = 6, height = 5, units = "in",res = 300)
@@ -924,11 +932,11 @@ legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypoturb.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$turb_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Turb", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$turb_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
-points(euclidean_drivers_df$turb_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$turb_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
-points(euclidean_drivers_df$turb_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
-points(euclidean_drivers_df$turb_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+points(euclidean_drivers_df$turb_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=4)
+points(euclidean_drivers_df$turb_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=4)
+points(euclidean_drivers_df$turb_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=4)
+points(euclidean_drivers_df$turb_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=4)
+points(euclidean_drivers_df$turb_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=4)
 legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
@@ -944,11 +952,11 @@ legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypopar.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$par_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo PAR", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
-points(euclidean_drivers_df$par_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
-points(euclidean_drivers_df$par_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$par_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
-points(euclidean_drivers_df$par_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
-points(euclidean_drivers_df$par_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+points(euclidean_drivers_df$par_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=4)
+points(euclidean_drivers_df$par_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=4)
+points(euclidean_drivers_df$par_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=4)
+points(euclidean_drivers_df$par_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=4)
+points(euclidean_drivers_df$par_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=4)
 legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
 #dev.off()
 
