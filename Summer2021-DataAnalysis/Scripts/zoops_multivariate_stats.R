@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -87,12 +87,12 @@ NMDS_temporal_bray$stress
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(2,4),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",4], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",4], pch=21,bg="#9BBAA0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",4], pch=21,bg="#FBF2C4")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",4], pch=21,bg="#F2E2B0")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",4], pch=21,bg="#DEA868")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",4], pch=21,bg="#C7522B")
-legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=hcl.colors(5,"Geyser"), bty = "n") 
+legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
 ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
-         col = hcl.colors(5,"Geyser"), alpha = 75,cex = 2)
+         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
 text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
@@ -101,12 +101,12 @@ text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",3], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",3], pch=21,bg="#9BBAA0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",3], pch=21,bg="#FBF2C4")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",3], pch=21,bg="#F2E2B0")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",3], pch=21,bg="#DEA868")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",3], pch=21,bg="#C7522B")
-legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=hcl.colors(5,"Geyser"), bty = "n") 
+legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
 ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
-         col = hcl.colors(5,"Geyser"), alpha = 75,cex = 2)
+         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
 text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
                                                                                "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
@@ -183,48 +183,76 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("
 #-------------------------------------------------------------------------------#
 #           Averaging zoops by time and campaign/day for new NMDS               #
 #-------------------------------------------------------------------------------#
-#first average times for each 24-hour campaign so there are 10 points per day (basically just averaging noon and midnight)
-zoop_epi_tows$order <- ifelse(zoop_epi_tows$Hour=="4:" | zoop_epi_tows$Hour=="3:",1,ifelse(zoop_epi_tows$Hour=="5:",2,ifelse(
-  zoop_epi_tows$Hour=="6:",3,ifelse(zoop_epi_tows$Hour=="7:",4,ifelse(zoop_epi_tows$time=="noon",5,ifelse(
-    zoop_epi_tows$Hour=="18",6,ifelse(zoop_epi_tows$Hour=="19",7,ifelse(zoop_epi_tows$Hour=="20",8,ifelse(zoop_epi_tows$Hour=="21",9,10)))))))))
+#first average times for each 24-hour campaign so there are 11 points per day (basically just averaging noon and midnight)
+zoop_epi_tows$order <- ifelse(zoop_epi_tows$Hour=="11" | zoop_epi_tows$Hour=="12",1, ifelse(zoop_epi_tows$Hour=="18",2,ifelse(zoop_epi_tows$Hour=="19",3,
+                       ifelse(zoop_epi_tows$Hour=="20",4,ifelse(zoop_epi_tows$Hour=="21",5,
+                       ifelse(zoop_epi_tows$Hour=="0:" | zoop_epi_tows$Hour=="23",6,
+                       ifelse(zoop_epi_tows$Hour=="4:" | zoop_epi_tows$Hour=="3:",7,ifelse(zoop_epi_tows$Hour=="5:",8,
+                       ifelse(zoop_epi_tows$Hour=="6:",9,10)))))))))
 
-#average by groups, site, then order
+#add order 11 for noon2
+zoop_epi_tows$order[zoop_epi_tows$order==1 & (zoop_epi_tows$collect_date=="2019-07-10" | zoop_epi_tows$collect_date=="2019-07-24" |
+                                                zoop_epi_tows$collect_date=="2020-08-12" | zoop_epi_tows$collect_date=="2021-06-15" |
+                                                zoop_epi_tows$collect_date=="2021-07-07")] <- 11
+
+#now specify whether it is noon1 or noon2
+zoop_epi_tows$time[zoop_epi_tows$order==1] <- "noon1"
+zoop_epi_tows$time[zoop_epi_tows$order==11] <- "noon2"
+
+#average by MSNs, site, then order
 zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
+  summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
+
+#only average across time
+zoop_avg_time <- zoop_epi_tows %>% group_by(order) %>%
+  summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
+
+#df with only noon and midnight
+zoop_avg_noon_midnight <- zoop_epi_tows %>% group_by(groups,site,order) %>% filter(order %in% c(1,6,11)) %>%
   summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
 
 #pelagic vs littoral dfs
 zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
 zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
 
-#10 dfs for time (sunrise 1-4, noon, sunset 1-4, midnight)
-
-
-#5 dfs for MSN #
-
 #only select data cols
 zoop_temporal_avg_dens <- zoop_avg[,c(grepl("mean",colnames(zoop_avg)))] 
+zoop_avg_time_dens <- zoop_avg_time[,c(grepl("mean",colnames(zoop_avg_time)))] 
+zoop_avg_noon_midnight_dens <- zoop_avg_noon_midnight[,c(grepl("mean",colnames(zoop_avg_noon_midnight)))] 
 zoop_pel_dens <- zoop_pel[,c(grepl("mean",colnames(zoop_pel)))]
 zoop_lit_dens <- zoop_lit[,c(grepl("mean",colnames(zoop_lit)))]
 
 #transforming data - hellinger transformation because gives low weight to low/zero values
 #converts species abundances from absolute to relative - use w/ bray curtis
 zoop_temporal_dens_avg_trans <- hellinger(zoop_temporal_avg_dens)
+zoop_avg_time_dens_trans <- hellinger(zoop_avg_time_dens)
+zoop_avg_noon_midnight_dens_trans <- hellinger(zoop_avg_noon_midnight_dens)
 zoop_pel_dens_trans <- hellinger(zoop_pel_dens)
 zoop_lit_dens_trans <- hellinger(zoop_lit_dens)
 
 
 #scree plot to choose dimension #
 dimcheckMDS(zoop_temporal_dens_avg_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+dimcheckMDS(zoop_avg_time_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
 
 #now do NMDS using averages w/ 4 dimensions for consistency
 NMDS_temporal_avg_bray <- metaMDS(zoop_temporal_dens_avg_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_avg_bray$stress
+
+#only doing 2 dimensions here because not enough data (and stress is already low)
+NMDS_avg_time_bray <- metaMDS(zoop_avg_time_dens_trans, distance='bray', k=2, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_avg_time_bray$stress
+
+NMDS_noon_midnight_avg_bray <- metaMDS(zoop_avg_noon_midnight_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_noon_midnight_avg_bray$stress
 
 NMDS_pel_bray <- metaMDS(zoop_pel_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_pel_bray$stress
 
 NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_lit_bray$stress
+
+#add new dfs for the time NMDS
 
 #-------------------------------------------------------------------------------#
 #                                 Tracking figs                                 #
@@ -235,27 +263,27 @@ ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2], col="#008585")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",2], col="#369187")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#369187",10),rep("#008585",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#369187",10),rep("#008585",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",2], col="#89B199")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",2], col="#C4D5B2")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",2], col="#EFECBF")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",2], col="#EFDBA7")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",2], col="#DB9B5A")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",2], col="#E4BC80")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",2], col="#C7522B")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",2], col="#CA602E")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
 
 legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3', "pelagic day4", "littoral day4", "pelagic day5", "littoral day5"), pch=21, 
        pt.bg=c("#008585","#369187","#89B199","#C4D5B2","#EFECBF","#EFDBA7","#DB9B5A","#E4BC80", "#C7522B","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
@@ -264,77 +292,92 @@ ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",3], col="#008585")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",3], col="#369187")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#369187",10),rep("#008585",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#369187",10),rep("#008585",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",3], col="#89B199")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",3], col="#C4D5B2")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",3], col="#EFECBF")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",3], col="#EFDBA7")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",3], col="#DB9B5A")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",3], col="#E4BC80")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
 
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",3], col="#C7522B")
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",3], col="#CA602E")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
 
 legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3', "pelagic day4", "littoral day4", "pelagic day5", "littoral day5"), pch=21, 
        pt.bg=c("#008585","#369187","#89B199","#C4D5B2","#EFECBF","#EFDBA7","#DB9B5A","#E4BC80", "#C7522B","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
+
+#-----------------------------------------------------------------------------------------#
+#time tracking noon vs midnight across all sites and days
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_time_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_noon_midnight_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_avg_noon_midnight$order, display = "sites", draw = c("polygon"),
+         col = c("#FF99CC","#440154FF","#FDE725FF"), alpha = 75,cex = 4)
+
+points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="1",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="1",2], pch=19,col="#FF99CC")
+points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="6",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="6",2], pch=19,col="#440154FF")
+points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="11",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="11",2], pch=19,col="#FDE725FF")
+
+legend("bottomleft", legend=c('noon1','midnight','noon2'), pch=19,
+       col = c("#FF99CC","#440154FF","#FDE725FF"),bty = "n",cex=1.2 )
+#dev.off() 
 
 
 #pelagic only tracking density through time
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
+         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 4)
 lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], col="#008585")
-points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#008585")
+points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#008585")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], col="#89B199")
-points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#89B199")
+points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#89B199")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], col="#EFECBF")
-points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#EFECBF")
+points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFECBF")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",2], col="#DB9B5A")
-points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#DB9B5A")
+points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#DB9B5A")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], col="#C7522B")
-points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#C7522B")
+points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C7522B")
 
-legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
-       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
-#dev.off()
+#legend("topright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
+#       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
+#dev.off() 
 
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], col="#008585")
-points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#008585")
+points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#008585")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], col="#89B199")
-points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#89B199")
+points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#89B199")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], col="#EFECBF")
-points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#EFECBF")
+points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFECBF")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",3], col="#DB9B5A")
-points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#DB9B5A")
+points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#DB9B5A")
 
 lines(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",3], col="#C7522B")
-points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#C7522B")
+points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C7522B")
 
 legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
        pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
 #littoral only tracking density through time
@@ -343,23 +386,23 @@ ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,2),ty
 ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], col="#369187")
-points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#369187")
+points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#369187")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], col="#C4D5B2")
-points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#C4D5B2")
+points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C4D5B2")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], col="#EFDBA7")
-points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
+points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",2], col="#E4BC80")
-points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#E4BC80")
+points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#E4BC80")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], col="#CA602E")
-points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9),col="#CA602E")
+points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
 
 legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
        pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
@@ -367,23 +410,23 @@ ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,3),ty
 ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], col="#369187")
-points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#369187")
+points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#369187")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], col="#C4D5B2")
-points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#C4D5B2")
+points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C4D5B2")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], col="#EFDBA7")
-points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#EFDBA7")
+points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFDBA7")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",3], col="#E4BC80")
-points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#E4BC80")
+points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#E4BC80")
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",3], col="#CA602E")
-points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9),col="#CA602E")
+points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
 
 legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
        pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('sunrise1','sunrise2','sunrise3','sunrise4','noon','sunset1','sunset2','sunset3','sunset4','midnight'), pch=c(0,1,2,3,4,5,6,7,8,9) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
 #-------------------------------------------------------------------------------#
@@ -397,34 +440,34 @@ zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
 
 #step 2: select and sum the 9 distances between connecting points for each of the 5 days
 pel_day1 <- sum(zoop_pel_euc[1,2],zoop_pel_euc[2,3],zoop_pel_euc[3,4],zoop_pel_euc[4,5],zoop_pel_euc[5,6],
-                zoop_pel_euc[6,7],zoop_pel_euc[7,8],zoop_pel_euc[8,9],zoop_pel_euc[9,10])
+                zoop_pel_euc[6,7],zoop_pel_euc[7,8],zoop_pel_euc[8,9],zoop_pel_euc[9,10],zoop_pel_euc[10,11])
 
-pel_day2 <- sum(zoop_pel_euc[11,12], zoop_pel_euc[12,13],zoop_pel_euc[13,14],zoop_pel_euc[14,15],zoop_pel_euc[15,16],
-                zoop_pel_euc[16,17],zoop_pel_euc[17,18],zoop_pel_euc[18,19],zoop_pel_euc[19,20])
+pel_day2 <- sum(zoop_pel_euc[12,13], zoop_pel_euc[13,14],zoop_pel_euc[14,15],zoop_pel_euc[15,16],zoop_pel_euc[16,17],
+                zoop_pel_euc[17,18],zoop_pel_euc[18,19],zoop_pel_euc[19,20],zoop_pel_euc[20,21],zoop_pel_euc[21,22])
 
-pel_day3 <- sum(zoop_pel_euc[21,22], zoop_pel_euc[22,23],zoop_pel_euc[23,24],zoop_pel_euc[24,25],zoop_pel_euc[25,26],
-                zoop_pel_euc[26,27],zoop_pel_euc[27,28],zoop_pel_euc[28,29],zoop_pel_euc[29,30])
+pel_day3 <- sum(zoop_pel_euc[23,24], zoop_pel_euc[24,25],zoop_pel_euc[25,26],zoop_pel_euc[26,27],zoop_pel_euc[27,28],
+                zoop_pel_euc[28,29],zoop_pel_euc[29,30],zoop_pel_euc[30,31],zoop_pel_euc[31,32],zoop_pel_euc[32,33])
 
-pel_day4 <- sum(zoop_pel_euc[31,32], zoop_pel_euc[32,33],zoop_pel_euc[33,34],zoop_pel_euc[34,35],zoop_pel_euc[35,36],
-                zoop_pel_euc[36,37],zoop_pel_euc[37,38],zoop_pel_euc[38,39],zoop_pel_euc[39,40])
+pel_day4 <- sum(zoop_pel_euc[34,35], zoop_pel_euc[35,36],zoop_pel_euc[36,37],zoop_pel_euc[37,38],zoop_pel_euc[38,39],
+                zoop_pel_euc[39,40],zoop_pel_euc[40,41],zoop_pel_euc[41,42],zoop_pel_euc[42,43],zoop_pel_euc[43,44])
 
-pel_day5 <- sum(zoop_pel_euc[41,42], zoop_pel_euc[42,43],zoop_pel_euc[43,44],zoop_pel_euc[44,45],zoop_pel_euc[45,46],
-                zoop_pel_euc[46,47],zoop_pel_euc[47,48],zoop_pel_euc[48,49],zoop_pel_euc[49,50])
+pel_day5 <- sum(zoop_pel_euc[45,46], zoop_pel_euc[46,47],zoop_pel_euc[47,48],zoop_pel_euc[48,49],zoop_pel_euc[49,50],
+                zoop_pel_euc[50,51],zoop_pel_euc[51,52],zoop_pel_euc[52,53],zoop_pel_euc[53,54],zoop_pel_euc[54,55])
 
 lit_day1 <- sum(zoop_lit_euc[1,2],zoop_lit_euc[2,3],zoop_lit_euc[3,4],zoop_lit_euc[4,5],zoop_lit_euc[5,6],
-                zoop_lit_euc[6,7],zoop_lit_euc[7,8],zoop_lit_euc[8,9],zoop_lit_euc[9,10])
+                zoop_lit_euc[6,7],zoop_lit_euc[7,8],zoop_lit_euc[8,9],zoop_lit_euc[9,10],zoop_lit_euc[10,11])
 
-lit_day2 <- sum(zoop_lit_euc[11,12],zoop_lit_euc[12,13],zoop_lit_euc[13,14],zoop_lit_euc[14,15],zoop_lit_euc[15,16],
-                zoop_lit_euc[16,17],zoop_lit_euc[17,18],zoop_lit_euc[18,19],zoop_lit_euc[19,20])
+lit_day2 <- sum(zoop_lit_euc[12,13], zoop_lit_euc[13,14],zoop_lit_euc[14,15],zoop_lit_euc[15,16],zoop_lit_euc[16,17],
+                zoop_lit_euc[17,18],zoop_lit_euc[18,19],zoop_lit_euc[19,20],zoop_lit_euc[20,21],zoop_lit_euc[21,22])
 
-lit_day3 <- sum(zoop_lit_euc[21,22],zoop_lit_euc[22,23],zoop_lit_euc[23,24],zoop_lit_euc[24,25],zoop_lit_euc[25,26],
-                zoop_lit_euc[26,27],zoop_lit_euc[27,28],zoop_lit_euc[28,29],zoop_lit_euc[29,30])
+lit_day3 <- sum(zoop_lit_euc[23,24], zoop_lit_euc[24,25],zoop_lit_euc[25,26],zoop_lit_euc[26,27],zoop_lit_euc[27,28],
+                zoop_lit_euc[28,29],zoop_lit_euc[29,30],zoop_lit_euc[30,31],zoop_lit_euc[31,32],zoop_lit_euc[32,33])
 
-lit_day4 <- sum(zoop_lit_euc[31,32],zoop_lit_euc[32,33],zoop_lit_euc[33,34],zoop_lit_euc[34,35],zoop_lit_euc[35,36],
-                zoop_lit_euc[36,37],zoop_lit_euc[37,38],zoop_lit_euc[38,39],zoop_lit_euc[39,40])
+lit_day4 <- sum(zoop_lit_euc[34,35], zoop_lit_euc[35,36],zoop_lit_euc[36,37],zoop_lit_euc[37,38],zoop_lit_euc[38,39],
+                zoop_lit_euc[39,40],zoop_lit_euc[40,41],zoop_lit_euc[41,42],zoop_lit_euc[42,43],zoop_lit_euc[43,44])
 
-lit_day5 <- sum(zoop_lit_euc[41,42],zoop_lit_euc[42,43],zoop_lit_euc[43,44],zoop_lit_euc[44,45],zoop_lit_euc[45,46],
-                zoop_lit_euc[46,47],zoop_lit_euc[47,48],zoop_lit_euc[48,49],zoop_lit_euc[49,50])
+lit_day5 <- sum(zoop_lit_euc[45,46], zoop_lit_euc[46,47],zoop_lit_euc[47,48],zoop_lit_euc[48,49],zoop_lit_euc[49,50],
+                zoop_lit_euc[50,51],zoop_lit_euc[51,52],zoop_lit_euc[52,53],zoop_lit_euc[53,54],zoop_lit_euc[54,55])
 
 #step 3: make a dataset of data
 euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5),
@@ -436,10 +479,10 @@ plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="
      main="Daily euclidean distance sums", cex=2.8, pch=21, cex.lab = 1.5)
 points(euc_distances_df$littoral[1],euc_distances_df$pelagic[1], bg="#008585",pch=21,cex=3)
 points(euc_distances_df$littoral[2],euc_distances_df$pelagic[2], bg="#9BBAA0" ,pch=21,cex=3)
-points(euc_distances_df$littoral[3],euc_distances_df$pelagic[3], bg="#FBF2C4",pch=21,cex=3)
+points(euc_distances_df$littoral[3],euc_distances_df$pelagic[3], bg="#F2E2B0",pch=21,cex=3)
 points(euc_distances_df$littoral[4],euc_distances_df$pelagic[4], bg="#DEA868",pch=21,cex=3)
 points(euc_distances_df$littoral[5],euc_distances_df$pelagic[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#FBF2C4","#DEA868","#C7522B"),bty = "n",cex=1.4)
+legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #-----------------------------------------------------------------------------------------#
@@ -844,220 +887,220 @@ distVsdriver_cor <- cor(euclidean_drivers_df[2:27], method="spearman")[c(1,2),]
 plot(euclidean_drivers_df$DO_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5, ylim=c(0,3))
 points(euclidean_drivers_df$DO_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$DO_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$DO_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DO_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$DO_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$DO_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypoDO.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$DO_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo DO", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$DO_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$DO_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$DO_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DO_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$DO_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$DO_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epitemp.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$temp_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$temp_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$temp_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$temp_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$temp_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$temp_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$temp_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypotemp.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$temp_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Temp", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$temp_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$temp_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$temp_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$temp_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$temp_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$temp_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epispcond.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$Spcond_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Sp Cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$Spcond_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$Spcond_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypospcond.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$Spcond_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Sp Cond", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$Spcond_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$Spcond_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$Spcond_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$Spcond_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epichl.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$chla_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Chl a", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$chla_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$chla_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$chla_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$chla_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$chla_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$chla_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypochl.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$chla_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Chl a", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$chla_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$chla_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$chla_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$chla_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$chla_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$chla_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epiturb.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$turb_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi Turb", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$turb_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$turb_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$turb_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$turb_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$turb_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$turb_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypoturb.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$turb_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo Turb", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$turb_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=4)
 points(euclidean_drivers_df$turb_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=4)
-points(euclidean_drivers_df$turb_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=4)
+points(euclidean_drivers_df$turb_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=4)
 points(euclidean_drivers_df$turb_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=4)
 points(euclidean_drivers_df$turb_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=4)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_epipar.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$par_0.1m,euclidean_drivers_df$pel_euc_dist, xlab="Epi PAR", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$par_0.1m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$par_0.1m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$par_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$par_0.1m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$par_0.1m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$par_0.1m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_hypopar.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$par_9.0m,euclidean_drivers_df$pel_euc_dist, xlab="Hypo PAR", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$par_9.0m[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=4)
 points(euclidean_drivers_df$par_9.0m[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=4)
-points(euclidean_drivers_df$par_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=4)
+points(euclidean_drivers_df$par_9.0m[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=4)
 points(euclidean_drivers_df$par_9.0m[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=4)
 points(euclidean_drivers_df$par_9.0m[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=4)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_pelzoopdens.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$pel_avg_dens,euclidean_drivers_df$pel_euc_dist, xlab="Pel Zoop Dens", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$pel_avg_dens[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$pel_avg_dens[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$pel_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$pel_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$pel_avg_dens[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$pel_avg_dens[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_litzoopdens.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$lit_avg_dens,euclidean_drivers_df$pel_euc_dist, xlab="Lit Zoop Dens", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$lit_avg_dens[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$lit_avg_dens[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$lit_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$lit_avg_dens[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$lit_avg_dens[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$lit_avg_dens[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_thermdepth.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$thermo_depth,euclidean_drivers_df$pel_euc_dist, xlab="Thermocline Depth", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$thermo_depth[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$thermo_depth[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$thermo_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$thermo_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$thermo_depth[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$thermo_depth[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_TN.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$TN_surf,euclidean_drivers_df$pel_euc_dist, xlab="TN (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$TN_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$TN_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$TN_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$TN_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$TN_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$TN_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_TP.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$TP_surf,euclidean_drivers_df$pel_euc_dist, xlab="TP (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$TP_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$TP_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$TP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$TP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$TP_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$TP_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_NH4.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$NH4_surf,euclidean_drivers_df$pel_euc_dist, xlab="NH4 (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$NH4_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$NH4_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$NH4_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$NH4_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$NH4_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$NH4_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_NO3NO2.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$NO3NO2_surf,euclidean_drivers_df$pel_euc_dist, xlab="NO3NO2 (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$NO3NO2_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$NO3NO2_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$NO3NO2_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$NO3NO2_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$NO3NO2_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$NO3NO2_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_SRP.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$SRP_surf,euclidean_drivers_df$pel_euc_dist, xlab="SRP (ug/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$SRP_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$SRP_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$SRP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$SRP_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$SRP_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$SRP_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_DOC.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$DOC_surf,euclidean_drivers_df$pel_euc_dist, xlab="DOC (mg/L)", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$DOC_surf[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$DOC_surf[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$DOC_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$DOC_surf[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$DOC_surf[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$DOC_surf[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 #jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_oxydepth.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euclidean_drivers_df$oxycline_depth,euclidean_drivers_df$pel_euc_dist, xlab="Oxycline Depth", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
 points(euclidean_drivers_df$oxycline_depth[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
 points(euclidean_drivers_df$oxycline_depth[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
-points(euclidean_drivers_df$oxycline_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#FBF2C4",pch=21,cex=3)
+points(euclidean_drivers_df$oxycline_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$oxycline_depth[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$oxycline_depth[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=hcl.colors(5,"Geyser"),bty = "n",cex=1.4)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
 
@@ -1079,7 +1122,7 @@ depths <- ctd_clean$oxy[(ctd_clean$Date=="2019-07-10" | ctd_clean$Date=="2019-07
 ggplot(subset(ctd_clean, depth > 0 & Reservoir=="BVR" & Site==50 & Date %in% c(as.Date("2019-07-10"), as.Date("2019-07-24"),
                                              as.Date("2020-08-12"), as.Date("2021-06-16"), as.Date("2021-07-12"))), aes(value,depth,color=as.factor(Date))) + 
   geom_rect(aes(xmin=-Inf, xmax=Inf, ymin= depths, ymax=Inf), fill="red",alpha=0.03) +
-  scale_color_manual("",values=hcl.colors(5,"Geyser"), guide="none") +  xlab("DO (mg/L)") + ylab("Depth (m)") +
+  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), guide="none") +  xlab("DO (mg/L)") + ylab("Depth (m)") +
   ylim(10,0) + geom_point() + geom_path() + theme_bw() + facet_wrap(~Date, ncol=5) +
   theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.position = c(0.76,0.02),
         legend.background = element_blank(),legend.direction = "horizontal", panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),

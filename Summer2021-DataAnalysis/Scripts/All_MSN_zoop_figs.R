@@ -49,19 +49,30 @@ zoop$rep <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID
 zoop$sample_ID <- ifelse(substrEnd(zoop$sample_ID,4)=="rep1" |substrEnd(zoop$sample_ID,4)=="rep2" | substrEnd(zoop$sample_ID,4)=="rep3" | substrEnd(zoop$sample_ID,4)=="rep4",
                          substr(zoop$sample_ID,1,nchar(zoop$sample_ID)-5),zoop$sample_ID)
 
+#drop 20um samples
+zoop <- zoop[!c(substrEnd(zoop$sample_ID,4)=="filt" | substrEnd(zoop$sample_ID,2)=="20"),]
+
 #get hour into character format for grouping
 zoop$Hour <- format(round(strptime(paste0(zoop$collect_date, zoop$Hour), format="%Y-%m-%d %H:%M"),units="hours"),format="%H:%M")
 #manually change hour of some samples (rounding problems)
 zoop$Hour[grepl("midnight",zoop$sample_ID,ignore.case = TRUE)] <- "00:00"
 zoop$Hour[grepl("noon",zoop$sample_ID,ignore.case = TRUE)] <- "12:00"
-zoop$Hour[grepl("sunrise_h1",zoop$sample_ID,ignore.case = TRUE)] <- "04:00"
-zoop$Hour[grepl("sunrise_h2",zoop$sample_ID,ignore.case = TRUE)] <- "05:00"
-zoop$Hour[grepl("sunrise_h3",zoop$sample_ID,ignore.case = TRUE)] <- "06:00"
-zoop$Hour[grepl("sunrise_h4",zoop$sample_ID,ignore.case = TRUE)] <- "07:00"
-zoop$Hour[grepl("sunset_h1",zoop$sample_ID,ignore.case = TRUE)] <- "18:00"
-zoop$Hour[grepl("sunset_h2",zoop$sample_ID,ignore.case = TRUE)] <- "19:00"
-zoop$Hour[grepl("sunset_h3",zoop$sample_ID,ignore.case = TRUE)] <- "20:00"
-zoop$Hour[grepl("sunset_h4",zoop$sample_ID,ignore.case = TRUE)] <- "21:00"
+zoop$Hour[grepl("sunrise_h1",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunrise_epi_h1",zoop$sample_ID,ignore.case = TRUE)] <- "04:00"
+zoop$Hour[grepl("sunrise_h2",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunrise_epi_h2",zoop$sample_ID,ignore.case = TRUE)] <- "05:00"
+zoop$Hour[grepl("sunrise_h3",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunrise_epi_h3",zoop$sample_ID,ignore.case = TRUE)] <- "06:00"
+zoop$Hour[grepl("sunrise_h4",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunrise_epi_h4",zoop$sample_ID,ignore.case = TRUE)] <- "07:00"
+zoop$Hour[grepl("sunset_h1",zoop$sample_ID,ignore.case = TRUE) | 
+            grepl("sunset_epi_h1",zoop$sample_ID,ignore.case = TRUE)] <- "18:00"
+zoop$Hour[grepl("sunset_h2",zoop$sample_ID,ignore.case = TRUE) | 
+            grepl("sunset_epi_h2",zoop$sample_ID,ignore.case = TRUE)] <- "19:00"
+zoop$Hour[grepl("sunset_h3",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunset_epi_h3",zoop$sample_ID,ignore.case = TRUE)] <- "20:00"
+zoop$Hour[grepl("sunset_h4",zoop$sample_ID,ignore.case = TRUE) |
+            grepl("sunset_epi_h4",zoop$sample_ID,ignore.case = TRUE)] <- "21:00"
 
 #drop the 06-29 samples (these were test samples)
 zoop <- zoop[substrEnd(zoop$sample_ID,4)!="filt",]
@@ -149,13 +160,12 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_de
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-16 06:11:00"),xmax=as.POSIXct("2022-10-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(metric=metric_taxa, site_no=sites)) + xlab("")+ coord_cartesian(clip = 'off') +
-  theme(text = element_text(size=6), axis.text = element_text(size=5, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.08,0.87), legend.spacing = unit(-0.5, 'cm'),
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.92), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))+ scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT")) +
   #scale_colour_viridis_d("",option="viridis", labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021")) + 
-  scale_color_manual("",values=hcl.colors(5,"Geyser"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
-  geom_line()+ ylab("Density (Individuals/L)") + scale_fill_manual("",values=c("#CCCCCC","white"), 
-        guide = guide_legend(order=2, override.aes = list(alpha = 1,color="black")))+
+  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
+  geom_line()+ ylab("Density (Individuals/L)") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_density.jpg"), width=5, height=3) 
 
@@ -165,12 +175,14 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-16 06:11:00"),xmax=as.POSIXct("2022-10-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(metric=metric_taxa, site_no=sites)) + xlab("")+ coord_cartesian(clip = 'off') +
-  theme(text = element_text(size=6), axis.text = element_text(size=5, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.08,0.87), legend.spacing = unit(-0.5, 'cm'),
-        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))+ scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT")) +
+  theme(text = element_text(size=10), axis.text = element_text(size=9, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.12,0.35), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"),legend.spacing.y=unit(-1,'cm'), legend.spacing.x=unit(0,'cm')) + 
+  scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT"))+
   #scale_colour_viridis_d("",option="viridis", labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021")) + 
-  scale_color_manual("",values=hcl.colors(5,"Geyser"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
-  geom_line()+ ylab("% Density") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = guide_legend(override.aes = list(alpha = 1,color="black")))+
+  #scale_color_manual("",values=hcl.colors(5,"Geyser"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
+  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
+  geom_line()+ ylab("% Density") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+ 
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density.jpg"), width=5, height=3) 
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density.jpg"), width=5, height=4) 
 
