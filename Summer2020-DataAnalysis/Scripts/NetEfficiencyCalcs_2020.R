@@ -123,12 +123,12 @@ for(i in 1:length(Density.neteff_epi$sample_ID)){
   Density.neteff_epi$NetEff[i] <- Density.neteff_epi$Apparent_dens[i]/Density.neteff_epi$Actual_dens[i]
 }
 
-#add depths for epi net efficiencies
+#add depths for epi net efficiency
 Density.neteff_epi$Depth_m <- Schindler_totalCount_epi_final$DepthOfTow_m
 
 
 #Going to take the average net efficiency across both reps (and average noon/midnight) because values are pretty close to each other
-NetEfficiency2020 <- c(mean(Density.neteff$NetEff[1:6]),mean(Density.neteff$NetEff[8:11]))
+NetEfficiency2020 <- c(mean(Density.neteff$NetEff[1:6]),mean(Density.neteff$NetEff[8:11])) #BVR, FCR
   
 #---------------------------#
 #visualize density by depth #

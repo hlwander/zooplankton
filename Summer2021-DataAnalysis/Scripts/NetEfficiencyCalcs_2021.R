@@ -132,7 +132,7 @@ for(i in 1:length(Density.neteff$sample_ID)){
   Density.neteff_epi$Depth_m <- Schindler_totalCount_epi_final$DepthOfTow_m
   
 #Going to take the average net efficiency across both reps because values are super close to each other
-NetEfficiency2021 <- c(mean(Density.neteff$NetEff[1:12]),mean(Density.neteff$NetEff[c(13:16)]))
+NetEfficiency2021 <- c(mean(Density.neteff$NetEff[1:12]),mean(Density.neteff$NetEff[c(13:16)])) #BVR, FCR
 
 epi_neteff_2021 <- mean(Density.neteff_epi$NetEff[12:15])
 

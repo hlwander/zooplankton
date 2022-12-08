@@ -78,8 +78,7 @@ zoop$Hour[grepl("sunset_h4",zoop$sample_ID,ignore.case = TRUE) |
 zoop <- zoop[substrEnd(zoop$sample_ID,4)!="filt",]
 
 #drop schindler samples and only select BVR_50 epi samples
-zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="BVR_d" & zoop$site_no!="BVR_dam" & zoop$site_no!="BVR_trap" & zoop$site_no!="FCR_50" &
-               (grepl("epi",zoop$sample_ID) |grepl("sunrise",zoop$sample_ID) | grepl("sunset",zoop$sample_ID) | zoop$site_no=="BVR_l"),]
+zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="BVR_d" & zoop$site_no!="BVR_dam" & zoop$site_no!="BVR_trap" & zoop$site_no!="FCR_50", ]#
 
 ##### Create new df to combine reps over 24 hours
 zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensity_No.pL, BiomassConcentration_ugpL,
@@ -91,11 +90,19 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
   group_by(sample_ID, site_no, Hour, collect_date) %>%
   summarise_at(vars(ZoopDensity_No.pL:Copepoda_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
 
-#only select hour and then add arbitrary dates
-zoop.repmeans$Hour <- format(zoop.repmeans$Hour, format='%H:%M')
+#merge collect_date and hour in a new column
+zoop.repmeans$datetime<- paste(zoop.repmeans$collect_date,zoop.repmeans$Hour,sep=" ")
+#get times into date format (character here)
+zoop.repmeans$datetime<- format(as.POSIXct(zoop.repmeans$datetime,format="%Y-%m-%d %H:%M"), format="%Y-%m-%d %H:%M:%S")
+#convert to posixct date format
+zoop.repmeans$datetime<- as.POSIXct(zoop.repmeans$datetime, format="%Y-%m-%d %H:%M")
+
 zoop.repmeans$dates <- ifelse(zoop.repmeans$collect_date=="2019-07-10" | zoop.repmeans$collect_date=="2019-07-24"| 
                                 zoop.repmeans$collect_date=="2020-08-12" | zoop.repmeans$collect_date=="2021-06-15" |
                                 zoop.repmeans$collect_date=="2021-07-07","2022-10-15","2022-10-16")
+
+#only select hour and then add arbitrary dates for plotting
+zoop.repmeans$Hour <- format(zoop.repmeans$Hour, format='%H:%M')
 
 #combine hour and date
 zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$dates), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
@@ -107,8 +114,14 @@ zoop.repmeans <- data.frame(zoop.repmeans)
 #order by hour for plotting
 zoop.repmeans <- zoop.repmeans[order(zoop.repmeans$Hour),]
 
-#convert new dfs fron tibble to dataframe 
-zoop_DHM <- data.frame(zoop.repmeans)
+#Export all zoop data df
+write.csv(zoop.repmeans,"./Summer2021-DataAnalysis/SummaryStats/All_MSN_zoops.csv",row.names = FALSE)
+
+#only select epi samples for DHM plots
+zoop_epi <- zoop.repmeans[grepl("epi",zoop.repmeans$sample_ID) |grepl("sunrise",zoop.repmeans$sample_ID) | grepl("sunset",zoop.repmeans$sample_ID) | zoop.repmeans$site_no=="BVR_l",]
+
+#convert new dfs from tibble to dataframe 
+zoop_DHM <- data.frame(zoop_epi)
 
 variables <- c("ZoopDensity_No.pL_rep.mean","Cladocera_density_NopL_rep.mean", "Cladocera_PercentOfTotal_rep.mean",
                "Cyclopoida_density_NopL_rep.mean","Cyclopoida_PercentOfTotal_rep.mean","Rotifera_density_NopL_rep.mean",
@@ -130,8 +143,8 @@ df1 <- zoop_DHM %>% gather(metric,value,all_of(variables))
 df2 <- zoop_DHM %>% gather(metric.SE,value.SE, all_of(SE))
 
 #cut and paste to merge df
-zoop_DHM_long <- df1[,c(1:4,17:18)]
-zoop_DHM_long$metric.SE <- df2$metric.SE
+zoop_DHM_long <- df1[,c(1:4,16,18:19)]
+#zoop_DHM_long$metric.SE <- df2$metric.SE #use this as a check to make sure rows match up
 zoop_DHM_long$value.SE <- df2$value.SE
 
 #drop _rep.mean from all metric names
@@ -151,10 +164,13 @@ names(metric_taxa) <- c(unique(zoop_DHM_long$metric))
 sites <- c("Pelagic","Littoral")
 names(sites) <- c("BVR_50","BVR_l")
 
+#Export DHM csv
+write.csv(zoop_DHM_long,"./Summer2021-DataAnalysis/SummaryStats/All_MSN_DHM.csv",row.names = FALSE)
+
 #cb_friendly_2 <- c("#8C510A", "#BF812D","#DFC27D", "#C7EAE5", "#35978F")
 
 #Figure for zoop density for each MSN 24-hours 
-ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")),
+ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_density_NopL","Rotifera_density_NopL")),
                 aes(Hour,value, color=as.factor(MSN))) + 
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
@@ -169,7 +185,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_de
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_density.jpg"), width=5, height=3) 
 
-ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_PercentOfTotal","Rotifera_PercentOfTotal")),
+ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Cyclopoida_PercentOfTotal","Rotifera_PercentOfTotal")), #removing calanoids because they are super low %
                 aes(Hour,value, color=as.factor(MSN))) + 
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
@@ -185,4 +201,16 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_
   geom_line()+ ylab("% Density") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+ 
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density.jpg"), width=5, height=4) 
+
+#-------------------------------------------------------------------------------------#
+# DVM calcs for epi and hypo density across all 5 campaigns
+
+#read in all 3 DVM tables from 2019-2021
+DVM_2019 <- read.csv(file.path(getwd(),'Summer2019-DataAnalysis/SummaryStats/DVM_2019_zoops.csv'),header = TRUE)
+DVM_2020 <- read.csv(file.path(getwd(),'Summer2020-DataAnalysis/SummaryStats/DVM_2020_zoops.csv'),header = TRUE) %>% select(-X)
+DVM_2021 <- read.csv(file.path(getwd(),'Summer2021-DataAnalysis/SummaryStats/DVM_2021_zoops.csv'),header = TRUE) %>% select(-X)
+
+#merge all zoop files
+DVM_all <- rbind(DVM_2019,DVM_2020,DVM_2021)
+
 

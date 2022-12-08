@@ -349,7 +349,11 @@ time_distances <- data.frame(time=c(sunrise1_dist,sunrise2_dist,sunrise3_dist,su
                                     noon_dist,sunset1_dist,sunset2_dist,sunset3_dist,sunset4_dist,
                                     midnight_dist))
 
-#But, now stuck here because what can I use as a correlate for time? I guess thermistor data (temp, )
+#But, now stuck here because what can I use as a correlate for time? ANSWER: DVM and DHM silly
+
+#read in DVM and DHM metrics
+
+
 
  #plot littoral vs pelagic euclidean distances
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
