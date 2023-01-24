@@ -131,6 +131,9 @@ zoop_DHM_long$metric <- substr(zoop_DHM_long$metric,1,nchar(zoop_DHM_long$metric
 #change BVR_50_p to BVR_50
 zoop_DHM_long$site_no[zoop_DHM_long$site_no=="BVR_50_p"] <- "BVR_50"
 
+#drop oxy samples
+zoop_DHM_long <- zoop_DHM_long[!c(grepl("oxy",zoop_DHM_long$sample_ID)),]
+
 sites <- c("Pelagic","Littoral")
 names(sites) <- c("BVR_50","BVR_l")
 
@@ -488,7 +491,7 @@ facet_labeller_top <- function(variable, value) {
   c("","","","Midnight","","","","Noon")
 }
 
-#export 2020 dvm stats
+#export 2019 dvm stats
 write.csv(BVR.DVM.calcs.long,"./SummaryStats/DVM_2019_zoops.csv",row.names = FALSE)
 
 #######################################

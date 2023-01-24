@@ -106,9 +106,10 @@ for(i in 1:length(variables)){
   FCR_DVM_calcs_raw[,paste0(variables,"_hypo")[i]] <- FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi",paste0(variables)[i]] - FCR_DVM_calcs_raw[,paste0(variables,"_epi")[i]]
 }
 
-#Net efficiencies for fcr 2020 and 2021; note that I'm assuming that neteff is 100% for epi tows (>95% in 2021 and >100% in 2020)
+#Net efficiency for fcr 2020 and 2021; note that I'm assuming that neteff is 100% for epi tows (>95% in 2021 and >100% in 2020)
 netefficiency <- c(0.05279169, 0.06146684)
 
+#temporary df for 2021 net efficiency
 temp <- FCR_DVM_calcs_vol_calc
 
 #hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
@@ -125,7 +126,7 @@ for(i in 1:length(variables)){
                                                                ((FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "proportional_vol_rep.mean"]) *  FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]])/ 
                                                                (FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj_rep.mean"] - FCR_taxa_DVM_raw[substrEnd(FCR_taxa_DVM_raw$sample_ID,3)=="epi", "Volume_unadj_rep.mean"])                                                                                  
 } 
-#now manually adjusting rows 2+3 because these are the 21 samples and have a different net efficiency
+#now manually adjusting rows 2+3 because these are the 2021 samples and have a different net efficiency
 FCR_DVM_calcs_vol_calc[2,paste0(column.names,"_hypo")] <- temp[2,c(2:13)]
 FCR_DVM_calcs_vol_calc[3,paste0(column.names,"_hypo")] <- temp[3,c(2:13)]
 
@@ -151,9 +152,8 @@ matchingcols <- match(substr(colnames(FCR_DVM_vol_calculated[,c(1:16)]),1,14),su
 DVM_samples_dens<- fcr_zoops_mom_tows[,unique(matchingcols)] 
 
 #separate full vs epi samples
-FullSamples <- data.frame(unique(DVM_samples_raw$sample_ID[substrEnd(DVM_samples_raw$sample_ID,3)!="epi"])) %>% arrange(FullSamples,unique(substr(FCR_taxa_DVM_raw$sample_ID,1,13)))
-EpiSamples<- data.frame(unique(DVM_samples_raw$sample_ID[substrEnd(DVM_samples_raw$sample_ID,3)=="epi"])) %>% arrange(EpiSamples,unique(substr(FCR_taxa_DVM_raw$sample_ID,1,13)))
-#check bvr dvm calcs because I think the order pof dfs might be slightly off
+FullSamples <-data.frame("SampleID"=unique(DVM_samples_raw$sample_ID[substrEnd(DVM_samples_raw$sample_ID,3)!="epi"])) %>% arrange(SampleID,unique(substr(FCR_taxa_DVM_raw$sample_ID,1,13)))
+EpiSamples<- data.frame("SampleID"=unique(DVM_samples_raw$sample_ID[substrEnd(DVM_samples_raw$sample_ID,3)=="epi"])) %>% arrange(SampleID,unique(substr(FCR_taxa_DVM_raw$sample_ID,1,13)))
 
 #initialize df
 FCR_DVM_calcs_SE<- data.frame("SampleID"=unique(substr(fcr_zoops_mom_tows$sample_ID,1,13))) %>% arrange(SampleID,unique(substr(FCR_taxa_DVM_raw$sample_ID,1,13)))
@@ -165,7 +165,7 @@ SEonly <- substr(SEonly,1,nchar(SEonly)-9)
 Percentdens <- colnames(FCR_DVM_vol_calculated)[6:10]
 Percentdens <- substr(Percentdens,1,nchar(Percentdens)-9)
 
-for(i in 1:length(SEonly)){ #hypo only works if there is a noon and epi rep (which there is not...)
+for(i in 1:length(SEonly)){ #hypo only works if there are reps for both full and epi tows (n=1)
   FCR_DVM_calcs_SE[,paste0(column.names,"_epi_SE")[i]] <- FCR_DVM_vol_calculated[substrEnd(FCR_DVM_vol_calculated$sample_ID,3)=="epi",substrEnd(colnames(FCR_DVM_vol_calculated),2)=="SE"][i]
   FCR_DVM_calcs_SE[1,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(DVM_samples_raw[DVM_samples_raw$sample_ID==FullSamples[[1]][1],paste0(SEonly)[i]],
                                                                        DVM_samples_raw[DVM_samples_raw$sample_ID==EpiSamples[[1]][1],paste0(SEonly)[i]])
@@ -283,7 +283,7 @@ ggplot(subset(FCR_DVM_calcs_long, Taxa %in%taxa & grepl("density",metric,ignore.
 #dev.off()
 
 #---------------------------------------------------------------------------------------#
-#also do same thing but with schindelr trap data
+#also do same thing but with Schindler trap data
 
 #add anoxic depth
 zoop_repmeans_schind$anoxic_top <- ifelse(zoop_repmeans_schind$collect_date=="2020-09-11",2.5,
@@ -292,27 +292,67 @@ zoop_repmeans_schind$anoxic_top <- ifelse(zoop_repmeans_schind$collect_date=="20
 zoop_repmeans_schind$anoxic_bot <- ifelse(zoop_repmeans_schind$collect_date=="2020-09-11",5,
                                           ifelse(zoop_repmeans_schind$collect_date=="2020-09-15",5,10))
 
+#select columns that I want to average
+dens <- c(colnames(zoop_repmeans_schind)[c(8,12,17,22,27,32)])
 
 #new df to calculate hypo and epi zoop density 
 schindler_mom <- data.frame("SampleID"=unique(substr(zoop_repmeans_schind$sample_ID,1,18)))
 
-#select columns that I want to average
-dens <- c(colnames(zoop_repmeans_schind)[c(8,12,17,22,27,32)])
+#list of anoxic depths for each depth
+anoxic_depths <- c(4.3,4.3,2.5,2.7)
 
-#calculate epi as mean >= anoxic top #percent?
+#calculate epi as mean >= anoxic top 
 for (i in 1:length(dens)){
-  schindler_mom[,paste0(dens,"epi_dens")[i]] <- mean(zoop_repmeans_schind[which(zoop_repmeans_schind$anoxic_top >= as.numeric(substrEnd(zoop_repmeans_schind$sample_ID,3))[i]), 
-                                                                          paste0(dens)[i]])
-}
+  for(j in 1:length(schindler_mom$SampleID)){
+  schindler_mom[j,paste0(dens,"epi_dens")[i]] <- lapply(zoop_repmeans_schind[which(anoxic_depths[j]  >= as.numeric(substrEnd(zoop_repmeans_schind$sample_ID,3)) &
+                                                        zoop_repmeans_schind$collect_date==unique(zoop_repmeans_schind$collect_date)[j]),paste0(dens[i])],mean, na.rm=T)   
+  schindler_mom[j,paste0(dens,"hypo_dens")[i]] <- lapply(zoop_repmeans_schind[which(anoxic_depths[j]  < as.numeric(substrEnd(zoop_repmeans_schind$sample_ID,3)) &
+                                                                                     zoop_repmeans_schind$collect_date==unique(zoop_repmeans_schind$collect_date)[j]),paste0(dens[i])],mean, na.rm=T)   
+  schindler_mom[j,paste0(dens,"per_epid")[i]] <- (schindler_mom[j,paste0(dens,"epi_dens")[i]]/ sum(schindler_mom[j,paste0(dens,"epi_dens")[i]],schindler_mom[j,paste0(dens,"hypo_dens")[i]])) *100
+  schindler_mom[j,paste0(dens,"per_hypod")[i]] <- (schindler_mom[j,paste0(dens,"hypo_dens")[i]]/ sum(schindler_mom[j,paste0(dens,"epi_dens")[i]],schindler_mom[j,paste0(dens,"hypo_dens")[i]])) *100
+  }
+} 
 
+raw_dens <- colnames(schindler_mom[,which(substrEnd(colnames(schindler_mom),8)=="epi_dens"| substrEnd(colnames(schindler_mom),9)=="hypo_dens")])
+per_dens <- colnames(schindler_mom[,which(substrEnd(colnames(schindler_mom),4)=="epid"| substrEnd(colnames(schindler_mom),5)=="hypod")])
+    
+#wide to long
+temp_rawdens <-   schindler_mom %>% gather(metric.raw,value.raw, all_of(raw_dens))
+temp_percentdens <- schindler_mom %>% gather(metric.per,value.per, all_of(per_dens))
 
+#cut and paste to merge df
+schindler_mom_long <- temp_rawdens[,c(1,14,15)]
+schindler_mom_long$metric.per <- temp_percentdens$metric.per
+schindler_mom_long$value.per <- temp_percentdens$value.per
 
+#add date and watercolumn cols
+schindler_mom_long$WaterColumn <- ifelse(substrEnd(schindler_mom_long$metric.raw,8)=="epi_dens" | substrEnd(schindler_mom_long$metric.raw,8)=="per_epid","epilimnion","hypolimnion")
+schindler_mom_long$CollectDate <- as.Date(substr(schindler_mom_long$SampleID,7,13), format="%d%b%y")
 
+#make metric names shorter
+schindler_mom_long$metric.raw <- ifelse(schindler_mom_long$WaterColumn=="epilimnion",
+                                    substr(schindler_mom_long$metric.raw,1,nchar(schindler_mom_long$metric.raw)-30),
+                                    substr(schindler_mom_long$metric.raw,1,nchar(schindler_mom_long$metric.raw)-31))
 
+#now make plots to look at epi vs hypo boxplots
+ggplot(schindler_mom_long, aes(WaterColumn, value.raw,fill=metric.raw)) + ylab("Density (#/L)") + xlab("")+
+  geom_bar(stat="identity", position=position_dodge()) + facet_wrap(~CollectDate,scales="free")+
+  theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.position = c(0.72,0.94),
+        legend.background = element_blank(),legend.direction = "horizontal", panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
+        plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), panel.grid.major = element_blank(),
+        legend.title = element_blank(),legend.text  = element_text(size = 4.5), panel.spacing=unit(0, "cm"),
+        axis.text.x = element_text(vjust = 0.5,size=6), axis.text.y = element_text(size=6)) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/FCR_schind_taxa_dens.jpg"), width=4, height=3) 
 
-
-
-
+ggplot(schindler_mom_long, aes(WaterColumn, value.per,fill=metric.raw)) + ylab("Percent Density (%)") + xlab("")+
+  geom_bar(stat="identity", position=position_dodge()) + facet_wrap(~CollectDate,scales="free")+
+  theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), legend.position = c(0.66,0.93),
+        legend.background = element_blank(),legend.direction = "horizontal", panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
+        plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), panel.grid.major = element_blank(),
+        legend.title = element_blank(),legend.text  = element_text(size = 4.5), panel.spacing=unit(0, "cm"),
+        axis.text.x = element_text(vjust = 0.5,size=6), axis.text.y = element_text(size=6)) +
+  guides(fill=guide_legend(ncol=2))
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/FCR_schind_taxa_percent_dens.jpg"), width=4, height=3) 
 
 
 #----------------------------------------------#
@@ -377,27 +417,34 @@ legend("bottomright", legend=c("Dissolved Oxygen","Temperature"), col=c("blue", 
 #------------------------------------------------------------------------------#
 #Look at schindler data because tows aren't super interesting
 
-schindlers <- zoop[zoop$mesh_size_μm==61 & !is.na(zoop$mesh_size_μm) & zoop$site_no=="FCR_schind",]
-
-#order depth by decreasing number
-schindlers <- schindlers[with(schindlers,order(DepthOfTow_m)),]
-
 #select the specific taxa
-schindlers <- schindlers[,c(1:6,8,38,46,54,62)]
+schindlers <- zoop_repmeans_schind[,c(1:7, which(grepl("_n_",colnames(zoop_repmeans_schind))))]
+
+#add depth column
+schindlers$depth_m <- as.numeric(substrEnd(schindlers$sample_ID,3))
 
 #wide to long
-schindlers_long <- schindlers %>% gather(metric,value,Zooplankton_No.:RotiferaCount_n)
+df1 <- schindlers %>% gather(metric,value,OverallCount_n_rep.mean:CopepodaCount_n_rep.mean)
+df2 <- schindlers %>% gather(metric,value,OverallCount_n_rep.SE:CopepodaCount_n_rep.SE)
+
+#cut and paste to merge df
+schindlers_long <- df1[,c(1:7,14,15,16)]
+schindlers_long$metric.SE <- df2$metric
+schindlers_long$value.SE <- df2$value
+
+#make metric names shorter
+schindlers_long$metric <-  substr(schindlers_long$metric,1,nchar(schindlers_long$metric)-16)
 
 #jpeg("Figures/Schindler_density_vs_depth.jpg", width = 6, height = 5, units = "in",res = 300)
-ggplot(data=schindlers_long,aes(x=value/30, y=DepthOfTow_m,color=collect_date)) + geom_point() +
+ggplot(data=schindlers_long,aes(x=value/30, y=depth_m,color=collect_date)) + geom_point() +
   scale_y_reverse() + geom_path() + facet_grid(metric~site_no+collect_date)
 #dev.off()
 
 #summarize schindler_totalCount so one # per depth
-Schindler_avgCount <- schindlers_long %>% group_by(site_no, DepthOfTow_m, collect_date, metric) %>% summarise(mean_num = mean(value))
+Schindler_avgCount <- schindlers_long %>% group_by(depth_m, collect_date, metric) %>% summarise(mean_num = mean(value))
 
 #jpeg("Figures/AvgSchindler_density_vs_depth.jpg", width = 6, height = 5, units = "in",res = 300)
-ggplot(data=Schindler_avgCount,aes(x=mean_num/30, y=DepthOfTow_m,color=collect_date)) + geom_point() +
-  scale_y_reverse() + geom_path() + xlab("Zooplankton (#/L)") + ylab("Depth (m)")  + facet_wrap(metric~site_no, scales="free")
+ggplot(data=Schindler_avgCount,aes(x=mean_num/30, y=depth_m,color=collect_date)) + geom_point() +
+  scale_y_reverse() + geom_path() + xlab("Zooplankton (#/L)") + ylab("Depth (m)")  + facet_wrap(~metric, scales="free")
 #dev.off()
 

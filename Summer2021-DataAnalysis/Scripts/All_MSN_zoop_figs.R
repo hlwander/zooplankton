@@ -78,17 +78,17 @@ zoop$Hour[grepl("sunset_h4",zoop$sample_ID,ignore.case = TRUE) |
 zoop <- zoop[substrEnd(zoop$sample_ID,4)!="filt",]
 
 #drop schindler samples and only select BVR_50 epi samples
-zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="BVR_d" & zoop$site_no!="BVR_dam" & zoop$site_no!="BVR_trap" & zoop$site_no!="FCR_50", ]#
+zoop <- zoop[substrEnd(zoop$site_no,6)!="schind" & zoop$site_no!="BVR_d" & zoop$site_no!="BVR_dam" & zoop$site_no!="BVR_trap" & zoop$site_no!="FCR_50",]
 
 ##### Create new df to combine reps over 24 hours
 zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensity_No.pL, BiomassConcentration_ugpL,
-                                 TotalBiomass_ug,Cladocera_density_NopL, Cladocera_BiomassConcentration_ugpL, Cladocera_totalbiomass_ug, Cladocera_PercentOfTotal,
-                                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, Cyclopoida_totalbiomass_ug, Cyclopoida_PercentOfTotal,
-                                 Rotifera_density_NopL, Rotifera_totalbiomass_ug, Rotifera_BiomassConcentration_ugpL,Rotifera_PercentOfTotal,
-                                 Calanoida_PercentOfTotal, Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
-                                 Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL,Copepoda_totalbiomass_ug) %>%
+                                 Cladocera_density_NopL, Cladocera_BiomassConcentration_ugpL, Cladocera_PercentOfTotal,
+                                 Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, Cyclopoida_PercentOfTotal,
+                                 Rotifera_density_NopL, Rotifera_BiomassConcentration_ugpL,Rotifera_PercentOfTotal,
+                                 Calanoida_PercentOfTotal, Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL,
+                                 Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(ZoopDensity_No.pL:Copepoda_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(ZoopDensity_No.pL:Copepoda_BiomassConcentration_ugpL), funs(rep.mean=mean, rep.SE=stderr))
 
 #merge collect_date and hour in a new column
 zoop.repmeans$datetime<- paste(zoop.repmeans$collect_date,zoop.repmeans$Hour,sep=" ")
@@ -122,6 +122,21 @@ zoop_epi <- zoop.repmeans[grepl("epi",zoop.repmeans$sample_ID) |grepl("sunrise",
 
 #convert new dfs from tibble to dataframe 
 zoop_DHM <- data.frame(zoop_epi)
+
+#convert df from wide to long (kinda hacky way bc having problems doing this)
+df1 <- zoop_DHM %>% gather(metric,value,ZoopDensity_No.pL_rep.mean:Copepoda_BiomassConcentration_ugpL_rep.mean)
+df2 <- zoop_DHM %>% gather(metric.SE,value.SE, ZoopDensity_No.pL_rep.SE:Copepoda_BiomassConcentration_ugpL_rep.SE)
+
+##cut and paste to merge df
+zoop_DHM_long <- df1[,c(1:4,24,25)]
+#zoop_DHM_long$metric.SE <- df2$metric.SE #use this as a check to make sure rows match up
+zoop_DHM_long$value.SE <- df2$value.SE
+
+#Export DHM csv
+write.csv(zoop_DHM_long,"./Summer2021-DataAnalysis/SummaryStats/All_MSN_DHM.csv",row.names = FALSE)
+
+#reset DHM df so can only look at density
+zoop_DHM_long <- NA
 
 variables <- c("ZoopDensity_No.pL_rep.mean","Cladocera_density_NopL_rep.mean", "Cladocera_PercentOfTotal_rep.mean",
                "Cyclopoida_density_NopL_rep.mean","Cyclopoida_PercentOfTotal_rep.mean","Rotifera_density_NopL_rep.mean",
@@ -163,9 +178,6 @@ names(metric_taxa) <- c(unique(zoop_DHM_long$metric))
 
 sites <- c("Pelagic","Littoral")
 names(sites) <- c("BVR_50","BVR_l")
-
-#Export DHM csv
-write.csv(zoop_DHM_long,"./Summer2021-DataAnalysis/SummaryStats/All_MSN_DHM.csv",row.names = FALSE)
 
 #cb_friendly_2 <- c("#8C510A", "#BF812D","#DFC27D", "#C7EAE5", "#35978F")
 
