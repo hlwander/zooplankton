@@ -21,7 +21,7 @@ median.zoop<-function(vector){
 ###############################End of function
 
 #change working directory
-setwd(file.path(getwd(),"Summer2021-DataAnalysis"))
+#setwd(file.path(getwd(),"Summer2021-DataAnalysis"))
 
 #Read in the csv file that contains all the taxa from the UNH zooplankton key ####
 #http://cfb.unh.edu/cfbkey/html/index.html

@@ -14,7 +14,7 @@
 pacman::p_load(plyr,plotrix,lubridate,dplyr,ggplot2,scales,tidyr,viridis)
 
 #read in zoop summary csv
-zoop<- read.csv('./SummaryStats/FCR_ZooplanktonSummary2021.csv',header = TRUE)
+zoop<- read.csv('./Summer2021-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2021.csv',header = TRUE)
 
 #create function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -502,8 +502,8 @@ matchingcols <- match(substr(colnames(BVR_pelagic_DVM_vol_calculated [,c(1:4,6:1
 DVM_samples_dens<- DVM_samples_dens[,unique(matchingcols)] 
 
 #separate full vs epi samples
-FullSamples <- DVM_samples_raw$sample_ID[c(3,5,9)]
-EpiSamples<- DVM_samples_raw$sample_ID[c(1,11,7)]
+FullSamples <- DVM_samples_raw$sample_ID[c(3,5,9,15,18,22)]
+EpiSamples<- DVM_samples_raw$sample_ID[c(1,11,7,13,17,20)]
 
 #calculate hypo SE 
 SEonly<- colnames(DVM_samples_raw)[7:18]
@@ -543,12 +543,18 @@ BVR.DVM.calcs.SE.long <-  BVR.DVM.calcs.SE %>%
 BVR.DVM.calcs.long$SE <- BVR.DVM.calcs.SE.long$SE
 
 #add watercolumn and hour columns
-BVR.DVM.calcs.long$WaterColumn <- ifelse(substrEnd(BVR.DVM.calcs.long$metric,3)=="epi","epilimnion", ifelse(substrEnd(BVR.DVM.calcs.long$metric,3)=="eta","metalimnion","hypolimnion"))
+BVR.DVM.calcs.long$WaterColumn <- ifelse(grepl("epi",BVR.DVM.calcs.long$metric),"epilimnion", ifelse(grepl("eta",BVR.DVM.calcs.long$metric),"metalimnion","hypolimnion"))
 BVR.DVM.calcs.long$Hour <- ifelse(substrEnd(BVR.DVM.calcs.long$DateTime,5)=="12:00","noon","midnight")
 BVR.DVM.calcs.long$Taxa <- substr(BVR.DVM.calcs.long$metric,1,9)
 
+#shorten date time to just date
+BVR.DVM.calcs.long$DateTime <- substr(BVR.DVM.calcs.long$DateTime,1,nchar(BVR.DVM.calcs.long$DateTime)-6)
+
+#replace NAN with 0
+BVR.DVM.calcs.long$value[is.nan(BVR.DVM.calcs.long$value)] <- 0
+
 #export 2021 dvm stats
-write.csv(BVR.DVM.calcs.long, "./SummaryStats/DVM_2021_zoops.csv")
+write.csv(BVR.DVM.calcs.long, "./Summer2021-DataAnalysis/SummaryStats/DVM_2021_zoops.csv")
 
 
 #------------------------------------------------------------------------------#
@@ -570,13 +576,6 @@ ggplot(subset(BVR.DVM.calcs.long, grepl("density",metric,ignore.case = TRUE)), a
   theme(legend.position = "bottom", legend.margin = margin(0, 1, 2, 1), legend.title = element_text(size=10),legend.key.size = unit(0.3,"cm"),
         legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),legend.text = element_text(size=8),axis.text.y = element_text(size=10, family="Times"))
 #dev.off()
-
-
-
-
-
-
-
 
 
 density.percent<- colnames(BVR_pelagic_DVM_vol_calculated[,c(6:9)])

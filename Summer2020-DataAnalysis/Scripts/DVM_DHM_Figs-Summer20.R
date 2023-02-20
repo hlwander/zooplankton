@@ -13,7 +13,7 @@
 pacman::p_load(plyr,plotrix,lubridate,dplyr,ggplot2,scales,tidyr,viridis)
 
 #read in zoop summary csv
-zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2020.csv',header = TRUE)
+zoop<- read.csv('Summer2020-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2020.csv',header = TRUE)
 
 #create function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -351,7 +351,7 @@ for(i in 1:length(variables)){
 density.percent<- colnames(BVR_pelagic_DVM_vol_calculated[,c(6:10)])
 for(i in 1:length(density.percent)){
 for(j in 1:length(unique(BVR.DVM.calcs$Hour))){
-    BVR.DVM.calcs[j,paste0(density.percent,"_epi_percent_density")[i]]<- (BVR.DVM.calcs[j,paste0(density.percent,"_epi")][i]/ sum(BVR.DVM.calcs[j,paste0(density.percent,"_epi")[i]],BVR.DVM.calcs[j,paste0(density.percent,"_hypo")[i]])) *100
+    BVR.DVM.calcs[j,paste0(density.percent,"_epi_percent_density")[i]]<- (BVR.DVM.calcs[3,paste0(density.percent,"_epi")][4]/ sum(BVR.DVM.calcs[3,paste0(density.percent,"_epi")[4]],BVR.DVM.calcs[3,paste0(density.percent,"_hypo")[4]])) *100
     BVR.DVM.calcs[j,paste0(density.percent,"_hypo_percent_density")[i]]<- (BVR.DVM.calcs[j,paste0(density.percent,"_hypo")][i]/ sum(BVR.DVM.calcs[j,paste0(density.percent,"_epi")[i]],BVR.DVM.calcs[j,paste0(density.percent,"_hypo")[i]])) * 100
 
 }       
@@ -422,8 +422,11 @@ BVR.DVM.calcs.long$Taxa <- substr(BVR.DVM.calcs.long$metric,1,9)
 #shorten date time to just date
 BVR.DVM.calcs.long$DateTime <- substr(BVR.DVM.calcs.long$DateTime,1,nchar(BVR.DVM.calcs.long$DateTime)-6)
 
+#replace NAN with 0
+BVR.DVM.calcs.long$value[is.nan(BVR.DVM.calcs.long$value)] <- 0
+
 #export 2020 dvm stats
-write.csv(BVR.DVM.calcs.long, "./SummaryStats/DVM_2020_zoops.csv")
+write.csv(BVR.DVM.calcs.long, "./Summer2020-DataAnalysis/SummaryStats/DVM_2020_zoops.csv")
 
 #ridiculous way to work with these stupid facet labels
 facet_labeller_bot <- function(variable, value) {

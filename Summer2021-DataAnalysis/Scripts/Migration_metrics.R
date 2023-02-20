@@ -26,7 +26,7 @@ names(all_DHM)[names(all_DHM)=="collect_date"] <- "DateTime"
 #drop sample_id
 all_DHM <- all_DHM %>% select(!sample_ID)
 
-#work with raw density and biomass to calculate metrics
+#work with density and biomass to calculate metrics
 all_DHM <- all_DHM[!grepl("percent",all_DHM$metric, ignore.case = TRUE),]
 
 #add MSN# column

@@ -13,7 +13,7 @@
 pacman::p_load(plyr,plotrix,lubridate,dplyr,ggplot2,scales,tidyr,viridis)
 
 #read in zoop summary csv
-zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2019.csv',header = TRUE)
+zoop<- read.csv('./Summer2019-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2019.csv',header = TRUE)
 
 #create function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -376,6 +376,10 @@ BVR_pelagic_DVM<- zoop.repmeans[(zoop.repmeans$site_no=="BVR_50" |zoop.repmeans$
                                  substrEnd(zoop.repmeans$sample_ID,9)=="night_epi" | substrEnd(zoop.repmeans$sample_ID,8)=="noon_epi" |
                                  substrEnd(zoop.repmeans$sample_ID,3)=="oxy"),] 
 
+#change B_pel_11Jul19_midnight_oxy hour to 00 (not 01)
+BVR_pelagic_DVM$Hour[BVR_pelagic_DVM$sample_ID=="B_pel_11Jul19_midnight_oxy"] <-
+  "2019-07-11 00:00:00 EDT"
+
 #only select volume, count, and ug cols (plus SE cols)
 BVR_pelagic_DVM_raw<- BVR_pelagic_DVM[,c(1:4,63,64,which(substrEnd(colnames(BVR_pelagic_DVM),10)=="n_rep.mean"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),11)=="ug_rep.mean"),
@@ -389,19 +393,15 @@ BVR_pelagic_DVM_vol_calculated <- BVR_pelagic_DVM[,c(1:4,which(substrEnd(colname
                                      which(substrEnd(colnames(BVR_pelagic_DVM),14)=="y_No.pL_rep.SE"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),13)=="y_NopL_rep.SE"))]
 
+
 #another one for percent calcs
 BVR_pelagic_DVM_percent<- BVR_pelagic_DVM[,c(1:4,63,64,which(substrEnd(colnames(BVR_pelagic_DVM),14)=="Total_rep.mean"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),12)=="Total_rep.SE"))]
 
-#drop 24Jul noon sample because missing full water column tow and first noon epi (using oxycline tow instead of 4m for 10Jul)
-BVR_pelagic_DVM_raw<- BVR_pelagic_DVM_raw[!(BVR_pelagic_DVM_raw$sample_ID) %in% c("B_pel_24Jul19_noon_epi","B_pel_10Jul19_noon_epi"),]
-BVR_pelagic_DVM_vol_calculated<- BVR_pelagic_DVM_vol_calculated[!(BVR_pelagic_DVM_vol_calculated$sample_ID) %in% c("B_pel_24Jul19_noon_epi","B_pel_10Jul19_noon_epi"),]
-BVR_pelagic_DVM_percent <- BVR_pelagic_DVM_percent[!(BVR_pelagic_DVM_percent$sample_ID) %in% c("B_pel_24Jul19_noon_epi","B_pel_10Jul19_noon_epi"),]
-
-#rename oxycline tow so ends in epi
-BVR_pelagic_DVM_raw$sample_ID[BVR_pelagic_DVM_raw$sample_ID=="B_pel_10Jul19_noon_oxy"]<- "B_pel_10Jul19_noon_oxy_epi"
-BVR_pelagic_DVM_vol_calculated$sample_ID[BVR_pelagic_DVM_vol_calculated$sample_ID=="B_pel_10Jul19_noon_oxy"]<- "B_pel_10Jul19_noon_oxy_epi"
-BVR_pelagic_DVM_percent$sample_ID[BVR_pelagic_DVM_percent$sample_ID=="B_pel_10Jul19_noon_oxy"]<- "B_pel_10Jul19_noon_oxy_epi"
+#drop oxy samples so only have epi or full - NOTE: need new df if looking at meta data
+BVR_pelagic_DVM_vol_calculated <- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)!="oxy",]
+BVR_pelagic_DVM_raw <- BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="oxy",]
+BVR_pelagic_DVM_percent <- BVR_pelagic_DVM_percent[substrEnd(BVR_pelagic_DVM_percent$sample_ID,3)!="oxy",]
 
 #calculate hypo SE for 11Jul19 midnight 
 SE.hypo.calcs.raw<- zoop[zoop$sample_ID=="B_pel_11Jul19_midnight" |zoop$sample_ID=="B_pel_11Jul19_midnight_epi",]
@@ -429,7 +429,7 @@ variables<- colnames(BVR_pelagic_DVM_raw[,c(7:18)])
 percent<- colnames(BVR_pelagic_DVM_percent[,c(7:11)])
 for(i in 1:length(variables)){
   BVR.DVM.calcs[,paste0(column.names,"_epi")[i]]<- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
-  BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/NetEfficiency2016)) - 
+  BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi"  ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/NetEfficiency2016)) - 
                                                      ((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "proportional_vol"]) *  BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]] * (1/NetEfficiency2016)))/
                                                      (BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj"] - BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "Volume_unadj"])  
 
@@ -492,7 +492,7 @@ facet_labeller_top <- function(variable, value) {
 }
 
 #export 2019 dvm stats
-write.csv(BVR.DVM.calcs.long,"./SummaryStats/DVM_2019_zoops.csv",row.names = FALSE)
+write.csv(BVR.DVM.calcs.long,"./Summer2019-DataAnalysis/SummaryStats/DVM_2019_zoops.csv",row.names = FALSE)
 
 #######################################
 #######################################

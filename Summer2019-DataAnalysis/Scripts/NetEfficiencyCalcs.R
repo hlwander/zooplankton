@@ -5,7 +5,7 @@
 pacman::p_load(dplyr,ggplot2)
 
 #read in most recent zooplankton tow vs. schindler trap data
-zoop<- read.csv("RawData/2014-2016_zooplankton.csv", header=TRUE)
+zoop<- read.csv("Summer2019-DataAnalysis/RawData/2014-2016_zooplankton.csv", header=TRUE)
 
 #add in Date column
 zoop$Date <- format(as.POSIXct(zoop$DateTime, format="%Y-%m-%d %H:%M:%S"), format="%Y-%m-%d")
