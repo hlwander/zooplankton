@@ -86,9 +86,10 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
                                  Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, Cyclopoida_PercentOfTotal,
                                  Rotifera_density_NopL, Rotifera_BiomassConcentration_ugpL,Rotifera_PercentOfTotal,
                                  Calanoida_PercentOfTotal, Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL,
-                                 Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL) %>%
+                                 Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL,
+                                 nauplius_PercentOfTotal, nauplius_density_NopL, nauplius_BiomassConcentration_ugpL) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(ZoopDensity_No.pL:Copepoda_BiomassConcentration_ugpL), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(ZoopDensity_No.pL:nauplius_BiomassConcentration_ugpL), funs(rep.mean=mean, rep.SE=stderr))
 
 #merge collect_date and hour in a new column
 zoop.repmeans$datetime<- paste(zoop.repmeans$collect_date,zoop.repmeans$Hour,sep=" ")
@@ -124,11 +125,11 @@ zoop_epi <- zoop.repmeans[grepl("epi",zoop.repmeans$sample_ID) |grepl("sunrise",
 zoop_DHM <- data.frame(zoop_epi)
 
 #convert df from wide to long (kinda hacky way bc having problems doing this)
-df1 <- zoop_DHM %>% gather(metric,value,ZoopDensity_No.pL_rep.mean:Copepoda_BiomassConcentration_ugpL_rep.mean)
-df2 <- zoop_DHM %>% gather(metric.SE,value.SE, ZoopDensity_No.pL_rep.SE:Copepoda_BiomassConcentration_ugpL_rep.SE)
+df1 <- zoop_DHM %>% gather(metric,value,ZoopDensity_No.pL_rep.mean:nauplius_BiomassConcentration_ugpL_rep.mean)
+df2 <- zoop_DHM %>% gather(metric.SE,value.SE, ZoopDensity_No.pL_rep.SE:nauplius_BiomassConcentration_ugpL_rep.SE)
 
 ##cut and paste to merge df
-zoop_DHM_long <- df1[,c(1:4,24,25)]
+zoop_DHM_long <- df1[,c(1:4,27,28)]
 #zoop_DHM_long$metric.SE <- df2$metric.SE #use this as a check to make sure rows match up
 zoop_DHM_long$value.SE <- df2$value.SE
 
@@ -141,14 +142,13 @@ zoop_DHM_long <- NA
 variables <- c("ZoopDensity_No.pL_rep.mean","Cladocera_density_NopL_rep.mean", "Cladocera_PercentOfTotal_rep.mean",
                "Cyclopoida_density_NopL_rep.mean","Cyclopoida_PercentOfTotal_rep.mean","Rotifera_density_NopL_rep.mean",
                "Rotifera_PercentOfTotal_rep.mean","Calanoida_density_NopL_rep.mean","Calanoida_PercentOfTotal_rep.mean",
-               "Copepoda_density_NopL_rep.mean","Copepoda_PercentOfTotal_rep.mean")
+               "Copepoda_density_NopL_rep.mean","Copepoda_PercentOfTotal_rep.mean", 
+               "nauplius_density_NopL_rep.mean","nauplius_PercentOfTotal_rep.mean")
 SE <- c("ZoopDensity_No.pL_rep.SE","Cladocera_density_NopL_rep.SE", "Cladocera_PercentOfTotal_rep.SE",
         "Cyclopoida_density_NopL_rep.SE","Cyclopoida_PercentOfTotal_rep.SE","Rotifera_density_NopL_rep.SE",
         "Rotifera_PercentOfTotal_rep.SE","Calanoida_density_NopL_rep.SE","Calanoida_PercentOfTotal_rep.SE",
-        "Copepoda_density_NopL_rep.SE","Copepoda_PercentOfTotal_rep.SE")
-
-#select density columns
-#zoop_DHM <- zoop_DHM[,-c(which(grepl("ug_rep",colnames(zoop_DHM))))]
+        "Copepoda_density_NopL_rep.SE","Copepoda_PercentOfTotal_rep.SE",
+        "nauplius_density_NopL_rep.SE","nauplius_PercentOfTotal_rep.SE")
 
 #remove biomass too
 zoop_DHM <- zoop_DHM[,-c(which(grepl("ugpL",colnames(zoop_DHM))))]
@@ -158,7 +158,7 @@ df1 <- zoop_DHM %>% gather(metric,value,all_of(variables))
 df2 <- zoop_DHM %>% gather(metric.SE,value.SE, all_of(SE))
 
 #cut and paste to merge df
-zoop_DHM_long <- df1[,c(1:4,16,18:19)]
+zoop_DHM_long <- df1[,c(1:4,16,20:21)]
 #zoop_DHM_long$metric.SE <- df2$metric.SE #use this as a check to make sure rows match up
 zoop_DHM_long$value.SE <- df2$value.SE
 
@@ -173,7 +173,7 @@ zoop_DHM_long$MSN <- ifelse(zoop_DHM_long$collect_date=="2019-07-10" | zoop_DHM_
 
 metric_taxa <-c("ZoopDensity","Cladocera","Cladocera","Cyclopoida",
                 "Cyclopoida", "Rotifera", "Rotifera", "Calanoida",
-                "Calanoida","Copepoda","Copepoda")
+                "Calanoida","Copepoda","Copepoda","Nauplius","Nauplius")
 names(metric_taxa) <- c(unique(zoop_DHM_long$metric))
 
 sites <- c("Pelagic","Littoral")
@@ -182,7 +182,7 @@ names(sites) <- c("BVR_50","BVR_l")
 #cb_friendly_2 <- c("#8C510A", "#BF812D","#DFC27D", "#C7EAE5", "#35978F")
 
 #Figure for zoop density for each MSN 24-hours 
-ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_density_NopL","Rotifera_density_NopL")),
+ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")),
                 aes(Hour,value, color=as.factor(MSN))) + 
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
@@ -197,7 +197,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_density.jpg"), width=5, height=3) 
 
-ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Cyclopoida_PercentOfTotal","Rotifera_PercentOfTotal")), #removing calanoids because they are super low %
+ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_PercentOfTotal","Rotifera_PercentOfTotal")), #removing calanoids because they are super low %
                 aes(Hour,value, color=as.factor(MSN))) + 
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
@@ -218,7 +218,7 @@ range(zoop_DHM_long$value[zoop_DHM_long$metric=="Rotifera_PercentOfTotal"]) # 77
 
 #-------------------------------------------------------------------------------------#
 #looking at each MSN separately to look for evidence of DHM
-ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Cyclopoida_density_NopL","Rotifera_density_NopL") &
+ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL") &
                 MSN==5 & site_no=="BVR_l"), aes(Hour,value)) + 
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +

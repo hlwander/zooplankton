@@ -76,7 +76,7 @@ zoop_epi_tows$order[zoop_epi_tows$order==1 & (zoop_epi_tows$collect_date=="2019-
                       zoop_epi_tows$collect_date=="2021-07-07")] <- 11
 
 #now specify whether it is noon1 or noon2
-zoop_epi_tows$time[zoop_epi_tows$order==1] <- "noon1"
+zoop_epi_tows$time[zoop_epi_tows$order==1] <- "noon"
 zoop_epi_tows$time[zoop_epi_tows$order==11] <- "noon2"
 
 #average by groups, site, then order
@@ -345,24 +345,65 @@ euc_distances_spacevtime_df <- data.frame(site=sum(pel_dist,lit_dist),
 #Take-home: hourly variability is greater than year to year and site variability
 
 #SO, create a df for just time euclidean distances
-time_distances <- data.frame(time=c(sunrise1_dist,sunrise2_dist,sunrise3_dist,sunrise4_dist,
-                                    noon_dist,sunset1_dist,sunset2_dist,sunset3_dist,sunset4_dist,
-                                    midnight_dist))
+time_distances <- data.frame(time= c("sunrise1","sunrise2","sunrise3","sunrise4","noon","noon2",
+                                     "sunset1","sunset2","sunset3","sunset4","midnight"),
+                               ED = c(sunrise1_dist, sunrise2_dist, sunrise3_dist, sunrise4_dist,
+                                    noon1_dist, noon2_dist, sunset1_dist, sunset2_dist,
+                                    sunset3_dist, sunset4_dist, midnight_dist))
 
-#But, now stuck here because what can I use as a correlate for time? ANSWER: DVM and DHM silly
+#read in zoop hourly proportion in pel vs lit
+total_prop<- read.csv(paste0(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Hourly_proportions_pelvslit.csv"), header=T)
 
-#read in DVM and DHM metrics
+#get hourly just for total dens and biom  
+hourly_prop <- total_prop %>%  
+  filter(metric %in% c("ZoopDensity_No.pL","BiomassConcentration_ugpL")) %>%
+  group_by(Hour) %>%
+  summarise(prop_pel = mean(proportion_pel),
+            prop_lit = mean(proportion_lit))
 
+#get both dfs in same order
+hourly_prop <- hourly_prop[match(time_distances$time,hourly_prop$Hour),]
 
+#add in pelagic proportion of density and biomass to df
+time_distances$pel_dens_prop <- hourly_prop$prop_pel
+time_distances$lit_dens_prop <- hourly_prop$prop_lit
 
- #plot littoral vs pelagic euclidean distances
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
-#plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="pelagic", 
-#     main="Daily euclidean distance sums", cex=2.8, pch=21, cex.lab = 1.5)
-#points(euc_distances_df$littoral[1],euc_distances_df$pelagic[1], bg="#008585",pch=21,cex=3)
-#points(euc_distances_df$littoral[2],euc_distances_df$pelagic[2], bg="#9BBAA0" ,pch=21,cex=3)
-#points(euc_distances_df$littoral[3],euc_distances_df$pelagic[3], bg="#FBF2C4",pch=21,cex=3)
-#points(euc_distances_df$littoral[4],euc_distances_df$pelagic[4], bg="#DEA868",pch=21,cex=3)
-#points(euc_distances_df$littoral[5],euc_distances_df$pelagic[5], bg="#C7522B",pch=21,cex=3)
-#legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#FBF2C4","#DEA868","#C7522B"),bty = "n",cex=1.4)
+ #plot hourly euclidean distances vs pelagic total zoop proportion
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_HourlyEDvspel_proportion.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(time_distances$pel_dens_prop,time_distances$ED, xlab="Pel zoop proportion", 
+     ylab="Hourly ED", cex=2.8, pch=19, cex.lab = 1.5,col="darkblue")
+#points(time_distances$pel_dens_prop[1],time_distances$ED[1],bg=hcl.colors(11,"sunset")[1],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[2],time_distances$ED[2],bg=hcl.colors(11,"sunset")[2],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[3],time_distances$ED[3],bg=hcl.colors(11,"sunset")[3],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[4],time_distances$ED[4],bg=hcl.colors(11,"sunset")[4],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[5],time_distances$ED[5],bg=hcl.colors(11,"sunset")[5],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[6],time_distances$ED[6],bg=hcl.colors(11,"sunset")[6],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[7],time_distances$ED[7],bg=hcl.colors(11,"sunset")[7],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[8],time_distances$ED[8],bg=hcl.colors(11,"sunset")[8],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[9],time_distances$ED[9],bg=hcl.colors(11,"sunset")[9],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[10],time_distances$ED[10],bg=hcl.colors(11,"sunset")[10],pch=21,cex=3)
+#points(time_distances$pel_dens_prop[11],time_distances$ED[11],bg=hcl.colors(11,"sunset")[11],pch=21,cex=3)
+#legend("bottomright",legend=c("sunrise1","sunrise2","sunrise3","sunrise4",
+#                              "noon1","noon2","sunset1","sunset2","sunset3","sunset4"),
+#                        pch=21, pt.bg=hcl.colors(11,"sunset"),bty = "n",cex=1.4,ncol=2)
 #dev.off()
+
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_HourlyEDvslit_proportion.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(time_distances$lit_dens_prop,time_distances$ED, xlab="Lit zoop proportion", 
+     ylab="Hourly ED", cex=2.8, pch=19, cex.lab = 1.5, col="darkgreen")
+#points(time_distances$lit_dens_prop[1],time_distances$ED[1],bg=hcl.colors(11,"sunset")[1],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[2],time_distances$ED[2],bg=hcl.colors(11,"sunset")[2],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[3],time_distances$ED[3],bg=hcl.colors(11,"sunset")[3],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[4],time_distances$ED[4],bg=hcl.colors(11,"sunset")[4],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[5],time_distances$ED[5],bg=hcl.colors(11,"sunset")[5],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[6],time_distances$ED[6],bg=hcl.colors(11,"sunset")[6],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[7],time_distances$ED[7],bg=hcl.colors(11,"sunset")[7],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[8],time_distances$ED[8],bg=hcl.colors(11,"sunset")[8],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[9],time_distances$ED[9],bg=hcl.colors(11,"sunset")[9],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[10],time_distances$ED[10],bg=hcl.colors(11,"sunset")[10],pch=21,cex=3)
+#points(time_distances$lit_dens_prop[11],time_distances$ED[11],bg=hcl.colors(11,"sunset")[11],pch=21,cex=3)
+#legend("bottomleft",legend=c("sunrise1","sunrise2","sunrise3","sunrise4",
+#                              "noon1","noon2","sunset1","sunset2","sunset3","sunset4"),
+#                       pch=21, pt.bg=hcl.colors(11,"sunset"),bty = "n",cex=1.4,ncol=2)
+#dev.off()
+

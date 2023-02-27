@@ -83,7 +83,7 @@ NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=4, tr
 NMDS_temporal_bray$stress
 
 #  Points divided into time groups
-#jpeg("Figures/2019-2020_NMDS_2v4_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_2v4_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(2,4),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",4], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",4], pch=21,bg="#9BBAA0")
@@ -97,7 +97,7 @@ text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_1v3_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",3], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",3], pch=21,bg="#9BBAA0")
@@ -111,7 +111,7 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("
                                                                                "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v2_bray_sites.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",2], pch=21,bg="slateblue4")
 points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",2], pch=21,bg="palegreen3")
@@ -122,7 +122,7 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_sites.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_1v3_bray_sites.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",3], pch=21,bg="slateblue4")
 points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",3], pch=21,bg="palegreen3")
@@ -134,7 +134,7 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("
 #dev.off()
 
 
-#jpeg("Figures/2019-2020_NMDS_1v4_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_1v4_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',4], pch=21,bg="#CC79A7")
 points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',4], pch=21,bg="#F0E442")
@@ -147,7 +147,7 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v3_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_1v3_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',3], pch=21,bg="#CC79A7")
 points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',3], pch=21,bg="#F0E442")
@@ -160,7 +160,7 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2020_NMDS_1v2_bray_timegroups.jpg", width = 6, height = 5, units = "in",res = 300)
+#jpeg("Figures/2019-2021_NMDS_1v2_bray_timegroups.jpg", width = 6, height = 5, units = "in",res = 300)
 #ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 #points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',2], pch=21,bg="cornsilk")
 #points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise2',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise2',2], pch=21,bg="yellow")
@@ -184,11 +184,13 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("
 #           Averaging zoops by time and campaign/day for new NMDS               #
 #-------------------------------------------------------------------------------#
 #first average times for each 24-hour campaign so there are 11 points per day (basically just averaging noon and midnight)
-zoop_epi_tows$order <- ifelse(zoop_epi_tows$Hour=="11" | zoop_epi_tows$Hour=="12",1, ifelse(zoop_epi_tows$Hour=="18",2,ifelse(zoop_epi_tows$Hour=="19",3,
-                       ifelse(zoop_epi_tows$Hour=="20",4,ifelse(zoop_epi_tows$Hour=="21",5,
-                       ifelse(zoop_epi_tows$Hour=="0:" | zoop_epi_tows$Hour=="23",6,
-                       ifelse(zoop_epi_tows$Hour=="4:" | zoop_epi_tows$Hour=="3:",7,ifelse(zoop_epi_tows$Hour=="5:",8,
-                       ifelse(zoop_epi_tows$Hour=="6:",9,10)))))))))
+zoop_epi_tows$order <- ifelse(zoop_epi_tows$Hour=="11" | zoop_epi_tows$Hour=="12",1, 
+                              ifelse(zoop_epi_tows$Hour=="18",2, ifelse(zoop_epi_tows$Hour=="19",3,
+                              ifelse(zoop_epi_tows$Hour=="20",4, ifelse(zoop_epi_tows$Hour=="21",5,
+                              ifelse(zoop_epi_tows$Hour=="0:" | zoop_epi_tows$Hour=="23",6,
+                              ifelse(zoop_epi_tows$Hour=="4:" | zoop_epi_tows$Hour=="3:",7,
+                              ifelse(zoop_epi_tows$Hour=="5:",8,
+                              ifelse(zoop_epi_tows$Hour=="6:",9,10)))))))))
 
 #add order 11 for noon2
 zoop_epi_tows$order[zoop_epi_tows$order==1 & (zoop_epi_tows$collect_date=="2019-07-10" | zoop_epi_tows$collect_date=="2019-07-24" |
@@ -199,11 +201,11 @@ zoop_epi_tows$order[zoop_epi_tows$order==1 & (zoop_epi_tows$collect_date=="2019-
 zoop_epi_tows$time[zoop_epi_tows$order==1] <- "noon1"
 zoop_epi_tows$time[zoop_epi_tows$order==11] <- "noon2"
 
-#average by MSNs, site, then order
+#average by MSN, site, then hour
 zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
   summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
 
-#only average across time
+#time df
 zoop_avg_time <- zoop_epi_tows %>% group_by(order) %>%
   summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
 
@@ -214,6 +216,7 @@ zoop_avg_noon_midnight <- zoop_epi_tows %>% group_by(groups,site,order) %>% filt
 #pelagic vs littoral dfs
 zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
 zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
+
 
 #only select data cols
 zoop_temporal_avg_dens <- zoop_avg[,c(grepl("mean",colnames(zoop_avg)))] 
@@ -252,12 +255,10 @@ NMDS_pel_bray$stress
 NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_lit_bray$stress
 
-#add new dfs for the time NMDS
-
 #-------------------------------------------------------------------------------#
 #                                 Tracking figs                                 #
 #-------------------------------------------------------------------------------#
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -286,38 +287,18 @@ legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','li
 legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",3], col="#008585")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",3], col="#369187")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#369187",10),rep("#008585",10)))
+#hours
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_avg$order, display = "sites", draw = c("polygon"),
+         col =  hcl.colors(11, palette = "Earth"), alpha = 75,cex = 2)
 
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",3], col="#89B199")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",3], col="#C4D5B2")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
-
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",3], col="#EFECBF")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",3], col="#EFDBA7")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
-
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",3], col="#DB9B5A")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",3], col="#E4BC80")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
-
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",3], col="#C7522B")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",3], col="#CA602E")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",3], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
-
-legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3', "pelagic day4", "littoral day4", "pelagic day5", "littoral day5"), pch=21, 
-       pt.bg=c("#008585","#369187","#89B199","#C4D5B2","#EFECBF","#EFDBA7","#DB9B5A","#E4BC80", "#C7522B","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
-#dev.off()
-
+#sites
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ordihull(ord, zoop_avg$site, display = "sites", draw = c("polygon"),
+         col =  hcl.colors(2, palette = "Earth"), alpha = 75,cex = 2)
 #-----------------------------------------------------------------------------------------#
 #time tracking noon vs midnight across all sites and days
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_time_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_density_noon_midnight.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_noon_midnight_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_avg_noon_midnight$order, display = "sites", draw = c("polygon"),
          col = c("#FF99CC","#440154FF","#FDE725FF"), alpha = 75,cex = 4)
@@ -332,7 +313,7 @@ legend("bottomleft", legend=c('noon1','midnight','noon2'), pch=19,
 
 
 #pelagic only tracking density through time
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 4)
@@ -356,32 +337,8 @@ points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_p
 legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
 #dev.off() 
 
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], col="#008585")
-points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#008585")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], col="#89B199")
-points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#89B199")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], col="#EFECBF")
-points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFECBF")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",3], col="#DB9B5A")
-points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#DB9B5A")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",3], col="#C7522B")
-points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C7522B")
-
-legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
-       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
-#dev.off()
-
 #littoral only tracking density through time
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v2_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
 ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
@@ -399,30 +356,6 @@ points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_l
 
 lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], col="#CA602E")
 points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
-
-legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
-       pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
-#dev.off()
-
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_NMDS_1v3_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], col="#369187")
-points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#369187")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], col="#C4D5B2")
-points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C4D5B2")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], col="#EFDBA7")
-points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFDBA7")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",3], col="#E4BC80")
-points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#E4BC80")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",3], col="#CA602E")
-points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",3], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
 
 legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
        pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
@@ -878,6 +811,135 @@ euclidean_drivers_df$lit_avg_dens <- c(mean(zoop_epi_tows$ZoopDensity_No.pL_1[zo
 
 euclidean_drivers_df$oxycline_depth <- c(6.5,5.5,3.5,6.5,5) #see calcs below
 
+#read in DVM and DHM metrics
+migration_metrics <- read.csv(file.path(getwd(),"Summer2021-DataAnalysis/SummaryStats/migration_metrics.csv"), header = TRUE)
+
+#long to wide
+migration_metrics_wide <-  migration_metrics %>% pivot_wider(
+  id_cols = "metric", id_expand = TRUE,
+  names_from = c("migration","MSN"), values_from = value)
+  
+euclidean_drivers_df$Calanoida_dens_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Calanoida_density_NopL"])
+
+euclidean_drivers_df$Calanoida_biom_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Cladocera_dens_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Cladocera_density_NopL"])
+
+euclidean_drivers_df$Cladocera_biom_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Copepoda_dens_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                   migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Copepoda_density_NopL"])
+
+euclidean_drivers_df$Copepoda_biom_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Cyclopoida_dens_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Cyclopoida_density_NopL"])
+
+euclidean_drivers_df$Cyclopoida_biom_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Rotifera_dens_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Rotifera_density_NopL"])
+
+euclidean_drivers_df$Rotifera_biom_DVM_metric <-c(migration_metrics_wide$DVM_avg_1[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_2[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_3[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_4[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DVM_avg_5[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Calanoida_dens_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Calanoida_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Calanoida_density_NopL"])
+
+euclidean_drivers_df$Calanoida_biom_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Calanoida_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Cladocera_dens_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Cladocera_density_NopL"],
+                                                   migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Cladocera_density_NopL"])
+
+euclidean_drivers_df$Cladocera_biom_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"],
+                                                   migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Cladocera_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Copepoda_dens_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Copepoda_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Copepoda_density_NopL"])
+
+euclidean_drivers_df$Copepoda_biom_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Copepoda_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Cyclopoida_dens_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Cyclopoida_density_NopL"],
+                                                    migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Cyclopoida_density_NopL"])
+
+euclidean_drivers_df$Cyclopoida_biom_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"],
+                                                    migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Cyclopoida_BiomassConcentration_ugpL"])
+
+euclidean_drivers_df$Rotifera_dens_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Rotifera_density_NopL"],
+                                                  migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Rotifera_density_NopL"])
+
+euclidean_drivers_df$Rotifera_biom_DHM_metric <-c(migration_metrics_wide$DHM_avg_1[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_2[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_3[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_4[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"],
+                                                  migration_metrics_wide$DHM_avg_5[migration_metrics_wide$metric=="Rotifera_BiomassConcentration_ugpL"])
+
+
 #----------------------------------------------------------------------------------------#
 #Now calculate a correlation matrix for euclidean_drivers_df (and just select row 1 for the pel distance vs driver )
 distVsdriver_cor <- cor(euclidean_drivers_df[2:27], method="spearman")[c(1,2),]
@@ -1100,6 +1162,209 @@ points(euclidean_drivers_df$oxycline_depth[2],euclidean_drivers_df$pel_euc_dist[
 points(euclidean_drivers_df$oxycline_depth[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
 points(euclidean_drivers_df$oxycline_depth[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
 points(euclidean_drivers_df$oxycline_depth[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#-------------------------------------------------------------------------------
+# Euclidean distance vs migration metrics
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_calanodiaDVMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Calanoida_dens_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Calanoida DVM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Calanoida_dens_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_calanodiaDVMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Calanoida_biom_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Calanoida DVM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Calanoida_biom_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cladoceraDVMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cladocera_dens_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cladocera DVM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cladocera_dens_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cladoceraDVMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cladocera_biom_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cladocera DVM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cladocera_biom_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cyclopoidaDVMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cyclopoida_dens_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cyclopoida DVM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cyclopoida_dens_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cyclopoidaDVMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cyclopoida_biom_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cyclopoida DVM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cyclopoida_biom_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_rotiferaDVMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Rotifera_dens_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Rotifera DVM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Rotifera_dens_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_rotiferaDVMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Rotifera_biom_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Rotifera DVM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Rotifera_biom_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_copepodaDVMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Copepoda_dens_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Copepoda DVM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Copepoda_dens_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_copepodaDVMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Copepoda_biom_DVM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Copepoda DVM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Copepoda_biom_DVM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DVM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DVM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DVM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DVM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_calanodiaDHMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Calanoida_dens_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Calanoida DHM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Calanoida_dens_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_dens_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_calanodiaDHMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Calanoida_biom_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Calanoida DHM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Calanoida_biom_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Calanoida_biom_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cladoceraDHMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cladocera_dens_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cladocera DHM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cladocera_dens_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_dens_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cladoceraDHMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cladocera_biom_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cladocera DHM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cladocera_biom_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cladocera_biom_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cyclopoidaDHMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cyclopoida_dens_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cyclopoida DHM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cyclopoida_dens_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_dens_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_cyclopoidaDHMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Cyclopoida_biom_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Cyclopoida DHM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Cyclopoida_biom_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Cyclopoida_biom_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_rotiferaDHMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Rotifera_dens_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Rotifera DHM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Rotifera_dens_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_dens_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_rotiferaDHMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Rotifera_biom_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Rotifera DHM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Rotifera_biom_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Rotifera_biom_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_copepodaDHMdens.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Copepoda_dens_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Copepoda DHM density", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Copepoda_dens_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_dens_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
+legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
+#dev.off()
+
+#jpeg(file.path(getwd(), "Summer2021-DataAnalysis/Figures/2019-2021_pel_euclidean_dist_daily_sums_vs_copepodaDHMbiom.jpg"), width = 6, height = 5, units = "in",res = 300)
+plot(euclidean_drivers_df$Copepoda_biom_DHM_metric,euclidean_drivers_df$pel_euc_dist, xlab="Copepoda DHM biomass", ylab="distance", cex=2.8, pch=21, cex.lab = 1.5)
+points(euclidean_drivers_df$Copepoda_biom_DHM_metric[1],euclidean_drivers_df$pel_euc_dist[1], bg="#008585",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DHM_metric[2],euclidean_drivers_df$pel_euc_dist[2], bg="#9BBAA0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DHM_metric[3],euclidean_drivers_df$pel_euc_dist[3], bg="#F2E2B0",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DHM_metric[4],euclidean_drivers_df$pel_euc_dist[4], bg="#DEA868",pch=21,cex=3)
+points(euclidean_drivers_df$Copepoda_biom_DHM_metric[5],euclidean_drivers_df$pel_euc_dist[5], bg="#C7522B",pch=21,cex=3)
 legend("bottomright",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 

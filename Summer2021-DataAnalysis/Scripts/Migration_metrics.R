@@ -23,8 +23,21 @@ all_DHM$Taxa <- substr(all_DHM$metric,1,9)
 #rename collect_date to DateTime
 names(all_DHM)[names(all_DHM)=="collect_date"] <- "DateTime"
 
+#add sunrise and sunset hours
+all_DHM$Hour <- ifelse(grepl("sunrise_h1",all_DHM$sample_ID) | grepl("sunrise_epi_h1",all_DHM$sample_ID),"sunrise1",
+                       ifelse(grepl("sunrise_h2",all_DHM$sample_ID) | grepl("sunrise_epi_h2",all_DHM$sample_ID),"sunrise2",
+                       ifelse(grepl("sunrise_h3",all_DHM$sample_ID) | grepl("sunrise_epi_h3",all_DHM$sample_ID),"sunrise3",
+                       ifelse(grepl("sunrise_h4",all_DHM$sample_ID) | grepl("sunrise_epi_h4",all_DHM$sample_ID),"sunrise4",
+                       ifelse(grepl("sunset_h1",all_DHM$sample_ID) | grepl("sunset_epi_h1",all_DHM$sample_ID),"sunset1",
+                       ifelse(grepl("sunset_h2",all_DHM$sample_ID) | grepl("sunset_epi_h2",all_DHM$sample_ID),"sunset2",
+                       ifelse(grepl("sunset_h3",all_DHM$sample_ID) | grepl("sunset_epi_h3",all_DHM$sample_ID),"sunset3",
+                       ifelse(grepl("sunset_h4",all_DHM$sample_ID) | grepl("sunset_epi_h4",all_DHM$sample_ID),"sunset4",all_DHM$Hour))))))))
+
 #drop sample_id
 all_DHM <- all_DHM %>% select(!sample_ID)
+
+#remove unnecessary letters at the end of each metric name
+all_DHM$metric <- substr(all_DHM$metric,1,nchar(all_DHM$metric)-9)
 
 #work with density and biomass to calculate metrics
 all_DHM <- all_DHM[!grepl("percent",all_DHM$metric, ignore.case = TRUE),]
@@ -42,6 +55,12 @@ all_DHM$Hour <- ifelse(all_DHM$Hour=="noon" & (all_DHM$DateTime=="2019-07-11" |
                                                  all_DHM$DateTime=="2021-06-16" |
                                                  all_DHM$DateTime=="2021-07-08"), "noon2", all_DHM$Hour)
 
+
+#split up dfs for noon1 vs noon2 data
+all_DHM_noon <- all_DHM[all_DHM$Hour=="noon" | all_DHM$Hour=="midnight",]
+all_DHM_noon2 <- all_DHM[all_DHM$Hour=="noon2" | all_DHM$Hour=="midnight",]
+
+#-------------------------------------------------------------------------------
 #read in DVM annual csvs
 DVM_2021 <- read.csv(paste0(getwd(),"/Summer2021-DataAnalysis/SummaryStats/DVM_2021_zoops.csv")) %>% select(-X)
 DVM_2020 <- read.csv(paste0(getwd(),"/Summer2020-DataAnalysis/SummaryStats/DVM_2020_zoops.csv")) %>% select(-X)
@@ -75,14 +94,23 @@ all_DVM$value[all_DVM$value < 0] <- 0 #n=20
 #shorten metric name
 all_DVM$metric <- ifelse(all_DVM$WaterColumn=="epilimnion", substr(all_DVM$metric,1,nchar(all_DVM$metric)-13),substr(all_DVM$metric,1,nchar(all_DVM$metric)-14))
 
-#--------------------------------------------------------------------------------------------------#
-#calculate DVM and DHM metrics
-#note that I think we are missing  noon tow from 24jul19 --> will look into this
+#split up dfs for noon1 vs noon2 data
+all_DVM_noon1 <- all_DVM[all_DVM$Hour!="noon2",]
+all_DVM_noon2 <- all_DVM[all_DVM$Hour!="noon",]
 
+#-------------------------------------------------------------------------------
+####                         DVM METRICS                                    ####
+#-------------------------------------------------------------------------------
 #Calculate proportion of zoops in epi at noon and midnight
-DVM_proportion <-  plyr::ddply(all_DVM, c("metric", "MSN", "Hour","DateTime"), function(x) {
+DVM_proportion_noon1 <-  plyr::ddply(all_DVM_noon1, c("metric", "MSN", "Hour","DateTime"), function(x) {
   data.frame(
-    proportion_epi = x$value[x$WaterColumn=="epilimnion"] / sum(x$value)
+    proportion_epi_noon1 = x$value[x$WaterColumn=="epilimnion"] / sum(x$value)
+  )
+}, .progress = plyr::progress_text(), .parallel = FALSE) 
+
+DVM_proportion_noon2 <-  plyr::ddply(all_DVM_noon2, c("metric", "MSN", "Hour","DateTime"), function(x) {
+  data.frame(
+    proportion_epi_noon2 = x$value[x$WaterColumn=="epilimnion"] / sum(x$value)
   )
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
 
@@ -90,47 +118,64 @@ DVM_proportion <-  plyr::ddply(all_DVM, c("metric", "MSN", "Hour","DateTime"), f
 #migration_df <- data.frame("MSN"= unique(DVM_proportion$MSN))
 
 #DVM metrics for a single day --> DVM = (Depi / Depi + Dhypo)Night - (Depi / Depi + Dhypo)Day
-DVM_noon1 <-  plyr::ddply(DVM_proportion, c("metric", "MSN"), function(x) {
+DVM_noon1 <-  plyr::ddply(DVM_proportion_noon1, c("metric", "MSN"), function(x) {
   data.frame(
-    DVM1 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon"]
+    DVM_metric_noon1 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon"]
   )
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
 
 
-DVM_noon2 <-  plyr::ddply(DVM_proportion, c("metric", "MSN"), function(x) {
+DVM_noon2 <-  plyr::ddply(DVM_proportion_noon2, c("metric", "MSN"), function(x) {
   data.frame(
-DVM2 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon2"]
+DVM_metric_noon2 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon2"]
   )
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
 
 #merge both dfs 
 DVM_metrics <- right_join(DVM_noon1,DVM_noon2, by=c("metric","MSN"))
 
-
-#Calculate proportion of zoops in epi at noon and midnight
-DHM_proportion <-  plyr::ddply(all_DHM, c("metric", "MSN", "Hour","DateTime"), function(x) {
+#-------------------------------------------------------------------------------
+####                         DHM METRICS                                    ####
+#-------------------------------------------------------------------------------
+#Calculate proportion of zoops in epi at noon and midnight (or sunrise/sunset)
+DHM_proportion_noon <-  plyr::ddply(all_DHM_noon, c("metric", "MSN", "Hour","DateTime"), function(x) {
   data.frame(
-    proportion_epi = x$value[x$site_no=="BVR_50"] / sum(x$value)
+    proportion_epi_noon = x$value[x$site_no=="BVR_50"] / sum(x$value)
+  )
+}, .progress = plyr::progress_text(), .parallel = FALSE) 
+
+DHM_proportion_noon2 <-  plyr::ddply(all_DHM_noon2, c("metric", "MSN", "Hour","DateTime"), function(x) {
+  data.frame(
+    proportion_epi_noon2 = x$value[x$site_no=="BVR_50"] / sum(x$value)
   )
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
 
 
 #DHM metrics for a single day --> DHM = (Dpelepi / Dpelepi + Dlit)Night - (Dpelepi / Dpelepi + Dlit)Day
-DHM_metrics <-  plyr::ddply(DHM_proportion, c("metric", "MSN"), function(x) {
+DHM_metrics_noon1 <-  plyr::ddply(DHM_proportion_noon, c("metric", "MSN"), function(x) {
   data.frame(
-    DHM1 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon"],
-    DHM2 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon2"],
-    #DHM3 = x$proportion_epi[x$Hour=="sunset"] - x$proportion_epi[x$Hour=="sunrise"]
+    DHM_metric_noon1 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon"]
     )
+}, .progress = plyr::progress_text(), .parallel = FALSE)
+
+DHM_metrics_noon2 <-  plyr::ddply(DHM_proportion_noon2, c("metric", "MSN"), function(x) {
+  data.frame(
+    DHM_metric_noon2 = x$proportion_epi[x$Hour=="midnight"] - x$proportion_epi[x$Hour=="noon2"]
+  )
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
+
+
+#combine both DHM dfs
+DHM_metrics <- DHM_metrics_noon1%>%
+  full_join(DHM_metrics_noon2)
 
 #initialize final migration df
 migration_df <- data.frame(metric = DHM_metrics$metric, MSN = DHM_metrics$MSN)
 
 #get DVM df into same order as DHM df
-DVM_metrics <- DVM_metrics[order(DVM_metrics$metric, DVM_metrics$MSN),]
+DVM_metrics <- DVM_metrics[order(DHM_metrics$metric, DHM_metrics$MSN),]
 
-#add average and SE of DVM and DHM calcs
+#add average and SE of noon DVM and DHM calcs - sunrise for DHM is still separate
 migration_df$DVM_avg <- rowMeans(DVM_metrics[,c(3,4)], na.rm=TRUE)
 migration_df$DHM_avg <- rowMeans(DHM_metrics[,c(3,4)], na.rm=TRUE)
 
@@ -142,12 +187,12 @@ migration_df$DHM_SE <- apply(DHM_metrics[,c(3,4)], 1, stderr)
 migration_df$DHM_avg[is.nan(migration_df$DHM_avg)] <- 0
 
 #now convert from wide to long
-df1 <- migration_df %>% gather(migration, value, DVM_avg:DHM_avg)
-df2 <- migration_df %>% gather(migration, value, DVM_SE:DHM_SE)
+metrics_avg <- migration_df %>% gather(migration, value, DVM_avg:DHM_avg)
+metrics_se <- migration_df %>% gather(migration, value, DVM_SE:DHM_SE)
 
-migration_long <- df1[,c(1,2,5,6)]
-migration_long$SE <- df2$value
-
+migration_long <- metrics_avg[,c(1,2,5,6)]
+migration_long$SE <- metrics_se$value
+  
 #export migration metrics
 write.csv(migration_long,"./Summer2021-DataAnalysis/SummaryStats/migration_metrics.csv",row.names = FALSE)
 
@@ -155,13 +200,20 @@ write.csv(migration_long,"./Summer2021-DataAnalysis/SummaryStats/migration_metri
 
 metric_taxa <-c("Total","Calanoida","Calanoida","Cladocera","Cladocera",
                 "Copepoda","Copepoda","Cyclopoida", "Cyclopoida",
-                 "Rotifera", "Rotifera", "Total")
+                 "nauplius","nauplius","Rotifera", "Rotifera", "Total")
 names(metric_taxa) <- c(unique(migration_long$metric))
 
+#reorder taxa
+migration_long$metric <- factor(migration_long$metric, levels = c(
+  "ZoopDensity_No.pL",unique(migration_long$metric)[1:13]))
+
 #plot migration metrics
-ggplot(subset(migration_long, grepl("density",metric)), 
+ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
+                !metric %in% c("Copepoda_density_NopL")), 
               aes(x=MSN, y=value, color=metric, shape=migration)) + 
-  geom_point() + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
+  geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
+  scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) +
   theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), legend.key = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
@@ -170,7 +222,38 @@ ggplot(subset(migration_long, grepl("density",metric)),
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.7,"line")) + guides(color=FALSE) +
-  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
+  scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric")
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics.jpg"), width=5, height=4) 
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens.jpg"), width=5, height=4) 
 
+ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
+                !metric %in% c("Copepoda_BiomassConcentration_ugpL")), 
+       aes(x=MSN, y=value, color=metric, shape=migration)) + 
+  geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
+  scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) +
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), legend.key = element_blank(), 
+        legend.key.height=unit(0.3,"line"), 
+        axis.text.x = element_text(vjust = 0.5, hjust=1), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.7,"line")) + guides(color=FALSE) +
+  scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
+  facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Biomass migration metric")
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_biom.jpg"), width=5, height=4) 
+
+#-------------------------------------------------------------------------------
+#create df with proportion of total zoops (both density and biomass) over time
+
+#now calculate the proportion in each habitat
+Hourly_prop <- plyr::ddply(all_DHM, c("metric", "MSN", "Hour","DateTime"), function(x) {
+  data.frame(
+    proportion_lit = x$value[x$site_no=="BVR_l"] / sum(x$value),
+    proportion_pel = x$value[x$site_no=="BVR_50"] / sum(x$value)
+  )
+}, .progress = plyr::progress_text(), .parallel = FALSE) 
+
+#export proportion df
+write.csv(Hourly_prop,"./Summer2021-DataAnalysis/SummaryStats/Hourly_proportions_pelvslit.csv",row.names = FALSE)

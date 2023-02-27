@@ -72,9 +72,10 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
                   Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, Cyclopoida_totalbiomass_ug, Cyclopoida_PercentOfTotal,
                   Rotifera_density_NopL, Rotifera_totalbiomass_ug, Rotifera_BiomassConcentration_ugpL,Rotifera_PercentOfTotal,
                   Calanoida_PercentOfTotal, Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, Calanoida_totalbiomass_ug,
-                  Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL, Copepoda_totalbiomass_ug,) %>%
+                  Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL, Copepoda_totalbiomass_ug,
+                  nauplius_PercentOfTotal, nauplius_density_NopL, nauplius_BiomassConcentration_ugpL, nauplius_totalbiomass_ug) %>%
                   group_by(sample_ID, site_no, Hour, collect_date) %>%
-                  summarise_at(vars(ZoopDensity_No.pL:Copepoda_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
+                  summarise_at(vars(ZoopDensity_No.pL:nauplius_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
 
 #get hour into posixct for graphing
 zoop.repmeans$Hour <- strptime(paste0(as.character(zoop.repmeans$collect_date), zoop.repmeans$Hour),format="%Y-%m-%d %H:%M")
@@ -349,9 +350,9 @@ ggsave(file.path(getwd(),"Figures/BVR_2019_jul2_taxa2_biomass_LittoralvsPelagic.
 
 #sum up counts by sample/site/day for DVM analyses + figs
 BVR_counts <- zoop %>% select(sample_ID,site_no,collect_date,Hour, OverallCount_n,
-  CladoceraCount_n, CyclopoidaCount_n, RotiferaCount_n, CalanoidaCount_n, CopepodaCount_n) %>%
+  CladoceraCount_n, CyclopoidaCount_n, RotiferaCount_n, CalanoidaCount_n, CopepodaCount_n, naupliusCount_n) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(OverallCount_n:CopepodaCount_n), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(OverallCount_n:naupliusCount_n), funs(rep.mean=mean, rep.SE=stderr))
 
 #add unadjusted volume
 BVR_counts$Volume_unadj<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_unadj) %>%
@@ -368,7 +369,7 @@ BVR_counts<- BVR_counts[order(match(paste0(BVR_counts$sample_ID,BVR_counts$site_
                                     paste0(zoop.repmeans$sample_ID,zoop.repmeans$site_no,zoop.repmeans$collect_date))),]
 
 #add counts and vol to zoop.repmeans
-zoop.repmeans[,paste0(colnames(BVR_counts[5:18]))]<- BVR_counts[5:18]
+zoop.repmeans[,paste0(colnames(BVR_counts[5:20]))]<- BVR_counts[5:20]
 
 #new dfs for DVM data (BVR_pelagic_DVM_raw is just raw #/ug; BVR_pelagic_DVM_vol_calculated is #/L and ug/L)
 BVR_pelagic_DVM<- zoop.repmeans[(zoop.repmeans$site_no=="BVR_50" |zoop.repmeans$site_no=="BVR_50_p") &
@@ -381,7 +382,7 @@ BVR_pelagic_DVM$Hour[BVR_pelagic_DVM$sample_ID=="B_pel_11Jul19_midnight_oxy"] <-
   "2019-07-11 00:00:00 EDT"
 
 #only select volume, count, and ug cols (plus SE cols)
-BVR_pelagic_DVM_raw<- BVR_pelagic_DVM[,c(1:4,63,64,which(substrEnd(colnames(BVR_pelagic_DVM),10)=="n_rep.mean"),
+BVR_pelagic_DVM_raw<- BVR_pelagic_DVM[,c(1:4,73,74,which(substrEnd(colnames(BVR_pelagic_DVM),10)=="n_rep.mean"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),11)=="ug_rep.mean"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),8)=="n_rep.SE"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),9)=="ug_rep.SE"))]
@@ -395,7 +396,7 @@ BVR_pelagic_DVM_vol_calculated <- BVR_pelagic_DVM[,c(1:4,which(substrEnd(colname
 
 
 #another one for percent calcs
-BVR_pelagic_DVM_percent<- BVR_pelagic_DVM[,c(1:4,63,64,which(substrEnd(colnames(BVR_pelagic_DVM),14)=="Total_rep.mean"),
+BVR_pelagic_DVM_percent<- BVR_pelagic_DVM[,c(1:4,73,74,which(substrEnd(colnames(BVR_pelagic_DVM),14)=="Total_rep.mean"),
                                      which(substrEnd(colnames(BVR_pelagic_DVM),12)=="Total_rep.SE"))]
 
 #drop oxy samples so only have epi or full - NOTE: need new df if looking at meta data
@@ -405,11 +406,11 @@ BVR_pelagic_DVM_percent <- BVR_pelagic_DVM_percent[substrEnd(BVR_pelagic_DVM_per
 
 #calculate hypo SE for 11Jul19 midnight 
 SE.hypo.calcs.raw<- zoop[zoop$sample_ID=="B_pel_11Jul19_midnight" |zoop$sample_ID=="B_pel_11Jul19_midnight_epi",]
-matchingcols<- match(substr(colnames(BVR_pelagic_DVM_raw[1:18]),1,14),substr(colnames(SE.hypo.calcs.raw),1,14))
+matchingcols<- match(substr(colnames(BVR_pelagic_DVM_raw[1:20]),1,14),substr(colnames(SE.hypo.calcs.raw),1,14))
 SE.hypo.calcs.raw<- SE.hypo.calcs.raw[,unique(matchingcols)]
 
 SE.hypo.calcs.dens <- zoop[zoop$sample_ID=="B_pel_11Jul19_midnight" |zoop$sample_ID=="B_pel_11Jul19_midnight_epi",c(1:5,11,12,which(substrEnd(colnames(zoop),4)=="NopL"))]
-matchingcols.dens<- match(substr(colnames(BVR_pelagic_DVM_vol_calculated[,c(1:4,6:10)]),1,14),substr(colnames(SE.hypo.calcs.dens),1,14))
+matchingcols.dens<- match(substr(colnames(BVR_pelagic_DVM_vol_calculated[,c(1:4,6:11)]),1,14),substr(colnames(SE.hypo.calcs.dens),1,14))
 SE.hypo.calcs.dens<- SE.hypo.calcs.dens[,matchingcols.dens]
 
 #not sure if this is right, but calculating SE of difference between epi mean and hypo mean
@@ -424,9 +425,9 @@ BVR.DVM.calcs<- data.frame("Hour"=unique(BVR_pelagic_DVM_raw$Hour))
 #for loop to fill out epi vs hypo calcs 
 #hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
 #NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. 
-column.names<- colnames(BVR_pelagic_DVM_vol_calculated[,c(5:16)])
-variables<- colnames(BVR_pelagic_DVM_raw[,c(7:18)])
-percent<- colnames(BVR_pelagic_DVM_percent[,c(7:11)])
+column.names<- colnames(BVR_pelagic_DVM_vol_calculated[,c(5:18)])
+variables<- colnames(BVR_pelagic_DVM_raw[,c(7:20)])
+percent<- colnames(BVR_pelagic_DVM_percent[,c(7:12)])
 for(i in 1:length(variables)){
   BVR.DVM.calcs[,paste0(column.names,"_epi")[i]]<- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
   BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi"  ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/NetEfficiency2016)) - 
@@ -434,7 +435,7 @@ for(i in 1:length(variables)){
                                                      (BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj"] - BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "Volume_unadj"])  
 
 }
-density.percent<- colnames(BVR_pelagic_DVM_vol_calculated[,c(6:10)])
+density.percent<- colnames(BVR_pelagic_DVM_vol_calculated[,c(6:11)])
 for(i in 1:length(density.percent)){
 for(j in 1:length(unique(BVR.DVM.calcs$Hour))){
     BVR.DVM.calcs[j,paste0(density.percent,"_epi_percent_density")[i]]<- (BVR.DVM.calcs[j,paste0(density.percent,"_epi")][i]/ sum(BVR.DVM.calcs[j,paste0(density.percent,"_epi")[i]],BVR.DVM.calcs[j,paste0(density.percent,"_hypo")[i]])) *100
@@ -448,8 +449,8 @@ for(j in 1:length(unique(BVR.DVM.calcs$Hour))){
 BVR.DVM.calcs.SE<- data.frame("Hour"=unique(BVR_pelagic_DVM_raw$Hour))
 
 #can only calculate hypo SE for 11JUl19 midnight because only time that had reps of epi and full samples
-SEonly<- colnames(SE.hypo.calcs.raw)[7:18]
-Percentdens <- colnames(SE.hypo.calcs.dens)[5:9]
+SEonly<- colnames(SE.hypo.calcs.raw)[7:20]
+Percentdens <- colnames(SE.hypo.calcs.dens)[5:10]
 for(i in 1:length(SEonly)){
   BVR.DVM.calcs.SE[,paste0(column.names,"_epi_SE")[i]] <- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",substrEnd(colnames(BVR_pelagic_DVM_vol_calculated),2)=="SE"][i]
   BVR.DVM.calcs.SE[2,paste0(column.names,"_hypo_SE")[i]]<- SE.diffMean(SE.hypo.calcs.raw[SE.hypo.calcs.raw$sample_ID=="B_pel_11Jul19_midnight",paste0(SEonly)[i]],
@@ -466,10 +467,10 @@ for(i in 1:length(SEonly)){
 
 #wide to long for both dfs separately
 BVR.DVM.calcs.long <-  BVR.DVM.calcs %>%
-    gather(metric,value, ZoopDensity_No.pL_rep.mean_epi:Copepoda_density_NopL_rep.mean_hypo_percent_density) %>%
+    gather(metric,value, ZoopDensity_No.pL_rep.mean_epi:nauplius_density_NopL_rep.mean_hypo_percent_density) %>%
     mutate(DateTime = strftime(Hour, "%m-%d-%Y %H:%M"))
 BVR.DVM.calcs.SE.long <-  BVR.DVM.calcs.SE %>%
-gather(taxa.metric,SE,ZoopDensity_No.pL_rep.mean_epi_SE:Copepoda_density_NopL_hypo_percent_density_SE)
+gather(taxa.metric,SE,ZoopDensity_No.pL_rep.mean_epi_SE:nauplius_density_NopL_hypo_percent_density_SE)
 
 #add the SE column from df2 to df1 for combined df
 BVR.DVM.calcs.long$SE <- BVR.DVM.calcs.SE.long$SE
