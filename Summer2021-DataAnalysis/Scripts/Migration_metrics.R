@@ -209,7 +209,7 @@ migration_long$metric <- factor(migration_long$metric, levels = c(
 
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
-                !metric %in% c("Copepoda_density_NopL")), 
+                metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
               aes(x=MSN, y=value, color=metric, shape=migration)) + 
   geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
   scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) +
@@ -221,13 +221,13 @@ ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) &
         strip.background = element_rect(fill = "transparent"), 
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-        legend.key.width =unit(0.7,"line")) + guides(color=FALSE) +
+        legend.key.width =unit(0.7,"line")) + guides(color="none") +
   scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric")
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens.jpg"), width=5, height=4) 
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens_3taxa.jpg"), width=5, height=4) 
 
 ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
-                !metric %in% c("Copepoda_BiomassConcentration_ugpL")), 
+                metric %in% c("Cladocera_BiomassConcentration_ugpL","Copepoda_BiomassConcentration_ugpL","Rotifera_BiomassConcentration_ugpL")), 
        aes(x=MSN, y=value, color=metric, shape=migration)) + 
   geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
   scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) +
@@ -239,10 +239,10 @@ ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
         strip.background = element_rect(fill = "transparent"), 
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-        legend.key.width =unit(0.7,"line")) + guides(color=FALSE) +
+        legend.key.width =unit(0.7,"line")) + guides(color="none") +
   scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Biomass migration metric")
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_biom.jpg"), width=5, height=4) 
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_biom_3taxa.jpg"), width=5, height=4) 
 
 #-------------------------------------------------------------------------------
 #create df with proportion of total zoops (both density and biomass) over time
