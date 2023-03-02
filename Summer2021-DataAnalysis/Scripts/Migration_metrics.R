@@ -98,6 +98,12 @@ all_DVM$metric <- ifelse(all_DVM$WaterColumn=="epilimnion", substr(all_DVM$metri
 all_DVM_noon1 <- all_DVM[all_DVM$Hour!="noon2",]
 all_DVM_noon2 <- all_DVM[all_DVM$Hour!="noon",]
 
+#NOTE - need to bring in the proportional volume for epi, hypo, and lit samples...
+# BVR total volume = 1357140.624 m3
+# epi vol = 806200.056 m3
+# hypo vol = 550940.568 m3
+# not sure what to do with littoral though - maybe I say the littoral is ~30% of the pelagic epi volumen and then split that one up??
+
 #-------------------------------------------------------------------------------
 ####                         DVM METRICS                                    ####
 #-------------------------------------------------------------------------------
