@@ -40,6 +40,10 @@ zoops <- rbind(zoops2019,zoops2020,zoops2021)
 #ignore 20 um and horizontal trap samples
 zoops <- zoops %>% filter(mesh_size_μm >20, na.rm=TRUE)
 
+#manually change a noon and midnight hour so  summarizing below actually works
+zoops$Hour[zoops$sample_ID=="B_pel_10Jul19_noon_epi_rep1"] <- "12:00"
+zoops$Hour[zoops$sample_ID=="B_pel_08Jul21_midnight_epi_rep1"] <- "0:00"
+
 #create df for temporal epi tows
 zoop_epi_tows <- zoops[zoops$site_no!="FCR_50"& zoops$site_no!="BVR_d" & zoops$site_no!="BVR_dam" & (grepl("epi",zoops$sample_ID) |grepl("sunrise",zoops$sample_ID) | 
                         grepl("sunset",zoops$sample_ID) | zoops$site_no=="BVR_l"), ] %>%
@@ -84,7 +88,7 @@ NMDS_temporal_bray$stress
 
 #  Points divided into time groups
 #jpeg("Figures/2019-2021_NMDS_1v2_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ord <- ordiplot(NMDS_temporal_bray,display = c('sites'),choices = c(1,2),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], pch=21,bg="#9BBAA0")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], pch=21,bg="#F2E2B0")
@@ -93,22 +97,8 @@ points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bra
 legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
 ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
-
-#jpeg("Figures/2019-2021_NMDS_1v3_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",3], pch=21,bg="#008585")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",3], pch=21,bg="#9BBAA0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",3], pch=21,bg="#F2E2B0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",3], pch=21,bg="#DEA868")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",3], pch=21,bg="#C7522B")
-legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
-ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-                                                                               "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
+#text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
+#     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
@@ -119,17 +109,6 @@ legend("bottomright", legend=c("Pelagic","Littoral"), pch=21, pt.bg=c("slateblue
 ordihull(ord, zoop_epi_tows$site, display = "sites", draw = c("polygon"),
          col = c("palegreen3","slateblue4"), alpha = 75,cex = 2)
 text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
-
-#jpeg("Figures/2019-2021_NMDS_1v3_bray_sites.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",3], pch=21,bg="slateblue4")
-points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",3], pch=21,bg="palegreen3")
-legend("bottomright", legend=c("Pelagic","Littoral"), pch=21, pt.bg=c("slateblue4","palegreen3"),bty = "n") 
-ordihull(ord, zoop_epi_tows$site, display = "sites", draw = c("polygon"),
-         col = c("palegreen3","slateblue4"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
@@ -144,19 +123,6 @@ legend("bottomright", legend=c('sunrise','noon', 'sunset', 'midnight'), pch=21, 
 ordihull(ord, zoop_epi_tows$time, display = "sites", draw = c("polygon"),
          col = c("#0072B2", "#F0E442","#CC79A7","#009E73"), alpha = 75,cex = 2)
 text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
-
-#jpeg("Figures/2019-2021_NMDS_1v3_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',3], pch=21,bg="#CC79A7")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',3], pch=21,bg="#F0E442")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',3], pch=21,bg="#009E73")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',3], pch=21,bg="#0072B2")
-legend("bottomright", legend=c('sunrise','noon', 'sunset', 'midnight'), pch=21, pt.bg=c('#CC79A7', '#F0E442','#009E73','#0072B2'),bty = "n") 
-ordihull(ord, zoop_epi_tows$time, display = "sites", draw = c("polygon"),
-         col = c("#0072B2", "#F0E442","#CC79A7","#009E73"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,3], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
@@ -262,56 +228,62 @@ NMDS_lit_bray$stress
 ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2], col="#008585")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",2], col="#369187")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#369187",10),rep("#008585",10)))
 
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",2], col="#89B199")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",2], col="#C4D5B2")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#C4D5B2",10),rep("#89B199",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2],pch=19,col="#008585")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",2],pch=1,col="#008585")
 
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",2], col="#EFECBF")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",2], col="#EFDBA7")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",2], pch=19, col="#89B199")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",2], pch=1, col="#89B199")
 
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",2], col="#DB9B5A")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",2], col="#E4BC80")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#E4BC80",10),rep("#DB9B5A",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",2], pch=19, col="#8B8000")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",2], pch=1, col="#8B8000")
 
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",2], col="#C7522B")
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",2], col="#CA602E")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5",2], pch=rep(c(0,1,2,3,4,5,6,7,8,9,10),2),col=c(rep("#CA602E",10),rep("#C7522B",10)))
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",2], pch=19, col="#DB9B5A")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",2], pch=1, col="#DB9B5A")
 
-legend("bottomright", legend=c('pelagic day1','littoral day1','pelagic day2','littoral day2','pelagic day3','littoral day3', "pelagic day4", "littoral day4", "pelagic day5", "littoral day5"), pch=21, 
-       pt.bg=c("#008585","#369187","#89B199","#C4D5B2","#EFECBF","#EFDBA7","#DB9B5A","#E4BC80", "#C7522B","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",2], pch=19, col="#C7522B")
+points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",2], pch=1, col="#C7522B")
+
+legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=19, 
+       col=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1) 
+legend("topright", legend=c('pelagic','littoral'),pch=c(19,1) ,bty = "n",cex=1) 
 #dev.off()
 
-#hours
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-ordihull(ord, zoop_avg$order, display = "sites", draw = c("polygon"),
-         col =  hcl.colors(11, palette = "Earth"), alpha = 75,cex = 2)
-
-#sites
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+#same figure as above, but with site hulls
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites'),choices = c(1,2),type = "n")
 ordihull(ord, zoop_avg$site, display = "sites", draw = c("polygon"),
-         col =  hcl.colors(2, palette = "Earth"), alpha = 75,cex = 2)
+         col = c("#882255","#3399CC"), alpha = 75,cex = 2)
+
+points(NMDS_temporal_avg_bray$points[zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$site=="pel",2],pch=19,col="#3399CC")
+points(NMDS_temporal_avg_bray$points[zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$site=="lit",2],pch=19,col="#882255")
+
+legend("topright", legend=c('pelagic','littoral'),pch=19,col=c("#3399CC","#882255") ,bty = "n",cex=1) 
+#dev.off()
+
+#same again, but now hour hulls
+#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_time.jpg"), width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites'),choices = c(1,2),type = "n")
+ordihull(ord, zoop_avg$order, display = "sites", draw = c("polygon"),
+         col = hcl.colors(11,"sunset"), alpha = 75,cex = 2)
+
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==1,1], NMDS_temporal_avg_bray$points[zoop_avg$order==1,2],pch=19,col=hcl.colors(11,"sunset")[1])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==2,1], NMDS_temporal_avg_bray$points[zoop_avg$order==2,2],pch=19,col=hcl.colors(11,"sunset")[2])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==3,1], NMDS_temporal_avg_bray$points[zoop_avg$order==3,2],pch=19,col=hcl.colors(11,"sunset")[3])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==4,1], NMDS_temporal_avg_bray$points[zoop_avg$order==4,2],pch=19,col=hcl.colors(11,"sunset")[4])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==5,1], NMDS_temporal_avg_bray$points[zoop_avg$order==5,2],pch=19,col=hcl.colors(11,"sunset")[5])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==6,1], NMDS_temporal_avg_bray$points[zoop_avg$order==6,2],pch=19,col=hcl.colors(11,"sunset")[6])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==7,1], NMDS_temporal_avg_bray$points[zoop_avg$order==7,2],pch=19,col=hcl.colors(11,"sunset")[7])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==8,1], NMDS_temporal_avg_bray$points[zoop_avg$order==8,2],pch=19,col=hcl.colors(11,"sunset")[8])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==9,1], NMDS_temporal_avg_bray$points[zoop_avg$order==9,2],pch=19,col=hcl.colors(11,"sunset")[9])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==10,1], NMDS_temporal_avg_bray$points[zoop_avg$order==10,2],pch=19,col=hcl.colors(11,"sunset")[10])
+points(NMDS_temporal_avg_bray$points[zoop_avg$order==11,1], NMDS_temporal_avg_bray$points[zoop_avg$order==11,2],pch=19,col=hcl.colors(11,"sunset")[11])
+
+legend("bottomright", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=19, col=hcl.colors(11,"sunset"), bty = "n", cex=1) 
+#dev.off()
+
+
 #-----------------------------------------------------------------------------------------#
-#time tracking noon vs midnight across all sites and days
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_density_noon_midnight.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_noon_midnight_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-ordihull(ord, zoop_avg_noon_midnight$order, display = "sites", draw = c("polygon"),
-         col = c("#FF99CC","#440154FF","#FDE725FF"), alpha = 75,cex = 4)
-
-points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="1",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="1",2], pch=19,col="#FF99CC")
-points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="6",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="6",2], pch=19,col="#440154FF")
-points(NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="11",1], NMDS_noon_midnight_avg_bray$points[zoop_avg_noon_midnight$order=="11",2], pch=19,col="#FDE725FF")
-
-legend("bottomleft", legend=c('noon1','midnight','noon2'), pch=19,
-       col = c("#FF99CC","#440154FF","#FDE725FF"),bty = "n",cex=1.2 )
-#dev.off() 
-
-
 #pelagic only tracking density through time
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
 ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
@@ -362,7 +334,6 @@ legend("topright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
 legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
 
-
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
 #-------------------------------------------------------------------------------#
@@ -374,40 +345,47 @@ zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
 
 zoop_sites_euc <- as.matrix(vegdist(NMDS_temporal_bray$points, method='euclidean'))
 
+#get collect_date into correct format
+zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
+
+#order zoop epi tows by hour, MSN, and site
+zoop_epi_tows <- zoop_epi_tows %>% dplyr::arrange(site, groups, order)
+
 #step 2: select and sum the 9 distances between connecting points for each of the 5 days
-pel_day1 <- sum(zoop_pel_euc[1,2],zoop_pel_euc[2,3],zoop_pel_euc[3,4],zoop_pel_euc[4,5],zoop_pel_euc[5,6],
-                zoop_pel_euc[6,7],zoop_pel_euc[7,8],zoop_pel_euc[8,9],zoop_pel_euc[9,10],zoop_pel_euc[10,11])
 
-pel_day2 <- sum(zoop_pel_euc[12,13], zoop_pel_euc[13,14],zoop_pel_euc[14,15],zoop_pel_euc[15,16],zoop_pel_euc[16,17],
-                zoop_pel_euc[17,18],zoop_pel_euc[18,19],zoop_pel_euc[19,20],zoop_pel_euc[20,21],zoop_pel_euc[21,22])
+lit_day1 <- sum(zoop_sites_euc[1,2],zoop_sites_euc[2,3],zoop_sites_euc[3,4],zoop_sites_euc[4,5],zoop_sites_euc[5,6],
+                zoop_sites_euc[6,7],zoop_sites_euc[7,8],zoop_sites_euc[8,9],zoop_sites_euc[9,10],zoop_sites_euc[10,11])
 
-pel_day3 <- sum(zoop_pel_euc[23,24], zoop_pel_euc[24,25],zoop_pel_euc[25,26],zoop_pel_euc[26,27],zoop_pel_euc[27,28],
-                zoop_pel_euc[28,29],zoop_pel_euc[29,30],zoop_pel_euc[30,31],zoop_pel_euc[31,32],zoop_pel_euc[32,33])
+lit_day2 <- sum(zoop_sites_euc[12,13], zoop_sites_euc[13,14],zoop_sites_euc[14,15],zoop_sites_euc[15,16],zoop_sites_euc[16,17],
+                zoop_sites_euc[17,18],zoop_sites_euc[18,19],zoop_sites_euc[19,20],zoop_sites_euc[20,21],zoop_sites_euc[21,22])
 
-pel_day4 <- sum(zoop_pel_euc[34,35], zoop_pel_euc[35,36],zoop_pel_euc[36,37],zoop_pel_euc[37,38],zoop_pel_euc[38,39],
-                zoop_pel_euc[39,40],zoop_pel_euc[40,41],zoop_pel_euc[41,42],zoop_pel_euc[42,43],zoop_pel_euc[43,44])
+lit_day3 <- sum(zoop_sites_euc[23,24], zoop_sites_euc[24,25],zoop_sites_euc[25,26],zoop_sites_euc[26,27],zoop_sites_euc[27,28],
+                zoop_sites_euc[28,29],zoop_sites_euc[29,30],zoop_sites_euc[30,31],zoop_sites_euc[31,32],zoop_sites_euc[32,33])
 
-pel_day5 <- sum(zoop_pel_euc[45,46], zoop_pel_euc[46,47],zoop_pel_euc[47,48],zoop_pel_euc[48,49],zoop_pel_euc[49,50],
-                zoop_pel_euc[50,51],zoop_pel_euc[51,52],zoop_pel_euc[52,53],zoop_pel_euc[53,54],zoop_pel_euc[54,55])
+lit_day4 <- sum(zoop_sites_euc[34,35], zoop_sites_euc[35,36],zoop_sites_euc[36,37],zoop_sites_euc[37,38],zoop_sites_euc[38,39],
+                zoop_sites_euc[39,40],zoop_sites_euc[40,41],zoop_sites_euc[41,42],zoop_sites_euc[42,43],zoop_sites_euc[43,44])
 
-mean(pel_day1, pel_day2, pel_day3, pel_day4, pel_day5)
+lit_day5 <- sum(zoop_sites_euc[45,46], zoop_sites_euc[46,47],zoop_sites_euc[47,48],zoop_sites_euc[48,49],zoop_sites_euc[49,50],
+                zoop_sites_euc[50,51],zoop_sites_euc[51,52],zoop_sites_euc[52,53],zoop_sites_euc[53,54],zoop_sites_euc[54,55])
 
-lit_day1 <- sum(zoop_lit_euc[1,2],zoop_lit_euc[2,3],zoop_lit_euc[3,4],zoop_lit_euc[4,5],zoop_lit_euc[5,6],
-                zoop_lit_euc[6,7],zoop_lit_euc[7,8],zoop_lit_euc[8,9],zoop_lit_euc[9,10],zoop_lit_euc[10,11])
+mean(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5)
 
-lit_day2 <- sum(zoop_lit_euc[12,13], zoop_lit_euc[13,14],zoop_lit_euc[14,15],zoop_lit_euc[15,16],zoop_lit_euc[16,17],
-                zoop_lit_euc[17,18],zoop_lit_euc[18,19],zoop_lit_euc[19,20],zoop_lit_euc[20,21],zoop_lit_euc[21,22])
+pel_day1 <- sum(zoop_sites_euc[56,57],zoop_sites_euc[57,58],zoop_sites_euc[58,59],zoop_sites_euc[59,60],zoop_sites_euc[60,61],
+                zoop_sites_euc[61,62],zoop_sites_euc[62,63],zoop_sites_euc[63,64],zoop_sites_euc[64,65],zoop_sites_euc[65,66])
 
-lit_day3 <- sum(zoop_lit_euc[23,24], zoop_lit_euc[24,25],zoop_lit_euc[25,26],zoop_lit_euc[26,27],zoop_lit_euc[27,28],
-                zoop_lit_euc[28,29],zoop_lit_euc[29,30],zoop_lit_euc[30,31],zoop_lit_euc[31,32],zoop_lit_euc[32,33])
+pel_day2 <- sum(zoop_sites_euc[67,68], zoop_sites_euc[68,69],zoop_sites_euc[69,70],zoop_sites_euc[70,71],zoop_sites_euc[71,72],
+                zoop_sites_euc[72,73],zoop_sites_euc[73,74],zoop_sites_euc[74,75],zoop_sites_euc[75,76],zoop_sites_euc[76,77])
 
-lit_day4 <- sum(zoop_lit_euc[34,35], zoop_lit_euc[35,36],zoop_lit_euc[36,37],zoop_lit_euc[37,38],zoop_lit_euc[38,39],
-                zoop_lit_euc[39,40],zoop_lit_euc[40,41],zoop_lit_euc[41,42],zoop_lit_euc[42,43],zoop_lit_euc[43,44])
+pel_day3 <- sum(zoop_sites_euc[78,79], zoop_sites_euc[79,80],zoop_sites_euc[80,81],zoop_sites_euc[81,82],zoop_sites_euc[82,83],
+                zoop_sites_euc[83,84],zoop_sites_euc[84,85],zoop_sites_euc[85,86],zoop_sites_euc[86,87],zoop_sites_euc[87,88])
 
-lit_day5 <- sum(zoop_lit_euc[45,46], zoop_lit_euc[46,47],zoop_lit_euc[47,48],zoop_lit_euc[48,49],zoop_lit_euc[49,50],
-                zoop_lit_euc[50,51],zoop_lit_euc[51,52],zoop_lit_euc[52,53],zoop_lit_euc[53,54],zoop_lit_euc[54,55])
+pel_day4 <- sum(zoop_sites_euc[89,90], zoop_sites_euc[90,91],zoop_sites_euc[91,92],zoop_sites_euc[92,93],zoop_sites_euc[93,94],
+                zoop_sites_euc[94,95],zoop_sites_euc[95,96],zoop_sites_euc[96,97],zoop_sites_euc[97,98],zoop_sites_euc[98,99])
 
-mean(lit_day1, lit_day2, lit_day3, lit_day4, lit_day5)
+pel_day5 <- sum(zoop_sites_euc[100,101], zoop_sites_euc[101,102],zoop_sites_euc[102,103],zoop_sites_euc[103,104],zoop_sites_euc[104,105],
+                zoop_sites_euc[105,106],zoop_sites_euc[106,107],zoop_sites_euc[107,108],zoop_sites_euc[108,109],zoop_sites_euc[109,110])
+
+mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
 
 #convert ED matrix back into distance structure for next steps
 zoop_pel_euc <- vegdist(NMDS_pel_bray$points, method='euclidean')
@@ -420,15 +398,22 @@ centroids_pel <- betadisper(zoop_pel_euc, group = as.factor(zoop_pel$groups), ty
 centroids_lit <- betadisper(zoop_lit_euc, group = as.factor(zoop_lit$groups), type="centroid")
 
 centroids_sites <- betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
+centroids_hours <- betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$order), type="centroid")
+centroids_days <-  betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$groups), type="centroid")
 
-mean(dist(centroids_pel$centroids))
-mean(dist(centroids_lit$centroids))
+#average distance of each point to the polygon centroid --> hourly variability
+mean(centroids_days$group.distances)
+sum(centroids_days$group.distances)
 
+#Pairwise centroid distances between every combination of centroids --> daily variability
+mean(dist(centroids_days$centroids))
+sum(dist(centroids_days$centroids))
+
+#distance between pelagic and littoral centroid --> site variability 
 mean(dist(centroids_sites$centroids))
-#but this is wrong because it doesn't account for the negative eigenvalues????
-#do I need to square the negative ones?
 
-
+#or average distance between each point and the polygon centroid --> site variability
+mean(centroids_sites$group.distances)
 
 #-------------------------------------------------------------------------------
 #step 3: make a dataset of data
