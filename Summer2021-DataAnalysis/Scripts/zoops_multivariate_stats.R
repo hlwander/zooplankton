@@ -83,13 +83,13 @@ NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=4, tr
 NMDS_temporal_bray$stress
 
 #  Points divided into time groups
-#jpeg("Figures/2019-2021_NMDS_2v4_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(2,4),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",4], pch=21,bg="#008585")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",4], pch=21,bg="#9BBAA0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",4], pch=21,bg="#F2E2B0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",4], pch=21,bg="#DEA868")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",4], pch=21,bg="#C7522B")
+#jpeg("Figures/2019-2021_NMDS_1v2_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
+ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], pch=21,bg="#008585")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], pch=21,bg="#9BBAA0")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], pch=21,bg="#F2E2B0")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], pch=21,bg="#DEA868")
+points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], pch=21,bg="#C7522B")
 legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
 ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
@@ -98,7 +98,7 @@ text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("
 #dev.off()
 
 #jpeg("Figures/2019-2021_NMDS_1v3_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
+ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,3),type = "n") 
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",3], pch=21,bg="#008585")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",3], pch=21,bg="#9BBAA0")
 points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",3], pch=21,bg="#F2E2B0")
@@ -259,7 +259,7 @@ NMDS_lit_bray$stress
 #                                 Tracking figs                                 #
 #-------------------------------------------------------------------------------#
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2], col="#008585")
@@ -332,9 +332,9 @@ points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_p
 lines(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], col="#C7522B")
 points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C7522B")
 
-#legend("topright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
-#       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
+legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
+       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
+legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
 #dev.off() 
 
 #littoral only tracking density through time
@@ -357,10 +357,11 @@ points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_l
 lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], col="#CA602E")
 points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
 
-legend("bottomright", legend=c('day1', 'day2','day3','day4', 'day5'), pch=21, 
+legend("topright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
        pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','midnight','sunrise1','sunrise2','sunrise3','sunrise4','noon2'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
+legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
 #dev.off()
+
 
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
@@ -370,6 +371,8 @@ legend("bottomleft", legend=c('noon1','sunset1','sunset2','sunset3','sunset4','m
 #step 1: take NMDS output for each site using NMDS coordinates
 zoop_pel_euc <- as.matrix(vegdist(NMDS_pel_bray$points, method='euclidean')) 
 zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
+
+zoop_sites_euc <- as.matrix(vegdist(NMDS_temporal_bray$points, method='euclidean'))
 
 #step 2: select and sum the 9 distances between connecting points for each of the 5 days
 pel_day1 <- sum(zoop_pel_euc[1,2],zoop_pel_euc[2,3],zoop_pel_euc[3,4],zoop_pel_euc[4,5],zoop_pel_euc[5,6],
@@ -387,6 +390,8 @@ pel_day4 <- sum(zoop_pel_euc[34,35], zoop_pel_euc[35,36],zoop_pel_euc[36,37],zoo
 pel_day5 <- sum(zoop_pel_euc[45,46], zoop_pel_euc[46,47],zoop_pel_euc[47,48],zoop_pel_euc[48,49],zoop_pel_euc[49,50],
                 zoop_pel_euc[50,51],zoop_pel_euc[51,52],zoop_pel_euc[52,53],zoop_pel_euc[53,54],zoop_pel_euc[54,55])
 
+mean(pel_day1, pel_day2, pel_day3, pel_day4, pel_day5)
+
 lit_day1 <- sum(zoop_lit_euc[1,2],zoop_lit_euc[2,3],zoop_lit_euc[3,4],zoop_lit_euc[4,5],zoop_lit_euc[5,6],
                 zoop_lit_euc[6,7],zoop_lit_euc[7,8],zoop_lit_euc[8,9],zoop_lit_euc[9,10],zoop_lit_euc[10,11])
 
@@ -402,6 +407,30 @@ lit_day4 <- sum(zoop_lit_euc[34,35], zoop_lit_euc[35,36],zoop_lit_euc[36,37],zoo
 lit_day5 <- sum(zoop_lit_euc[45,46], zoop_lit_euc[46,47],zoop_lit_euc[47,48],zoop_lit_euc[48,49],zoop_lit_euc[49,50],
                 zoop_lit_euc[50,51],zoop_lit_euc[51,52],zoop_lit_euc[52,53],zoop_lit_euc[53,54],zoop_lit_euc[54,55])
 
+mean(lit_day1, lit_day2, lit_day3, lit_day4, lit_day5)
+
+#convert ED matrix back into distance structure for next steps
+zoop_pel_euc <- vegdist(NMDS_pel_bray$points, method='euclidean')
+zoop_lit_euc <- vegdist(NMDS_lit_bray$points, method='euclidean')
+
+zoop_sites_euc <- vegdist(NMDS_temporal_bray$points, method='euclidean')
+
+#Now calculate the centroids of each polygon and calculate the Euclidean distance between each centroid (n=10)
+centroids_pel <- betadisper(zoop_pel_euc, group = as.factor(zoop_pel$groups), type="centroid")
+centroids_lit <- betadisper(zoop_lit_euc, group = as.factor(zoop_lit$groups), type="centroid")
+
+centroids_sites <- betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
+
+mean(dist(centroids_pel$centroids))
+mean(dist(centroids_lit$centroids))
+
+mean(dist(centroids_sites$centroids))
+#but this is wrong because it doesn't account for the negative eigenvalues????
+#do I need to square the negative ones?
+
+
+
+#-------------------------------------------------------------------------------
 #step 3: make a dataset of data
 euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5),
                                littoral=c(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5))
