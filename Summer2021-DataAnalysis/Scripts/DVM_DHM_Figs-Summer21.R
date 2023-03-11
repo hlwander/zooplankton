@@ -413,17 +413,17 @@ ggsave(file.path(getwd(),"Figures/BVR_2021_jul_taxa2_biomass_LittoralvsPelagic.j
 BVR_counts <- zoop %>% select(sample_ID,site_no,collect_date,Hour, OverallCount_n,
   CladoceraCount_n, CyclopoidaCount_n, RotiferaCount_n, CalanoidaCount_n, CopepodaCount_n, naupliusCount_n) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(OverallCount_n:naupliusCount_n), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(OverallCount_n:naupliusCount_n), list(rep.mean=mean, rep.SE=stderr))
 
 #add unadjusted volume
 BVR_counts$Volume_unadj<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, Volume_unadj) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(Volume_unadj),funs(rep.mean=mean)))$rep.mean
+  summarise_at(vars(Volume_unadj),list(rep.mean=mean)))$rep.mean
 
 #add proportional volume for numerator hypo calc
 BVR_counts$proportional_vol<- (zoop %>% select(sample_ID,site_no,collect_date,Hour, proportional_vol) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(proportional_vol),funs(rep.mean=mean)))$rep.mean
+  summarise_at(vars(proportional_vol),list(rep.mean=mean)))$rep.mean
 
 #get BVR_counts df in same order as zoop.repmeans df
 BVR_counts<- BVR_counts[order(match(paste0(BVR_counts$sample_ID,BVR_counts$site_no,BVR_counts$collect_date), 
@@ -438,7 +438,7 @@ BVR_pelagic_DVM<- zoop.repmeans[(zoop.repmeans$site_no=="BVR_50" |zoop.repmeans$
                                  substrEnd(zoop.repmeans$sample_ID,9)=="night_epi" | substrEnd(zoop.repmeans$sample_ID,8)=="noon_epi" |
                                  substrEnd(zoop.repmeans$sample_ID,3)=="oxy"),] 
 
-#remove oxy samples (the 15Jun midnight oxy sample is a rep of the 16jun oxy sample I think)
+#remove oxy samples 
 BVR_pelagic_DVM <- BVR_pelagic_DVM[!c(substrEnd(BVR_pelagic_DVM$sample_ID,3)=="oxy"),]
 
 #only select volume, count, and ug cols (plus SE cols)
