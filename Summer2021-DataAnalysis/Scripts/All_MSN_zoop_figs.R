@@ -89,7 +89,7 @@ zoop.repmeans <- zoop %>% select(sample_ID,site_no,collect_date,Hour, ZoopDensit
                                  Copepoda_PercentOfTotal, Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL,
                                  nauplius_PercentOfTotal, nauplius_density_NopL, nauplius_BiomassConcentration_ugpL) %>%
   group_by(sample_ID, site_no, Hour, collect_date) %>%
-  summarise_at(vars(ZoopDensity_No.pL:nauplius_BiomassConcentration_ugpL), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(ZoopDensity_No.pL:nauplius_BiomassConcentration_ugpL), list(rep.mean=mean, rep.SE=stderr))
 
 #merge collect_date and hour in a new column
 zoop.repmeans$datetime<- paste(zoop.repmeans$collect_date,zoop.repmeans$Hour,sep=" ")
@@ -203,18 +203,16 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_
   geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
   geom_rect(aes(xmin=as.POSIXct("2022-10-16 06:11:00"),xmax=as.POSIXct("2022-10-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
   geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(metric=metric_taxa, site_no=sites)) + xlab("")+ coord_cartesian(clip = 'off') +
-  theme(text = element_text(size=10), axis.text = element_text(size=9, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
-        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.12,0.35), legend.spacing = unit(-0.5, 'cm'),
-        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"),legend.spacing.y=unit(-1,'cm'), legend.spacing.x=unit(0,'cm')) + 
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.44), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))+ scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT")) +
   scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT"))+
-  #scale_colour_viridis_d("",option="viridis", labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021")) + 
-  #scale_color_manual("",values=hcl.colors(5,"Geyser"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
   scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
   geom_line()+ ylab("% Density") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+ 
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density.jpg"), width=5, height=4) 
 
-range(zoop_DHM_long$value[zoop_DHM_long$metric=="Rotifera_PercentOfTotal"]) # 77.1%, 37.6%, 85.9%
+range(zoop_DHM_long$value[zoop_DHM_long$metric=="Copepoda_PercentOfTotal"]) # 77.1%, 68.9%, 85.9%
 
 #-------------------------------------------------------------------------------------#
 #looking at each MSN separately to look for evidence of DHM
