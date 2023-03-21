@@ -126,26 +126,6 @@ text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("
      "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
 #dev.off()
 
-#jpeg("Figures/2019-2021_NMDS_1v2_bray_timegroups.jpg", width = 6, height = 5, units = "in",res = 300)
-#ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise1',2], pch=21,bg="cornsilk")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise2',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise2',2], pch=21,bg="yellow")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise3',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunrise3',2], pch=21,bg="yellow3")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon1',2], pch=21,bg="lightpink")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon2',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon2',2], pch=21,bg="indianred")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon3',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='noon3',2], pch=21,bg="red")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset1',2], pch=21,bg="palegreen")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset2',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset2',2], pch=21,bg="mediumseagreen")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset3',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='sunset3',2], pch=21,bg="darkgreen")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight1',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight1',2], pch=21,bg="lightsteelblue")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight2',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight2',2], pch=21,bg="skyblue")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight3',1], NMDS_temporal_bray$points[zoop_epi_tows$timegroup=='midnight3',2], pch=21,bg="steelblue")
-#ordiellipse(ord, zoop_epi_tows$timegroup, display = "sites", kind="sd",draw="lines", col = c("lightsteelblue", "skyblue","steelblue","lightpink","indianred","red","cornsilk","yellow","yellow3","palegreen","mediumseagreen","darkgreen"), alpha = 75,cex = 2)
-#legend("bottomright", legend=c('sunrise1', 'sunrise2', 'sunrise3', 'noon1', 'noon2', 'noon3', 'sunset1', 'sunset2', 'sunset3', 'midnight1', 'midnight2', 'midnight3'), pch=21,
-#       pt.bg=c('cornsilk', 'yellow','yellow3','lightpink','indianred','red','palegreen','mediumseagreen','darkgreen','lightsteelblue','skyblue','steelblue'),bty = "n") 
-#dev.off()
-
-
 #-------------------------------------------------------------------------------#
 #           Averaging zoops by time and campaign/day for new NMDS               #
 #-------------------------------------------------------------------------------#
@@ -171,14 +151,6 @@ zoop_epi_tows$time[zoop_epi_tows$order==11] <- "noon2"
 zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
   summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
 
-#time df
-zoop_avg_time <- zoop_epi_tows %>% group_by(order) %>%
-  summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
-
-#df with only noon and midnight
-zoop_avg_noon_midnight <- zoop_epi_tows %>% group_by(groups,site,order) %>% filter(order %in% c(1,6,11)) %>%
-  summarise_at(vars(Calanoida_density_NopL_1:Conochilidae_density_NopL_1), list(mean = mean))
-
 #pelagic vs littoral dfs
 zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
 zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
@@ -186,16 +158,14 @@ zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
 
 #only select data cols
 zoop_temporal_avg_dens <- zoop_avg[,c(grepl("mean",colnames(zoop_avg)))] 
-zoop_avg_time_dens <- zoop_avg_time[,c(grepl("mean",colnames(zoop_avg_time)))] 
-zoop_avg_noon_midnight_dens <- zoop_avg_noon_midnight[,c(grepl("mean",colnames(zoop_avg_noon_midnight)))] 
+
 zoop_pel_dens <- zoop_pel[,c(grepl("mean",colnames(zoop_pel)))]
 zoop_lit_dens <- zoop_lit[,c(grepl("mean",colnames(zoop_lit)))]
 
 #transforming data - hellinger transformation because gives low weight to low/zero values
 #converts species abundances from absolute to relative - use w/ bray curtis
 zoop_temporal_dens_avg_trans <- hellinger(zoop_temporal_avg_dens)
-zoop_avg_time_dens_trans <- hellinger(zoop_avg_time_dens)
-zoop_avg_noon_midnight_dens_trans <- hellinger(zoop_avg_noon_midnight_dens)
+
 zoop_pel_dens_trans <- hellinger(zoop_pel_dens)
 zoop_lit_dens_trans <- hellinger(zoop_lit_dens)
 
@@ -207,13 +177,6 @@ dimcheckMDS(zoop_avg_time_dens_trans, distance = "bray", k = 6, trymax = 20, aut
 #now do NMDS using averages w/ 4 dimensions for consistency
 NMDS_temporal_avg_bray <- metaMDS(zoop_temporal_dens_avg_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_avg_bray$stress
-
-#only doing 2 dimensions here because not enough data (and stress is already low)
-NMDS_avg_time_bray <- metaMDS(zoop_avg_time_dens_trans, distance='bray', k=2, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-NMDS_avg_time_bray$stress
-
-NMDS_noon_midnight_avg_bray <- metaMDS(zoop_avg_noon_midnight_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-NMDS_noon_midnight_avg_bray$stress
 
 NMDS_pel_bray <- metaMDS(zoop_pel_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_pel_bray$stress
@@ -337,13 +300,10 @@ legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am',
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
 #-------------------------------------------------------------------------------#
-#so I'm technically calculating the euclidean distances from bray-curtis distance matrices
+#technically calculating the euclidean distances from bray-curtis distance matrices
 
 #step 1: take NMDS output for each site using NMDS coordinates
-zoop_pel_euc <- as.matrix(vegdist(NMDS_pel_bray$points, method='euclidean')) 
-zoop_lit_euc <- as.matrix(vegdist(NMDS_lit_bray$points, method='euclidean'))
-
-zoop_sites_euc <- as.matrix(vegdist(NMDS_temporal_bray$points, method='euclidean'))
+zoop_euc <- as.matrix(vegdist(NMDS_temporal_bray$points, method='euclidean'))
 
 #get collect_date into correct format
 zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
@@ -353,37 +313,37 @@ zoop_epi_tows <- zoop_epi_tows %>% dplyr::arrange(site, groups, order)
 
 #step 2: select and sum the 9 distances between connecting points for each of the 5 days
 
-lit_day1 <- sum(zoop_sites_euc[1,2],zoop_sites_euc[2,3],zoop_sites_euc[3,4],zoop_sites_euc[4,5],zoop_sites_euc[5,6],
-                zoop_sites_euc[6,7],zoop_sites_euc[7,8],zoop_sites_euc[8,9],zoop_sites_euc[9,10],zoop_sites_euc[10,11])
+lit_day1 <- sum(zoop_euc[1,2],zoop_euc[2,3],zoop_euc[3,4],zoop_euc[4,5],zoop_euc[5,6],
+                zoop_euc[6,7],zoop_euc[7,8],zoop_euc[8,9],zoop_euc[9,10],zoop_euc[10,11])
 
-lit_day2 <- sum(zoop_sites_euc[12,13], zoop_sites_euc[13,14],zoop_sites_euc[14,15],zoop_sites_euc[15,16],zoop_sites_euc[16,17],
-                zoop_sites_euc[17,18],zoop_sites_euc[18,19],zoop_sites_euc[19,20],zoop_sites_euc[20,21],zoop_sites_euc[21,22])
+lit_day2 <- sum(zoop_euc[12,13], zoop_euc[13,14],zoop_euc[14,15],zoop_euc[15,16],zoop_euc[16,17],
+                zoop_euc[17,18],zoop_euc[18,19],zoop_euc[19,20],zoop_euc[20,21],zoop_euc[21,22])
 
-lit_day3 <- sum(zoop_sites_euc[23,24], zoop_sites_euc[24,25],zoop_sites_euc[25,26],zoop_sites_euc[26,27],zoop_sites_euc[27,28],
-                zoop_sites_euc[28,29],zoop_sites_euc[29,30],zoop_sites_euc[30,31],zoop_sites_euc[31,32],zoop_sites_euc[32,33])
+lit_day3 <- sum(zoop_euc[23,24], zoop_euc[24,25],zoop_euc[25,26],zoop_euc[26,27],zoop_euc[27,28],
+                zoop_euc[28,29],zoop_euc[29,30],zoop_euc[30,31],zoop_euc[31,32],zoop_euc[32,33])
 
-lit_day4 <- sum(zoop_sites_euc[34,35], zoop_sites_euc[35,36],zoop_sites_euc[36,37],zoop_sites_euc[37,38],zoop_sites_euc[38,39],
-                zoop_sites_euc[39,40],zoop_sites_euc[40,41],zoop_sites_euc[41,42],zoop_sites_euc[42,43],zoop_sites_euc[43,44])
+lit_day4 <- sum(zoop_euc[34,35], zoop_euc[35,36],zoop_euc[36,37],zoop_euc[37,38],zoop_euc[38,39],
+                zoop_euc[39,40],zoop_euc[40,41],zoop_euc[41,42],zoop_euc[42,43],zoop_euc[43,44])
 
-lit_day5 <- sum(zoop_sites_euc[45,46], zoop_sites_euc[46,47],zoop_sites_euc[47,48],zoop_sites_euc[48,49],zoop_sites_euc[49,50],
-                zoop_sites_euc[50,51],zoop_sites_euc[51,52],zoop_sites_euc[52,53],zoop_sites_euc[53,54],zoop_sites_euc[54,55])
+lit_day5 <- sum(zoop_euc[45,46], zoop_euc[46,47],zoop_euc[47,48],zoop_euc[48,49],zoop_euc[49,50],
+                zoop_euc[50,51],zoop_euc[51,52],zoop_euc[52,53],zoop_euc[53,54],zoop_euc[54,55])
 
 mean(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5)
 
-pel_day1 <- sum(zoop_sites_euc[56,57],zoop_sites_euc[57,58],zoop_sites_euc[58,59],zoop_sites_euc[59,60],zoop_sites_euc[60,61],
-                zoop_sites_euc[61,62],zoop_sites_euc[62,63],zoop_sites_euc[63,64],zoop_sites_euc[64,65],zoop_sites_euc[65,66])
+pel_day1 <- sum(zoop_euc[56,57],zoop_euc[57,58],zoop_euc[58,59],zoop_euc[59,60],zoop_euc[60,61],
+                zoop_euc[61,62],zoop_euc[62,63],zoop_euc[63,64],zoop_euc[64,65],zoop_euc[65,66])
 
-pel_day2 <- sum(zoop_sites_euc[67,68], zoop_sites_euc[68,69],zoop_sites_euc[69,70],zoop_sites_euc[70,71],zoop_sites_euc[71,72],
-                zoop_sites_euc[72,73],zoop_sites_euc[73,74],zoop_sites_euc[74,75],zoop_sites_euc[75,76],zoop_sites_euc[76,77])
+pel_day2 <- sum(zoop_euc[67,68], zoop_euc[68,69],zoop_euc[69,70],zoop_euc[70,71],zoop_euc[71,72],
+                zoop_euc[72,73],zoop_euc[73,74],zoop_euc[74,75],zoop_euc[75,76],zoop_euc[76,77])
 
-pel_day3 <- sum(zoop_sites_euc[78,79], zoop_sites_euc[79,80],zoop_sites_euc[80,81],zoop_sites_euc[81,82],zoop_sites_euc[82,83],
-                zoop_sites_euc[83,84],zoop_sites_euc[84,85],zoop_sites_euc[85,86],zoop_sites_euc[86,87],zoop_sites_euc[87,88])
+pel_day3 <- sum(zoop_euc[78,79], zoop_euc[79,80],zoop_euc[80,81],zoop_euc[81,82],zoop_euc[82,83],
+                zoop_euc[83,84],zoop_euc[84,85],zoop_euc[85,86],zoop_euc[86,87],zoop_euc[87,88])
 
-pel_day4 <- sum(zoop_sites_euc[89,90], zoop_sites_euc[90,91],zoop_sites_euc[91,92],zoop_sites_euc[92,93],zoop_sites_euc[93,94],
-                zoop_sites_euc[94,95],zoop_sites_euc[95,96],zoop_sites_euc[96,97],zoop_sites_euc[97,98],zoop_sites_euc[98,99])
+pel_day4 <- sum(zoop_euc[89,90], zoop_euc[90,91],zoop_euc[91,92],zoop_euc[92,93],zoop_euc[93,94],
+                zoop_euc[94,95],zoop_euc[95,96],zoop_euc[96,97],zoop_euc[97,98],zoop_euc[98,99])
 
-pel_day5 <- sum(zoop_sites_euc[100,101], zoop_sites_euc[101,102],zoop_sites_euc[102,103],zoop_sites_euc[103,104],zoop_sites_euc[104,105],
-                zoop_sites_euc[105,106],zoop_sites_euc[106,107],zoop_sites_euc[107,108],zoop_sites_euc[108,109],zoop_sites_euc[109,110])
+pel_day5 <- sum(zoop_euc[100,101], zoop_euc[101,102],zoop_euc[102,103],zoop_euc[103,104],zoop_euc[104,105],
+                zoop_euc[105,106],zoop_euc[106,107],zoop_euc[107,108],zoop_euc[108,109],zoop_euc[109,110])
 
 mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
 
@@ -391,35 +351,42 @@ mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more 
 zoop_pel_euc <- vegdist(NMDS_pel_bray$points, method='euclidean')
 zoop_lit_euc <- vegdist(NMDS_lit_bray$points, method='euclidean')
 
-zoop_sites_euc <- vegdist(NMDS_temporal_bray$points, method='euclidean')
+zoop_euc <- vegdist(NMDS_temporal_bray$points, method='euclidean')
 
-#Now calculate the centroids of each polygon and calculate the Euclidean distance between each centroid (n=10)
-centroids_pel <- betadisper(zoop_pel_euc, group = as.factor(zoop_pel$groups), type="centroid")
-centroids_lit <- betadisper(zoop_lit_euc, group = as.factor(zoop_lit$groups), type="centroid")
+#Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
+centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
+centroids_hours <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$order), type="centroid")
+centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups), type="centroid")
 
-centroids_sites <- betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
-centroids_hours <- betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$order), type="centroid")
-centroids_days <-  betadisper(zoop_sites_euc, group = as.factor(zoop_epi_tows$groups), type="centroid")
+#-------------------------------------------------------------------------------#
+#METHOD 1:average distance of each point to polygon centroid (dispersion approach)
 
-#average distance of each point to the polygon centroid --> hourly variability
+#WITHIN sites variability - MOST VARIABLE!
+mean(centroids_sites$group.distances)
+
+#WITHIN hourly variability
+mean(centroids_hours$group.distances)
+
+#WITHIN daily variability - LEAST VARIABLE!
 mean(centroids_days$group.distances)
-sum(centroids_days$group.distances)
 
-#Pairwise centroid distances between every combination of centroids --> daily variability
-mean(dist(centroids_days$centroids))
-sum(dist(centroids_days$centroids))
+#-------------------------------------------------------------------------------#
+#METHOD 2: average distance between all combinations of centroids (pairwise approach)
 
-#distance between pelagic and littoral centroid --> site variability 
+#site variability - MOST VARIABLE (but just barely)
 mean(dist(centroids_sites$centroids))
 
-#or average distance between each point and the polygon centroid --> site variability
-mean(centroids_sites$group.distances)
+#hourly variability 
+mean(dist(centroids_hours$centroids))
+
+#annual variability - LEAST VARIABLE!
+mean(dist(centroids_days$group.distances))
 
 #-------------------------------------------------------------------------------
 #step 3: make a dataset of data
 euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5),
                                littoral=c(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5))
-write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Daily_Euclidean_distances_pelvslit.csv"))
+#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Daily_Euclidean_distances_pelvslit.csv"))
 
 #plot littoral vs pelagic euclidean distances
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
