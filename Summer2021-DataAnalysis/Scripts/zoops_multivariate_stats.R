@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -185,66 +185,78 @@ NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, a
 NMDS_lit_bray$stress
 
 #-------------------------------------------------------------------------------#
-#                                 Tracking figs                                 #
+#                                 NMDS ms figs                                  #
 #-------------------------------------------------------------------------------#
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_days.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
-ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
 
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="pel",2],pch=19,col="#008585")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="1" & zoop_avg$site=="lit",2],pch=1,col="#008585")
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(3,4),type = "n")
+sites <- gg_ordiplot(ord, zoop_avg$site, kind = "ehull", 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
 
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="pel",2], pch=19, col="#89B199")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="2" & zoop_avg$site=="lit",2], pch=1, col="#89B199")
+NMDS_site <- sites$plot + geom_point() + theme_bw() + 
+                geom_polygon(data = sites$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+                theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+                      legend.background = element_blank(), 
+                      legend.key.height=unit(0.3,"line"),
+                      legend.key = element_blank(),
+                      axis.text.x = element_text(vjust = 0.5), 
+                      strip.background = element_rect(fill = "transparent"), 
+                      legend.position = c(0.86,0.97), legend.spacing = unit(-0.5, 'cm'),
+                      plot.margin = unit(c(0,-0.1,0,0), 'lines'),
+                      panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+                      legend.key.width =unit(0.1,"line")) + guides(fill="none") +
+                scale_fill_manual("",values=c("#882255","#3399CC"))+
+                scale_color_manual("",values=c("#882255","#3399CC"),
+                                   label=c('littoral','pelagic'))
 
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="pel",2], pch=19, col="#8B8000")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="3" & zoop_avg$site=="lit",2], pch=1, col="#8B8000")
 
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="pel",2], pch=19, col="#DB9B5A")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="4" & zoop_avg$site=="lit",2], pch=1, col="#DB9B5A")
+days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
+                         ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
 
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="pel",2], pch=19, col="#C7522B")
-points(NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$groups=="5" & zoop_avg$site=="lit",2], pch=1, col="#C7522B")
+NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
+              geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+              theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+                    legend.background = element_blank(), 
+                    legend.key.height=unit(0.3,"line"), 
+                    legend.key = element_blank(),
+                    axis.text.x = element_text(vjust = 0.5), 
+                    axis.text.y=element_blank(),
+                    axis.ticks.y = element_blank(),
+                    strip.background = element_rect(fill = "transparent"), 
+                    legend.position = c(0.8,0.92), legend.spacing = unit(-0.5, 'cm'),
+                    plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
+                    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+                    legend.key.width =unit(0.1,"line")) + guides(fill="none") +
+              scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+              scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
+                                 label=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
+                                        '15-16 Jun 2021', '7-8 Jul 2021'))
+  
+  
+hours <- gg_ordiplot(ord, zoop_avg$order, kind = "ehull", 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
 
-legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=19, 
-       col=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1) 
-legend("topright", legend=c('pelagic','littoral'),pch=c(19,1) ,bty = "n",cex=1) 
-#dev.off()
+NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
+              geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+              theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+                    legend.background = element_blank(), 
+                    legend.key.height=unit(0.3,"line"), 
+                    legend.key = element_blank(),
+                    axis.text.x = element_text(vjust = 0.5), 
+                    axis.text.y=element_blank(),
+                    axis.ticks.y = element_blank(),
+                    strip.background = element_rect(fill = "transparent"), 
+                    legend.position = c(0.88,0.8), legend.spacing = unit(-0.5, 'cm'),
+                    plot.margin = unit(c(0,0,0,-0.1), 'lines'),
+                    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+                    legend.key.width =unit(0.1,"line")) + guides(fill="none") +
+              scale_fill_manual("",values=hcl.colors(11,"sunset"))+
+              scale_color_manual("",values=hcl.colors(11,"sunset"),
+                                 label=c('12pm','6pm','7pm','8pm','9pm','12am',
+                                         '4am','5am','6am','7am','12pm'))
 
-#same figure as above, but with site hulls
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites'),choices = c(1,2),type = "n")
-ordihull(ord, zoop_avg$site, display = "sites", draw = c("polygon"),
-         col = c("#882255","#3399CC"), alpha = 75,cex = 2)
-
-points(NMDS_temporal_avg_bray$points[zoop_avg$site=="pel",1], NMDS_temporal_avg_bray$points[zoop_avg$site=="pel",2],pch=19,col="#3399CC")
-points(NMDS_temporal_avg_bray$points[zoop_avg$site=="lit",1], NMDS_temporal_avg_bray$points[zoop_avg$site=="lit",2],pch=19,col="#882255")
-
-legend("topright", legend=c('pelagic','littoral'),pch=19,col=c("#3399CC","#882255") ,bty = "n",cex=1) 
-#dev.off()
-
-#same again, but now hour hulls
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_temporal_avg_time.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites'),choices = c(1,2),type = "n")
-ordihull(ord, zoop_avg$order, display = "sites", draw = c("polygon"),
-         col = hcl.colors(11,"sunset"), alpha = 75,cex = 2)
-
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==1,1], NMDS_temporal_avg_bray$points[zoop_avg$order==1,2],pch=19,col=hcl.colors(11,"sunset")[1])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==2,1], NMDS_temporal_avg_bray$points[zoop_avg$order==2,2],pch=19,col=hcl.colors(11,"sunset")[2])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==3,1], NMDS_temporal_avg_bray$points[zoop_avg$order==3,2],pch=19,col=hcl.colors(11,"sunset")[3])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==4,1], NMDS_temporal_avg_bray$points[zoop_avg$order==4,2],pch=19,col=hcl.colors(11,"sunset")[4])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==5,1], NMDS_temporal_avg_bray$points[zoop_avg$order==5,2],pch=19,col=hcl.colors(11,"sunset")[5])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==6,1], NMDS_temporal_avg_bray$points[zoop_avg$order==6,2],pch=19,col=hcl.colors(11,"sunset")[6])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==7,1], NMDS_temporal_avg_bray$points[zoop_avg$order==7,2],pch=19,col=hcl.colors(11,"sunset")[7])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==8,1], NMDS_temporal_avg_bray$points[zoop_avg$order==8,2],pch=19,col=hcl.colors(11,"sunset")[8])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==9,1], NMDS_temporal_avg_bray$points[zoop_avg$order==9,2],pch=19,col=hcl.colors(11,"sunset")[9])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==10,1], NMDS_temporal_avg_bray$points[zoop_avg$order==10,2],pch=19,col=hcl.colors(11,"sunset")[10])
-points(NMDS_temporal_avg_bray$points[zoop_avg$order==11,1], NMDS_temporal_avg_bray$points[zoop_avg$order==11,2],pch=19,col=hcl.colors(11,"sunset")[11])
-
-legend("bottomright", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=19, col=hcl.colors(11,"sunset"), bty = "n", cex=1) 
-#dev.off()
-
+fig5 <- ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_4v3.jpg"),
+       fig5, width=5, height=2) 
 
 #-----------------------------------------------------------------------------------------#
 #pelagic only tracking density through time
@@ -362,31 +374,33 @@ centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups),
 #METHOD 1:average distance of each point to polygon centroid (dispersion approach)
 
 #WITHIN sites variability - MOST VARIABLE!
-mean(centroids_sites$group.distances)
+disp_site <- mean(centroids_sites$group.distances)
 
 #WITHIN hourly variability
-mean(centroids_hours$group.distances)
+disp_hour <- mean(centroids_hours$group.distances)
 
 #WITHIN daily variability - LEAST VARIABLE!
-mean(centroids_days$group.distances)
+disp_day <- mean(centroids_days$group.distances)
 
 #-------------------------------------------------------------------------------#
 #METHOD 2: average distance between all combinations of centroids (pairwise approach)
 
 #site variability - MOST VARIABLE (but just barely)
-mean(dist(centroids_sites$centroids))
+pair_site <- mean(dist(centroids_sites$centroids))
 
 #hourly variability 
-mean(dist(centroids_hours$centroids))
+pair_hour <- mean(dist(centroids_hours$centroids))
 
 #annual variability - LEAST VARIABLE!
-mean(dist(centroids_days$group.distances))
+pair_day <- mean(dist(centroids_days$group.distances))
 
 #-------------------------------------------------------------------------------
 #step 3: make a dataset of data
-euc_distances_df <- data.frame(pelagic=c(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5),
-                               littoral=c(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5))
-#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Daily_Euclidean_distances_pelvslit.csv"))
+euc_distances_df <- data.frame("Scale"=c("Site","Day","Hour"),
+                               "Dispersion"= c(disp_site,disp_day,disp_hour),
+                               "Pairwise" = c(pair_site,pair_day,pair_hour))
+
+write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
 
 #plot littoral vs pelagic euclidean distances
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
