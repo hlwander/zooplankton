@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg, ggordiplots)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -188,7 +188,7 @@ NMDS_lit_bray$stress
 #                                 NMDS ms figs                                  #
 #-------------------------------------------------------------------------------#
 
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(3,4),type = "n")
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
 sites <- gg_ordiplot(ord, zoop_avg$site, kind = "ehull", 
                     ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
 
@@ -255,7 +255,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
                                          '4am','5am','6am','7am','12pm'))
 
 fig5 <- ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_4v3.jpg"),
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
        fig5, width=5, height=2) 
 
 #-----------------------------------------------------------------------------------------#
@@ -360,9 +360,6 @@ pel_day5 <- sum(zoop_euc[100,101], zoop_euc[101,102],zoop_euc[102,103],zoop_euc[
 mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
 
 #convert ED matrix back into distance structure for next steps
-zoop_pel_euc <- vegdist(NMDS_pel_bray$points, method='euclidean')
-zoop_lit_euc <- vegdist(NMDS_lit_bray$points, method='euclidean')
-
 zoop_euc <- vegdist(NMDS_temporal_bray$points, method='euclidean')
 
 #Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
@@ -375,31 +372,41 @@ centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups),
 
 #WITHIN sites variability - MOST VARIABLE!
 disp_site <- mean(centroids_sites$group.distances)
+disp_site_sd <- sd(centroids_sites$group.distances)
 
 #WITHIN hourly variability
 disp_hour <- mean(centroids_hours$group.distances)
+disp_hour_sd <- sd(centroids_hours$group.distances)
 
 #WITHIN daily variability - LEAST VARIABLE!
 disp_day <- mean(centroids_days$group.distances)
+disp_day_sd <- sd(centroids_days$group.distances)
 
 #-------------------------------------------------------------------------------#
 #METHOD 2: average distance between all combinations of centroids (pairwise approach)
 
 #site variability - MOST VARIABLE (but just barely)
 pair_site <- mean(dist(centroids_sites$centroids))
+pair_site_sd <- sd(dist(centroids_sites$centroids)) #NA
 
 #hourly variability 
 pair_hour <- mean(dist(centroids_hours$centroids))
+pair_hour_sd <- sd(dist(centroids_hours$centroids))
 
 #annual variability - LEAST VARIABLE!
 pair_day <- mean(dist(centroids_days$group.distances))
+pair_day_sd <- mean(dist(centroids_days$group.distances))
 
 #-------------------------------------------------------------------------------
 #step 3: make a dataset of data
-euc_distances_df <- data.frame("Scale"=c("Site","Day","Hour"),
-                               "Dispersion"= c(disp_site,disp_day,disp_hour),
-                               "Pairwise" = c(pair_site,pair_day,pair_hour))
-
+euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
+                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
+                                          paste0(round(pair_site,2)," ± ",round(pair_site_sd,2))),
+                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
+                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
+                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
+                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
+  
 write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
 
 #plot littoral vs pelagic euclidean distances
