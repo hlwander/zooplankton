@@ -2,7 +2,7 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg, ggordiplots)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg, ggordiplots, splancs, ggpubr, FSA, rcompanion)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -172,7 +172,6 @@ zoop_lit_dens_trans <- hellinger(zoop_lit_dens)
 
 #scree plot to choose dimension #
 dimcheckMDS(zoop_temporal_dens_avg_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
-dimcheckMDS(zoop_avg_time_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
 
 #now do NMDS using averages w/ 4 dimensions for consistency
 NMDS_temporal_avg_bray <- metaMDS(zoop_temporal_dens_avg_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
@@ -254,7 +253,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
                                  label=c('12pm','6pm','7pm','8pm','9pm','12am',
                                          '4am','5am','6am','7am','12pm'))
 
-fig5 <- ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
+fig5 <- ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1, widths = c(1.1, 0.9, 0.9), heights = c(2.9,1,2))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
        fig5, width=5, height=2) 
 
@@ -315,7 +314,7 @@ legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am',
 #technically calculating the euclidean distances from bray-curtis distance matrices
 
 #step 1: take NMDS output for each site using NMDS coordinates
-zoop_euc <- as.matrix(vegdist(NMDS_temporal_bray$points, method='euclidean'))
+zoop_euc <- as.matrix(vegdist(NMDS_temporal_avg_bray$points, method='euclidean'))
 
 #get collect_date into correct format
 zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
@@ -360,7 +359,7 @@ pel_day5 <- sum(zoop_euc[100,101], zoop_euc[101,102],zoop_euc[102,103],zoop_euc[
 mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
 
 #convert ED matrix back into distance structure for next steps
-zoop_euc <- vegdist(NMDS_temporal_bray$points, method='euclidean')
+zoop_euc <- vegdist(NMDS_temporal_avg_bray$points, method='euclidean')
 
 #Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
 centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
@@ -370,26 +369,26 @@ centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups),
 #-------------------------------------------------------------------------------#
 #METHOD 1:average distance of each point to polygon centroid (dispersion approach)
 
-#WITHIN sites variability - MOST VARIABLE!
+#site variability 
 disp_site <- mean(centroids_sites$group.distances)
 disp_site_sd <- sd(centroids_sites$group.distances)
 
-#WITHIN hourly variability
+#hourly variability- MOST VARIABLE!
 disp_hour <- mean(centroids_hours$group.distances)
 disp_hour_sd <- sd(centroids_hours$group.distances)
 
-#WITHIN daily variability - LEAST VARIABLE!
+#daily variability - LEAST VARIABLE!
 disp_day <- mean(centroids_days$group.distances)
 disp_day_sd <- sd(centroids_days$group.distances)
 
 #-------------------------------------------------------------------------------#
 #METHOD 2: average distance between all combinations of centroids (pairwise approach)
 
-#site variability - MOST VARIABLE (but just barely)
+#site variability - MOST VARIABLE
 pair_site <- mean(dist(centroids_sites$centroids))
 pair_site_sd <- sd(dist(centroids_sites$centroids)) #NA
 
-#hourly variability 
+#hourly variability
 pair_hour <- mean(dist(centroids_hours$centroids))
 pair_hour_sd <- sd(dist(centroids_hours$centroids))
 
@@ -397,18 +396,247 @@ pair_hour_sd <- sd(dist(centroids_hours$centroids))
 pair_day <- mean(dist(centroids_days$group.distances))
 pair_day_sd <- mean(dist(centroids_days$group.distances))
 
-#-------------------------------------------------------------------------------
-#step 3: make a dataset of data
-euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
-                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
-                                          paste0(round(pair_site,2)," ± ",round(pair_site_sd,2))),
-                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
-                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
-                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
-                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
-  
-write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
+#-------------------------------------------------------------------------------#
+#METHOD 3: average areas of polygons (avg_area) - use NMDS df for this
 
+#site areas             
+area_lit <- areapl(cbind(sites$df_hull$x[sites$df_hull$Group=="lit"],
+                             sites$df_hull$y[sites$df_hull$Group=="lit"]))
+
+area_pel <- areapl(cbind(sites$df_hull$x[sites$df_hull$Group=="pel"],
+                             sites$df_hull$y[sites$df_hull$Group=="pel"]))
+
+avg_area_site <- mean(c(area_lit, area_pel))
+avg_sd_site <- sd(c(area_lit, area_pel))
+            
+#day areas
+area_day1 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==1],
+                               days$df_hull$y[days$df_hull$Group==1]))
+
+area_day2 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==2],
+                               days$df_hull$y[days$df_hull$Group==2]))
+
+area_day3 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==3],
+                               days$df_hull$y[days$df_hull$Group==3]))
+
+area_day4 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==4],
+                               days$df_hull$y[days$df_hull$Group==4]))
+
+area_day5 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==5],
+                               days$df_hull$y[days$df_hull$Group==5]))
+
+avg_area_day <- mean(c(area_day1, area_day2, area_day3, area_day4, area_day5))
+avg_sd_day <- sd(c(area_day1, area_day2, area_day3, area_day4, area_day5))
+
+#hour areas
+area_hour1 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==1],
+                           hours$df_hull$y[hours$df_hull$Group==1]))
+
+area_hour2 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==2],
+                           hours$df_hull$y[hours$df_hull$Group==2]))
+
+area_hour3 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==3],
+                           hours$df_hull$y[hours$df_hull$Group==3]))
+
+area_hour4 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==4],
+                           hours$df_hull$y[hours$df_hull$Group==4]))
+
+area_hour5 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==5],
+                           hours$df_hull$y[hours$df_hull$Group==5]))
+
+area_hour6 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==6],
+                           hours$df_hull$y[hours$df_hull$Group==6]))
+
+area_hour7 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==7],
+                           hours$df_hull$y[hours$df_hull$Group==7]))
+
+area_hour8 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==8],
+                           hours$df_hull$y[hours$df_hull$Group==8]))
+
+area_hour9 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==9],
+                           hours$df_hull$y[hours$df_hull$Group==9]))
+
+area_hour10 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==10],
+                            hours$df_hull$y[hours$df_hull$Group==10]))
+
+area_hour11 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==11],
+                            hours$df_hull$y[hours$df_hull$Group==11]))
+
+avg_area_hour <- mean(c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
+                        area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
+avg_sd_hour <- sd(c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
+                    area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
+
+#-------------------------------------------------------------------------------#
+#METHOD 4: max area - min area of polygons (area_diff) 
+#note - don't think I can calculate sd of difference because idk what the sample mean is
+
+area_diff_site <- area_lit - area_pel
+
+area_diff_day <- area_day2 - area_day4
+
+area_diff_hour <- area_hour7 - area_hour11
+
+#-------------------------------------------------------------------------------
+#put variability values into a dataset
+euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise", "Average Area", "Area Difference"),
+                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
+                                          paste0(round(pair_site,2)," ± ",round(pair_site_sd,2)),
+                                          paste0(round(avg_area_site,2), " ± ", round(avg_sd_site,2)),
+                                          paste0(round(area_diff_site,2))),
+                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
+                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2)),
+                                         paste0(round(avg_area_day,2), " ± ", round(avg_sd_day,2)),
+                                         paste0(round(area_diff_day,2))),
+                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
+                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2)),
+                                          paste0(round(avg_area_hour,2), " ± ", round(avg_sd_hour,2)),
+                                          paste0(round(area_diff_hour,2))))
+  
+#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
+
+
+#-------------------------------------------------------------------------------#
+#Kruskal-wallis test to determine if group means are significant (can only do with dispersion and area)
+disp_site_df <- data.frame("Group" = c("site","site"),
+                           "dist" = c(centroids_sites$group.distances),
+                           "avg_area" = c(area_lit, area_pel)) 
+
+disp_hours_df <- data.frame("Group"=c(rep("hour",11)), 
+                            "dist" = c(centroids_hours$group.distances),
+                            "avg_area" = c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
+                                           area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
+
+disp_days_df <- data.frame("Group"=c(rep("day",5)), 
+                           "dist" = c(centroids_days$group.distances),
+                            "avg_area" = c(area_day1, area_day2, area_day3,
+                                           area_day4, area_day5))
+
+disp_df <- rbind(disp_site_df,disp_hours_df, disp_days_df)
+
+
+#KW test to see if groups are significant
+kruskal.test(dist ~ Group, data = disp_df) #not significant
+kruskal.test(avg_area ~ Group, data = disp_df) #significant sometimes??
+
+#now dunn test to determine which areas are different from each other
+dunnTest(avg_area ~ as.factor(Group),
+         data=disp_df,
+         method="bonferroni")
+#site avg areas are sig larger from day avg area
+
+ggboxplot(disp_df, x = "Group", y = "avg_area", 
+          color = "Group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+          order = c("site", "hour", "day"),
+          ylab = "Average Area", xlab = "Group")
+
+
+#-------------------------------------------------------------------------------#
+#Calculate within site/day/hour variability as the dispersion and area of each polygon from above (n=2 methods)
+
+#polygon dispersion
+lit_disp <- centroids_sites$group.distances[1]
+pel_disp <- centroids_sites$group.distances[2]
+
+day1_disp <- centroids_days$group.distances[1]
+day2_disp <- centroids_days$group.distances[2]
+day3_disp <- centroids_days$group.distances[3]
+day4_disp <- centroids_days$group.distances[4]
+day5_disp <- centroids_days$group.distances[5]
+
+hour1_disp <- centroids_hours$group.distances[1]
+hour2_disp <- centroids_hours$group.distances[2]
+hour3_disp <- centroids_hours$group.distances[3]
+hour4_disp <- centroids_hours$group.distances[4]
+hour5_disp <- centroids_hours$group.distances[5]
+hour6_disp <- centroids_hours$group.distances[6]
+hour7_disp <- centroids_hours$group.distances[7]
+hour8_disp <- centroids_hours$group.distances[8]
+hour9_disp <- centroids_hours$group.distances[9]
+hour10_disp <- centroids_hours$group.distances[10]
+hour11_disp <- centroids_hours$group.distances[11]
+
+#-------------------------------------------------------------------------------
+#dataframe with area and dispersion for each polygon
+polygons_df <- data.frame("Polygon" = c("Littoral","Pelagic",
+                                        "10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020",
+                                        "15-16 Jun 2021","7-8 Jul 2021",
+                                        "12pm","6pm","7pm","8pm","9pm","12am",
+                                        "4am","5am","6am","7am","12pm"),
+                          "Area" = c(area_lit, area_pel, area_day1, area_day2, area_day3,
+                                     area_day4, area_day5, area_hour1, area_hour2, area_hour3,
+                                     area_hour4, area_hour5, area_hour6, area_hour7, area_hour8, 
+                                     area_hour9, area_hour10, area_hour11),
+                          "Dispersion" = c(lit_disp, pel_disp, day1_disp, day2_disp, day3_disp,
+                                           day4_disp, day5_disp, hour1_disp, hour2_disp, hour3_disp, 
+                                           hour4_disp, hour5_disp, hour6_disp, hour7_disp, hour8_disp,
+                                           hour9_disp, hour10_disp, hour11_disp))
+
+#write.csv(polygons_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"))
+
+#calculate the range of all areas and dispersion values
+range(polygons_df$Area[1:2])[2] - range(polygons_df$Area[1:2])[1] #smallest
+range(polygons_df$Area[3:7])[2] - range(polygons_df$Area[3:7])[1] #largest
+range(polygons_df$Area[8:18])[2] - range(polygons_df$Area[8:18])[1]
+
+range(polygons_df$Dispersion[1:2])[2] - range(polygons_df$Dispersion[1:2])[1] #largest
+range(polygons_df$Dispersion[3:7])[2] - range(polygons_df$Dispersion[3:7])[1] #smallest
+range(polygons_df$Dispersion[8:18])[2] - range(polygons_df$Dispersion[8:18])[1]
+
+
+#-------------------------------------------------------------------------------#
+#dfs to calculate significance within sites, days, and hours
+within_site_dist <- data.frame("group" = c(rep("lit",55),rep("pel",55)),
+                                "dist" = c(centroids_sites$distances[zoop_epi_tows$site=="lit"],
+                                          centroids_sites$distances[zoop_epi_tows$site=="pel"]))
+
+within_day_dist <- data.frame("group" = c(rep("day1",22),rep("day2",22),rep("day3",22),
+                                          rep("day4",22),rep("day5",22)),
+                              "dist" = c(centroids_days$distances[zoop_epi_tows$groups==1],
+                                         centroids_days$distances[zoop_epi_tows$groups==2],
+                                         centroids_days$distances[zoop_epi_tows$groups==3],
+                                         centroids_days$distances[zoop_epi_tows$groups==4],
+                                         centroids_days$distances[zoop_epi_tows$groups==5]))
+
+within_hour_dist <- data.frame("group" = c(rep("hour1",10),rep("hour2",10),rep("hour3",10),
+                                           rep("hour4",10), rep("hour5",10), rep("hour6",10),
+                                           rep("hour7",10), rep("hour8",10), rep("hour9",10),
+                                           rep("hour10",10), rep("hour11",10)),
+                               "dist" = c(centroids_hours$distances[zoop_epi_tows$order==1],
+                                          centroids_hours$distances[zoop_epi_tows$order==2],
+                                          centroids_hours$distances[zoop_epi_tows$order==3],
+                                          centroids_hours$distances[zoop_epi_tows$order==4],
+                                          centroids_hours$distances[zoop_epi_tows$order==5],
+                                          centroids_hours$distances[zoop_epi_tows$order==6],
+                                          centroids_hours$distances[zoop_epi_tows$order==7],
+                                          centroids_hours$distances[zoop_epi_tows$order==8],
+                                          centroids_hours$distances[zoop_epi_tows$order==9],
+                                          centroids_hours$distances[zoop_epi_tows$order==10],
+                                          centroids_hours$distances[zoop_epi_tows$order==11]))
+
+
+#now kw tests for significance 
+kruskal.test(dist ~ group, data = within_site_dist) #sig! - so pelagic and littoral are different
+kruskal.test(dist ~ group, data = within_day_dist) #sig
+kruskal.test(dist ~ group, data = within_hour_dist) #nope
+
+#dunn test for days
+dunn_day_disp <- dunnTest(dist ~ as.factor(group),
+                  data = within_day_dist,
+                  method="bonferroni")
+#after adj, p-values are all not significant, but before, day1+3, day2+3, day3+4, day3+5 are all different
+
+#letters
+cldList(P.unadj ~ Comparison, data=dunn_day_disp$res, threshold = 0.05) #honestly don't really believe this - n=22 isn't a tremendous amount of points...
+
+ggboxplot(within_day_dist, x = "group", y = "dist", 
+          color = "group", palette = hcl.colors(5,"earth"),
+          order = c("day1", "day2", "day3", "day4", "day5"),
+          ylab = "Distance to centroid", xlab = "")
+
+
+
+#-------------------------------------------------------------------------------#
 #plot littoral vs pelagic euclidean distances
 #jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
 plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="pelagic", 

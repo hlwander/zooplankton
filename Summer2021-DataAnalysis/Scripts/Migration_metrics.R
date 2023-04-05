@@ -2,7 +2,7 @@
 #Created 5Dec2022
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,lubridate, scales, colorblindcheck)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,lubridate, scales, colorblindcheck, RColorBrewer)
 
 #Calculates the standard error####
 stderr <- function(x) {
@@ -200,7 +200,7 @@ migration_long <- metrics_avg[,c(1,2,5,6)]
 migration_long$SE <- metrics_se$value
   
 #export migration metrics
-write.csv(migration_long,"./Summer2021-DataAnalysis/SummaryStats/migration_metrics.csv",row.names = FALSE)
+#write.csv(migration_long,"./Summer2021-DataAnalysis/SummaryStats/migration_metrics.csv",row.names = FALSE)
 
 #-------------------------------------------------------------------------------#
 
@@ -216,21 +216,26 @@ migration_long$metric <- factor(migration_long$metric, levels = c(
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
-              aes(x=MSN, y=value, color=metric, shape=migration)) + 
+              aes(x=as.factor(MSN), y=value, color=metric, shape=migration)) + 
+  geom_rect(aes(xmin=2.5, xmax=3.5, ymin=-Inf, ymax=Inf), fill="#DEDEDE", color=NA, alpha=0.1) +
+  geom_rect(aes(xmin=3.5, xmax=Inf, ymin=-Inf, ymax=Inf), fill="#B5B5B5", color=NA, alpha=0.1) +
   geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
-  scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) +
+  scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) + xlab("") +
+  scale_x_discrete(breaks=c("1","2","3","4","5"),
+                   labels=c("10-11 Jul 2019", "24-25 Jul 2019", "12-13 Aug 2020",
+                            "15-16 Jun 2021", "7-8 Jul 2021")) +
   geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) +
   theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), legend.key = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
-        axis.text.x = element_text(vjust = 0.5, hjust=1), 
+        axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), 
         strip.background = element_rect(fill = "transparent"), 
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
-        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.7,"line")) + guides(color="none") +
-  scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
+  scale_color_manual("",values=c("#088f84","#ccae8f","#a61737"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric")
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens_3taxa.jpg"), width=5, height=4) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens_3taxa.jpg"), width=5, height=4) 
 
 ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
                 metric %in% c("Cladocera_BiomassConcentration_ugpL","Copepoda_BiomassConcentration_ugpL","Rotifera_BiomassConcentration_ugpL")), 
@@ -246,9 +251,9 @@ ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.7,"line")) + guides(color="none") +
-  scale_color_manual("",values=c("#006699","#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"))+
+  scale_color_manual("",values=c("#088f84","#ccae8f","#a61737"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Biomass migration metric")
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_biom_3taxa.jpg"), width=5, height=4) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_biom_3taxa.jpg"), width=5, height=4) 
 
 #-------------------------------------------------------------------------------
 #create df with proportion of total zoops (both density and biomass) over time
