@@ -189,17 +189,18 @@ NMDS_lit_bray$stress
 
 ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
 sites <- gg_ordiplot(ord, zoop_avg$site, kind = "ehull", 
-                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
 
 NMDS_site <- sites$plot + geom_point() + theme_bw() + 
                 geom_polygon(data = sites$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-                theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+                xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
+                theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
                       legend.background = element_blank(), 
                       legend.key.height=unit(0.3,"line"),
                       legend.key = element_blank(),
                       axis.text.x = element_text(vjust = 0.5), 
                       strip.background = element_rect(fill = "transparent"), 
-                      legend.position = c(0.86,0.97), legend.spacing = unit(-0.5, 'cm'),
+                      legend.position = c(0.14,0.1), legend.spacing = unit(-0.5, 'cm'),
                       plot.margin = unit(c(0,-0.1,0,0), 'lines'),
                       panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                       legend.key.width =unit(0.1,"line")) + guides(fill="none") +
@@ -209,11 +210,12 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
 
 
 days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
-                         ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
+                         ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
 
 NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
               geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-              theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+              xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
+              theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
                     legend.background = element_blank(), 
                     legend.key.height=unit(0.3,"line"), 
                     legend.key = element_blank(),
@@ -221,7 +223,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
                     axis.text.y=element_blank(),
                     axis.ticks.y = element_blank(),
                     strip.background = element_rect(fill = "transparent"), 
-                    legend.position = c(0.8,0.92), legend.spacing = unit(-0.5, 'cm'),
+                    legend.position = c(0.25,0.16), legend.spacing = unit(-0.5, 'cm'),
                     plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
                     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                     legend.key.width =unit(0.1,"line")) + guides(fill="none") +
@@ -232,11 +234,12 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
   
   
 hours <- gg_ordiplot(ord, zoop_avg$order, kind = "ehull", 
-                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=1.2) 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
 
 NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
               geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-              theme(text = element_text(size=6), axis.text = element_text(size=7, color="black"), 
+              xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
+              theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
                     legend.background = element_blank(), 
                     legend.key.height=unit(0.3,"line"), 
                     legend.key = element_blank(),
@@ -244,7 +247,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
                     axis.text.y=element_blank(),
                     axis.ticks.y = element_blank(),
                     strip.background = element_rect(fill = "transparent"), 
-                    legend.position = c(0.88,0.8), legend.spacing = unit(-0.5, 'cm'),
+                    legend.position = c(0.12,0.28), legend.spacing = unit(-0.5, 'cm'),
                     plot.margin = unit(c(0,0,0,-0.1), 'lines'),
                     panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
                     legend.key.width =unit(0.1,"line")) + guides(fill="none") +
@@ -253,9 +256,12 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
                                  label=c('12pm','6pm','7pm','8pm','9pm','12am',
                                          '4am','5am','6am','7am','12pm'))
 
-fig5 <- ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1, widths = c(1.1, 0.9, 0.9), heights = c(2.9,1,2))
+fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
        fig5, width=5, height=2) 
+
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
+#       NMDS_hour, width=5, height=2) 
 
 #-----------------------------------------------------------------------------------------#
 #pelagic only tracking density through time
@@ -479,19 +485,16 @@ area_diff_hour <- area_hour7 - area_hour11
 
 #-------------------------------------------------------------------------------
 #put variability values into a dataset
-euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise", "Average Area", "Area Difference"),
+euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise", "Average Area"),
                                "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
-                                          paste0(round(pair_site,2)," ± ",round(pair_site_sd,2)),
-                                          paste0(round(avg_area_site,2), " ± ", round(avg_sd_site,2)),
-                                          paste0(round(area_diff_site,2))),
+                                          paste0(round(pair_site,2)),
+                                          paste0(round(avg_area_site,2), " ± ", round(avg_sd_site,2))),
                                "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
                                          paste0(round(pair_day,2)," ± ",round(pair_day_sd,2)),
-                                         paste0(round(avg_area_day,2), " ± ", round(avg_sd_day,2)),
-                                         paste0(round(area_diff_day,2))),
+                                         paste0(round(avg_area_day,2), " ± ", round(avg_sd_day,2))),
                                "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
                                           paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2)),
-                                          paste0(round(avg_area_hour,2), " ± ", round(avg_sd_hour,2)),
-                                          paste0(round(area_diff_hour,2))))
+                                          paste0(round(avg_area_hour,2), " ± ", round(avg_sd_hour,2))))
   
 #write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
 
