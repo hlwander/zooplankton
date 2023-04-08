@@ -213,6 +213,9 @@ names(metric_taxa) <- c(unique(migration_long$metric))
 migration_long$metric <- factor(migration_long$metric, levels = c(
   "ZoopDensity_No.pL",unique(migration_long$metric)[1:13]))
 
+#create text df
+text_df <- data.frame(y=c(0.4, -0.4), x = c(6,6), n = c("Normal Migration", "Reverse Migration"))
+
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
@@ -230,11 +233,14 @@ ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) &
         legend.key.height=unit(0.3,"line"), 
         axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1), 
         strip.background = element_rect(fill = "transparent"), 
+        plot.margin = unit(c(0,3,0,0), 'lines'),
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.7,"line")) + guides(color="none") +
   scale_color_manual("",values=c("#088f84","#ccae8f","#a61737"))+
-  facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric")
+  facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric") +
+  geom_text(aes(x=5.9, y=c(rep(0,28),0.4,-0.4), label=c(rep(NA,28),"Normal \nMigration", "Reverse \nMigration")), 
+            hjust = 0, size = 3, color="black") + coord_cartesian(xlim = c(1, 5), clip = 'off')
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_migration_metrics_dens_3taxa.jpg"), width=5, height=4) 
 
 ggplot(subset(migration_long, grepl("biomass",metric, ignore.case = TRUE) &
@@ -267,4 +273,4 @@ Hourly_prop <- plyr::ddply(all_DHM, c("metric", "MSN", "Hour","DateTime"), funct
 }, .progress = plyr::progress_text(), .parallel = FALSE) 
 
 #export proportion df
-write.csv(Hourly_prop,"./Summer2021-DataAnalysis/SummaryStats/Hourly_proportions_pelvslit.csv",row.names = FALSE)
+#write.csv(Hourly_prop,"./Summer2021-DataAnalysis/SummaryStats/Hourly_proportions_pelvslit.csv",row.names = FALSE)

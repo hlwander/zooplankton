@@ -183,85 +183,6 @@ NMDS_pel_bray$stress
 NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_lit_bray$stress
 
-#-------------------------------------------------------------------------------#
-#                                 NMDS ms figs                                  #
-#-------------------------------------------------------------------------------#
-
-ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
-sites <- gg_ordiplot(ord, zoop_avg$site, kind = "ehull", 
-                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
-
-NMDS_site <- sites$plot + geom_point() + theme_bw() + 
-                geom_polygon(data = sites$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-                xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
-                theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
-                      legend.background = element_blank(), 
-                      legend.key.height=unit(0.3,"line"),
-                      legend.key = element_blank(),
-                      axis.text.x = element_text(vjust = 0.5), 
-                      strip.background = element_rect(fill = "transparent"), 
-                      legend.position = c(0.14,0.1), legend.spacing = unit(-0.5, 'cm'),
-                      plot.margin = unit(c(0,-0.1,0,0), 'lines'),
-                      panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-                      legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-                scale_fill_manual("",values=c("#882255","#3399CC"))+
-                scale_color_manual("",values=c("#882255","#3399CC"),
-                                   label=c('littoral','pelagic'))
-
-
-days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
-                         ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
-
-NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
-              geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-              xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
-              theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
-                    legend.background = element_blank(), 
-                    legend.key.height=unit(0.3,"line"), 
-                    legend.key = element_blank(),
-                    axis.text.x = element_text(vjust = 0.5), 
-                    axis.text.y=element_blank(),
-                    axis.ticks.y = element_blank(),
-                    strip.background = element_rect(fill = "transparent"), 
-                    legend.position = c(0.25,0.16), legend.spacing = unit(-0.5, 'cm'),
-                    plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
-                    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-                    legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-              scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
-              scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
-                                 label=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
-                                        '15-16 Jun 2021', '7-8 Jul 2021'))
-  
-  
-hours <- gg_ordiplot(ord, zoop_avg$order, kind = "ehull", 
-                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
-
-NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
-              geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
-              xlim(c(-0.53, 0.55)) + ylim(c(-0.7,0.64)) +
-              theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
-                    legend.background = element_blank(), 
-                    legend.key.height=unit(0.3,"line"), 
-                    legend.key = element_blank(),
-                    axis.text.x = element_text(vjust = 0.5), 
-                    axis.text.y=element_blank(),
-                    axis.ticks.y = element_blank(),
-                    strip.background = element_rect(fill = "transparent"), 
-                    legend.position = c(0.12,0.28), legend.spacing = unit(-0.5, 'cm'),
-                    plot.margin = unit(c(0,0,0,-0.1), 'lines'),
-                    panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
-                    legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-              scale_fill_manual("",values=hcl.colors(11,"sunset"))+
-              scale_color_manual("",values=hcl.colors(11,"sunset"),
-                                 label=c('12pm','6pm','7pm','8pm','9pm','12am',
-                                         '4am','5am','6am','7am','12pm'))
-
-fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
-       fig5, width=5, height=2) 
-
-#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
-#       NMDS_hour, width=5, height=2) 
 
 #-----------------------------------------------------------------------------------------#
 #pelagic only tracking density through time
@@ -315,12 +236,111 @@ legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am',
 #dev.off()
 
 #-------------------------------------------------------------------------------#
+#                                 NMDS ms figs                                  #
+#-------------------------------------------------------------------------------#
+
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
+sites <- gg_ordiplot(ord, zoop_avg$site, kind = "ehull", 
+                     ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
+
+NMDS_site <- sites$plot + geom_point() + theme_bw() + 
+  geom_polygon(data = sites$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+  geom_point(data=sites$df_mean.ord, aes(x, y), 
+             color="black", pch=21, size=2, fill=c("#882255","#3399CC")) +
+  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), 
+        legend.key.height=unit(0.3,"line"),
+        legend.key = element_blank(),
+        legend.box.margin=margin(-10,-10,-10,-10),
+        legend.margin=margin(-0,-0,-0,-0),
+        legend.direction = "horizontal",
+        axis.text.x = element_text(vjust = 0.5), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = "top", legend.spacing = unit(-0.5, 'cm'),
+        plot.margin = unit(c(0,-0.1,0,0), 'lines'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.1,"line")) + guides(fill="none") +
+  scale_fill_manual("",values=c("#882255","#3399CC"))+
+  scale_color_manual("",values=c("#882255","#3399CC"),
+                     label=c('littoral','pelagic'))
+
+
+days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
+
+NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
+  geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+  geom_point(data=days$df_mean.ord, aes(x, y), 
+             color="black", pch=21, size=2, 
+             fill=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B")) +
+  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), 
+        legend.key.height=unit(0.3,"line"), 
+        legend.key = element_blank(),
+        legend.box.margin=margin(-10,-10,-10,-10),
+        legend.margin=margin(-0,-0,-0,-0),
+        legend.direction = "horizontal",
+        axis.text.x = element_text(vjust = 0.5), 
+        axis.text.y=element_blank(),
+        axis.ticks.y = element_blank(),
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = "top", legend.spacing = unit(-0.5, 'cm'),
+        plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.1,"line")) + 
+  guides(fill="none", color = guide_legend(ncol=2)) +
+  scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
+                     label=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
+                             '15-16 Jun 2021', '7-8 Jul 2021'))
+
+
+hours <- gg_ordiplot(ord, zoop_avg$order, kind = "ehull", 
+                     ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
+#order hours properly
+hours$df_hull$Group <- factor(hours$df_hull$Group, levels = c(unique(hours$df_hull$Group)))
+
+NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
+  geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+  geom_point(data=hours$df_mean.ord, aes(x, y), 
+             color="black", pch=21, size=2, fill=hcl.colors(11,"sunset")) +
+  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), 
+        legend.key.height=unit(0.3,"line"), 
+        legend.key = element_blank(),
+        legend.box.margin=margin(-10,-10,-10,-10),
+        legend.margin=margin(-0,-0,-0,-0),
+        legend.direction = "horizontal",
+        axis.text.x = element_text(vjust = 0.5), 
+        axis.text.y=element_blank(),
+        axis.ticks.y = element_blank(),
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = "top", legend.spacing = unit(-0.5, 'cm'),
+        plot.margin = unit(c(0,0,0,-0.1), 'lines'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.1,"line")) + guides(fill="none") +
+  scale_fill_manual("",values=hcl.colors(11,"sunset"))+
+  scale_color_manual("",values=hcl.colors(11,"sunset"),
+                     label=c('12pm','6pm','7pm','8pm','9pm','12am',
+                             '4am','5am','6am','7am','12pm'))
+
+fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
+       fig5, width=5, height=2) 
+
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
+#       NMDS_hour, width=5, height=2) 
+
+#-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
 #-------------------------------------------------------------------------------#
 #technically calculating the euclidean distances from bray-curtis distance matrices
 
-#step 1: take NMDS output for each site using NMDS coordinates
-zoop_euc <- as.matrix(vegdist(NMDS_temporal_avg_bray$points, method='euclidean'))
+#step 1: take NMDS output for each site using NMDS 1 and 2 coordinates
+zoop_euc <- as.matrix(vegdist(NMDS_temporal_avg_bray$points[,c(1,2)], method='euclidean'))
 
 #get collect_date into correct format
 zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
@@ -364,22 +384,22 @@ pel_day5 <- sum(zoop_euc[100,101], zoop_euc[101,102],zoop_euc[102,103],zoop_euc[
 
 mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
 
-#convert ED matrix back into distance structure for next steps
-zoop_euc <- vegdist(NMDS_temporal_avg_bray$points, method='euclidean')
+#convert ED matrix back into distance structure for next steps - axis 1 and 2 only!
+zoop_euc <- vegdist(NMDS_temporal_avg_bray$points[,c(1,2)], method='euclidean', upper = TRUE)
 
 #Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
-centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
-centroids_hours <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$order), type="centroid")
-centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups), type="centroid")
+centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="median")
+centroids_hours <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$order), type="median")
+centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups), type="median")
 
 #-------------------------------------------------------------------------------#
 #METHOD 1:average distance of each point to polygon centroid (dispersion approach)
 
-#site variability 
+#site variability - MOST VARIABLE!
 disp_site <- mean(centroids_sites$group.distances)
 disp_site_sd <- sd(centroids_sites$group.distances)
 
-#hourly variability- MOST VARIABLE!
+#hourly variability
 disp_hour <- mean(centroids_hours$group.distances)
 disp_hour_sd <- sd(centroids_hours$group.distances)
 
@@ -389,6 +409,7 @@ disp_day_sd <- sd(centroids_days$group.distances)
 
 #-------------------------------------------------------------------------------#
 #METHOD 2: average distance between all combinations of centroids (pairwise approach)
+#Note - think about bootstrapping for this because sites only have one distance value
 
 #site variability - MOST VARIABLE
 pair_site <- mean(dist(centroids_sites$centroids))
@@ -485,16 +506,13 @@ area_diff_hour <- area_hour7 - area_hour11
 
 #-------------------------------------------------------------------------------
 #put variability values into a dataset
-euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise", "Average Area"),
+euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
                                "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
-                                          paste0(round(pair_site,2)),
-                                          paste0(round(avg_area_site,2), " ± ", round(avg_sd_site,2))),
+                                          paste0(round(pair_site,2))),
                                "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
-                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2)),
-                                         paste0(round(avg_area_day,2), " ± ", round(avg_sd_day,2))),
+                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
                                "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
-                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2)),
-                                          paste0(round(avg_area_hour,2), " ± ", round(avg_sd_hour,2))))
+                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
   
 #write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
 
@@ -516,7 +534,7 @@ disp_days_df <- data.frame("Group"=c(rep("day",5)),
                                            area_day4, area_day5))
 
 disp_df <- rbind(disp_site_df,disp_hours_df, disp_days_df)
-
+#write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"))
 
 #KW test to see if groups are significant
 kruskal.test(dist ~ Group, data = disp_df) #not significant
@@ -534,57 +552,14 @@ ggboxplot(disp_df, x = "Group", y = "avg_area",
           ylab = "Average Area", xlab = "Group")
 
 
-#-------------------------------------------------------------------------------#
-#Calculate within site/day/hour variability as the dispersion and area of each polygon from above (n=2 methods)
-
-#polygon dispersion
-lit_disp <- centroids_sites$group.distances[1]
-pel_disp <- centroids_sites$group.distances[2]
-
-day1_disp <- centroids_days$group.distances[1]
-day2_disp <- centroids_days$group.distances[2]
-day3_disp <- centroids_days$group.distances[3]
-day4_disp <- centroids_days$group.distances[4]
-day5_disp <- centroids_days$group.distances[5]
-
-hour1_disp <- centroids_hours$group.distances[1]
-hour2_disp <- centroids_hours$group.distances[2]
-hour3_disp <- centroids_hours$group.distances[3]
-hour4_disp <- centroids_hours$group.distances[4]
-hour5_disp <- centroids_hours$group.distances[5]
-hour6_disp <- centroids_hours$group.distances[6]
-hour7_disp <- centroids_hours$group.distances[7]
-hour8_disp <- centroids_hours$group.distances[8]
-hour9_disp <- centroids_hours$group.distances[9]
-hour10_disp <- centroids_hours$group.distances[10]
-hour11_disp <- centroids_hours$group.distances[11]
-
-#-------------------------------------------------------------------------------
-#dataframe with area and dispersion for each polygon
-polygons_df <- data.frame("Polygon" = c("Littoral","Pelagic",
-                                        "10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020",
-                                        "15-16 Jun 2021","7-8 Jul 2021",
-                                        "12pm","6pm","7pm","8pm","9pm","12am",
-                                        "4am","5am","6am","7am","12pm"),
-                          "Area" = c(area_lit, area_pel, area_day1, area_day2, area_day3,
-                                     area_day4, area_day5, area_hour1, area_hour2, area_hour3,
-                                     area_hour4, area_hour5, area_hour6, area_hour7, area_hour8, 
-                                     area_hour9, area_hour10, area_hour11),
-                          "Dispersion" = c(lit_disp, pel_disp, day1_disp, day2_disp, day3_disp,
-                                           day4_disp, day5_disp, hour1_disp, hour2_disp, hour3_disp, 
-                                           hour4_disp, hour5_disp, hour6_disp, hour7_disp, hour8_disp,
-                                           hour9_disp, hour10_disp, hour11_disp))
-
-#write.csv(polygons_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"))
-
 #calculate the range of all areas and dispersion values
-range(polygons_df$Area[1:2])[2] - range(polygons_df$Area[1:2])[1] #smallest
-range(polygons_df$Area[3:7])[2] - range(polygons_df$Area[3:7])[1] #largest
-range(polygons_df$Area[8:18])[2] - range(polygons_df$Area[8:18])[1]
+range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] #smallest
+range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] 
+range(disp_df$avg_area[8:18])[2] - range(disp_df$avg_area[8:18])[1] #largest
 
-range(polygons_df$Dispersion[1:2])[2] - range(polygons_df$Dispersion[1:2])[1] #largest
-range(polygons_df$Dispersion[3:7])[2] - range(polygons_df$Dispersion[3:7])[1] #smallest
-range(polygons_df$Dispersion[8:18])[2] - range(polygons_df$Dispersion[8:18])[1]
+range(disp_df$dist[1:2])[2] - range(disp_df$dist[1:2])[1] #smallest
+range(disp_df$dist[3:7])[2] - range(disp_df$dist[3:7])[1] 
+range(disp_df$dist[8:18])[2] - range(disp_df$dist[8:18])[1] #largest
 
 
 #-------------------------------------------------------------------------------#
@@ -622,21 +597,6 @@ within_hour_dist <- data.frame("group" = c(rep("hour1",10),rep("hour2",10),rep("
 kruskal.test(dist ~ group, data = within_site_dist) #sig! - so pelagic and littoral are different
 kruskal.test(dist ~ group, data = within_day_dist) #sig
 kruskal.test(dist ~ group, data = within_hour_dist) #nope
-
-#dunn test for days
-dunn_day_disp <- dunnTest(dist ~ as.factor(group),
-                  data = within_day_dist,
-                  method="bonferroni")
-#after adj, p-values are all not significant, but before, day1+3, day2+3, day3+4, day3+5 are all different
-
-#letters
-cldList(P.unadj ~ Comparison, data=dunn_day_disp$res, threshold = 0.05) #honestly don't really believe this - n=22 isn't a tremendous amount of points...
-
-ggboxplot(within_day_dist, x = "group", y = "dist", 
-          color = "group", palette = hcl.colors(5,"earth"),
-          order = c("day1", "day2", "day3", "day4", "day5"),
-          ylab = "Distance to centroid", xlab = "")
-
 
 
 #-------------------------------------------------------------------------------#

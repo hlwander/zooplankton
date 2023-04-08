@@ -158,7 +158,7 @@ df1 <- zoop_DHM %>% gather(metric,value,all_of(variables))
 df2 <- zoop_DHM %>% gather(metric.SE,value.SE, all_of(SE))
 
 #cut and paste to merge df
-zoop_DHM_long <- df1[,c(1:4,16,20:21)]
+zoop_DHM_long <- df1[,c(1:4,18,20:21)]
 #zoop_DHM_long$metric.SE <- df2$metric.SE #use this as a check to make sure rows match up
 zoop_DHM_long$value.SE <- df2$value.SE
 
@@ -181,6 +181,7 @@ names(sites) <- c("BVR_50","BVR_l")
 
 #cb_friendly_2 <- c("#8C510A", "#BF812D","#DFC27D", "#C7EAE5", "#35978F")
 
+#------------------------------------------------------------------------------#
 #Figure for zoop density for each MSN 24-hours 
 ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")),
                 aes(Hour,value, color=as.factor(MSN))) + 
@@ -213,6 +214,29 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density.jpg"), width=5, height=4) 
 
 range(zoop_DHM_long$value[zoop_DHM_long$metric=="Copepoda_PercentOfTotal"]) # 77.1%, 68.9%, 85.9%
+
+#-------------------------------------------------------------------------------#
+#new df to standardize density among taxa and days
+zoop_dens_stand <- data.frame(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")))
+
+#calculate % density of max within a day for each taxa as x / max
+zoop_dens_stand <- zoop_dens_stand %>% group_by(metric, MSN) %>%
+  mutate(value_max_std = value / max(value))
+
+ggplot(zoop_dens_stand, aes(Hour,value_max_std, color=as.factor(MSN))) + 
+  geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2022-10-16 06:11:00"),xmax=as.POSIXct("2022-10-16 12:30:00"), ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + facet_grid(site_no~metric,scales="free_y",labeller = labeller(metric=metric_taxa, site_no=sites)) + xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), legend.background = element_blank(), legend.key = element_blank(), legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), strip.background = element_rect(fill = "transparent"), legend.position = c(0.1,0.44), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))+ scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT")) +
+  scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT"))+
+  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
+  geom_line()+ ylab("density / max dens") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")#+ 
+  #geom_errorbar(aes(ymin=value_max_std-value.SE, ymax=value_max_std+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density_over_max_std.jpg"), width=5, height=4) 
+
 
 #-------------------------------------------------------------------------------------#
 #looking at each MSN separately to look for evidence of DHM
