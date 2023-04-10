@@ -520,20 +520,20 @@ euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
 #-------------------------------------------------------------------------------#
 #Kruskal-wallis test to determine if group means are significant (can only do with dispersion and area)
 disp_site_df <- data.frame("Group" = c("site","site"),
-                           "dist" = c(centroids_sites$group.distances),
+                           "dispersion" = c(centroids_sites$group.distances),
                            "avg_area" = c(area_lit, area_pel)) 
 
 disp_hours_df <- data.frame("Group"=c(rep("hour",11)), 
-                            "dist" = c(centroids_hours$group.distances),
+                            "dispersion" = c(centroids_hours$group.distances),
                             "avg_area" = c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
                                            area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
 
 disp_days_df <- data.frame("Group"=c(rep("day",5)), 
-                           "dist" = c(centroids_days$group.distances),
+                           "dispersion" = c(centroids_days$group.distances),
                             "avg_area" = c(area_day1, area_day2, area_day3,
                                            area_day4, area_day5))
 
-disp_df <- rbind(disp_site_df,disp_hours_df, disp_days_df)
+disp_df <- rbind(disp_site_df, disp_days_df, disp_hours_df)
 #write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"))
 
 #KW test to see if groups are significant
@@ -553,13 +553,13 @@ ggboxplot(disp_df, x = "Group", y = "avg_area",
 
 
 #calculate the range of all areas and dispersion values
-range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] #smallest
-range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] 
+range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] 
+range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] #smallest
 range(disp_df$avg_area[8:18])[2] - range(disp_df$avg_area[8:18])[1] #largest
 
-range(disp_df$dist[1:2])[2] - range(disp_df$dist[1:2])[1] #smallest
-range(disp_df$dist[3:7])[2] - range(disp_df$dist[3:7])[1] 
-range(disp_df$dist[8:18])[2] - range(disp_df$dist[8:18])[1] #largest
+range(disp_df$dist[1:2])[2] - range(disp_df$dist[1:2])[1] #largest
+range(disp_df$dist[3:7])[2] - range(disp_df$dist[3:7])[1] #smallest
+range(disp_df$dist[8:18])[2] - range(disp_df$dist[8:18])[1] 
 
 
 #-------------------------------------------------------------------------------#
