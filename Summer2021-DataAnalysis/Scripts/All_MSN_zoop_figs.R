@@ -196,7 +196,7 @@ ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_density_NopL","Copepoda_de
   scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020","15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
   geom_line()+ ylab("Density (Individuals/L)") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_density.jpg"), width=5, height=3) 
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_density.jpg"), width=5, height=4) 
 
 ggplot(subset(zoop_DHM_long, metric %in% c("Cladocera_PercentOfTotal","Copepoda_PercentOfTotal","Rotifera_PercentOfTotal")), #removing calanoids because they are super low %
                 aes(Hour,value, color=as.factor(MSN))) + 

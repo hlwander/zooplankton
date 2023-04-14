@@ -169,12 +169,15 @@ zoop_temporal_dens_avg_trans <- hellinger(zoop_temporal_avg_dens)
 zoop_pel_dens_trans <- hellinger(zoop_pel_dens)
 zoop_lit_dens_trans <- hellinger(zoop_lit_dens)
 
+#turn transformed community data into Euclidean distance matrix
+zoop_euc <- as.matrix(vegdist(zoop_temporal_dens_avg_trans, method='euclidean'))
+#zoop_bray <- as.matrix(vegdist(zoop_temporal_dens_avg_trans, method='bray'))
 
 #scree plot to choose dimension #
-dimcheckMDS(zoop_temporal_dens_avg_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+dimcheckMDS(zoop_euc, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
 
 #now do NMDS using averages w/ 4 dimensions for consistency
-NMDS_temporal_avg_bray <- metaMDS(zoop_temporal_dens_avg_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+NMDS_temporal_avg_bray <- metaMDS(zoop_euc, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_avg_bray$stress
 
 NMDS_pel_bray <- metaMDS(zoop_pel_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
@@ -329,7 +332,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
 
 fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
-       fig5, width=5, height=2) 
+       fig5, width=5, height=2.5) 
 
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
 #       NMDS_hour, width=5, height=2) 
@@ -337,10 +340,7 @@ ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jp
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
 #-------------------------------------------------------------------------------#
-#technically calculating the euclidean distances from bray-curtis distance matrices
-
-#step 1: take NMDS output for each site using NMDS 1 and 2 coordinates
-zoop_euc <- as.matrix(vegdist(NMDS_temporal_avg_bray$points[,c(1,2)], method='euclidean'))
+#step 1: use Euclidean distance matrix from transformed community data (zoop_euc)
 
 #get collect_date into correct format
 zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
@@ -348,49 +348,13 @@ zoop_epi_tows$collect_date <- as.Date(zoop_epi_tows$collect_date)
 #order zoop epi tows by hour, MSN, and site
 zoop_epi_tows <- zoop_epi_tows %>% dplyr::arrange(site, groups, order)
 
-#step 2: select and sum the 9 distances between connecting points for each of the 5 days
-
-lit_day1 <- sum(zoop_euc[1,2],zoop_euc[2,3],zoop_euc[3,4],zoop_euc[4,5],zoop_euc[5,6],
-                zoop_euc[6,7],zoop_euc[7,8],zoop_euc[8,9],zoop_euc[9,10],zoop_euc[10,11])
-
-lit_day2 <- sum(zoop_euc[12,13], zoop_euc[13,14],zoop_euc[14,15],zoop_euc[15,16],zoop_euc[16,17],
-                zoop_euc[17,18],zoop_euc[18,19],zoop_euc[19,20],zoop_euc[20,21],zoop_euc[21,22])
-
-lit_day3 <- sum(zoop_euc[23,24], zoop_euc[24,25],zoop_euc[25,26],zoop_euc[26,27],zoop_euc[27,28],
-                zoop_euc[28,29],zoop_euc[29,30],zoop_euc[30,31],zoop_euc[31,32],zoop_euc[32,33])
-
-lit_day4 <- sum(zoop_euc[34,35], zoop_euc[35,36],zoop_euc[36,37],zoop_euc[37,38],zoop_euc[38,39],
-                zoop_euc[39,40],zoop_euc[40,41],zoop_euc[41,42],zoop_euc[42,43],zoop_euc[43,44])
-
-lit_day5 <- sum(zoop_euc[45,46], zoop_euc[46,47],zoop_euc[47,48],zoop_euc[48,49],zoop_euc[49,50],
-                zoop_euc[50,51],zoop_euc[51,52],zoop_euc[52,53],zoop_euc[53,54],zoop_euc[54,55])
-
-mean(lit_day1,lit_day2,lit_day3,lit_day4,lit_day5)
-
-pel_day1 <- sum(zoop_euc[56,57],zoop_euc[57,58],zoop_euc[58,59],zoop_euc[59,60],zoop_euc[60,61],
-                zoop_euc[61,62],zoop_euc[62,63],zoop_euc[63,64],zoop_euc[64,65],zoop_euc[65,66])
-
-pel_day2 <- sum(zoop_euc[67,68], zoop_euc[68,69],zoop_euc[69,70],zoop_euc[70,71],zoop_euc[71,72],
-                zoop_euc[72,73],zoop_euc[73,74],zoop_euc[74,75],zoop_euc[75,76],zoop_euc[76,77])
-
-pel_day3 <- sum(zoop_euc[78,79], zoop_euc[79,80],zoop_euc[80,81],zoop_euc[81,82],zoop_euc[82,83],
-                zoop_euc[83,84],zoop_euc[84,85],zoop_euc[85,86],zoop_euc[86,87],zoop_euc[87,88])
-
-pel_day4 <- sum(zoop_euc[89,90], zoop_euc[90,91],zoop_euc[91,92],zoop_euc[92,93],zoop_euc[93,94],
-                zoop_euc[94,95],zoop_euc[95,96],zoop_euc[96,97],zoop_euc[97,98],zoop_euc[98,99])
-
-pel_day5 <- sum(zoop_euc[100,101], zoop_euc[101,102],zoop_euc[102,103],zoop_euc[103,104],zoop_euc[104,105],
-                zoop_euc[105,106],zoop_euc[106,107],zoop_euc[107,108],zoop_euc[108,109],zoop_euc[109,110])
-
-mean(pel_day1,pel_day2,pel_day3,pel_day4,pel_day5) #community structure is more variable at pelagic site than littoral
-
-#convert ED matrix back into distance structure for next steps - axis 1 and 2 only!
-zoop_euc <- vegdist(NMDS_temporal_avg_bray$points[,c(1,2)], method='euclidean', upper = TRUE)
+#convert ED matrix back into distance structure for next steps
+zoop_euc <- vegdist(zoop_temporal_dens_avg_trans, method='euclidean', upper = TRUE)
 
 #Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
-centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="median")
-centroids_hours <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$order), type="median")
-centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups), type="median")
+centroids_sites <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$site), type="centroid")
+centroids_hours <- betadisper(zoop_euc, group = as.factor(zoop_epi_tows$order), type="centroid")
+centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups), type="centroid")
 
 #-------------------------------------------------------------------------------#
 #METHOD 1:average distance of each point to polygon centroid (dispersion approach)
@@ -421,7 +385,7 @@ pair_hour_sd <- sd(dist(centroids_hours$centroids))
 
 #annual variability - LEAST VARIABLE!
 pair_day <- mean(dist(centroids_days$group.distances))
-pair_day_sd <- mean(dist(centroids_days$group.distances))
+pair_day_sd <- sd(dist(centroids_days$group.distances))
 
 #-------------------------------------------------------------------------------#
 #METHOD 3: average areas of polygons (avg_area) - use NMDS df for this
@@ -514,7 +478,7 @@ euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
                                "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
                                           paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
   
-#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"))
+#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"),row.names = FALSE)
 
 
 #-------------------------------------------------------------------------------#
@@ -534,10 +498,10 @@ disp_days_df <- data.frame("Group"=c(rep("day",5)),
                                            area_day4, area_day5))
 
 disp_df <- rbind(disp_site_df, disp_days_df, disp_hours_df)
-#write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"))
+#write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"),row.names = FALSE)
 
 #KW test to see if groups are significant
-kruskal.test(dist ~ Group, data = disp_df) #not significant
+kruskal.test(dispersion ~ Group, data = disp_df) #not significant
 kruskal.test(avg_area ~ Group, data = disp_df) #significant sometimes??
 
 #now dunn test to determine which areas are different from each other
@@ -553,13 +517,13 @@ ggboxplot(disp_df, x = "Group", y = "avg_area",
 
 
 #calculate the range of all areas and dispersion values
-range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] 
-range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] #smallest
-range(disp_df$avg_area[8:18])[2] - range(disp_df$avg_area[8:18])[1] #largest
+range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] #largest
+range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] 
+range(disp_df$avg_area[8:18])[2] - range(disp_df$avg_area[8:18])[1] #smallest
 
-range(disp_df$dist[1:2])[2] - range(disp_df$dist[1:2])[1] #largest
-range(disp_df$dist[3:7])[2] - range(disp_df$dist[3:7])[1] #smallest
-range(disp_df$dist[8:18])[2] - range(disp_df$dist[8:18])[1] 
+range(disp_df$dispersion[1:2])[2] - range(disp_df$dispersion[1:2])[1]
+range(disp_df$dispersion[3:7])[2] - range(disp_df$dispersion[3:7])[1] #smallest
+range(disp_df$dispersion[8:18])[2] - range(disp_df$dispersion[8:18])[1]  #largest
 
 
 #-------------------------------------------------------------------------------#
@@ -598,6 +562,17 @@ kruskal.test(dist ~ group, data = within_site_dist) #sig! - so pelagic and litto
 kruskal.test(dist ~ group, data = within_day_dist) #sig
 kruskal.test(dist ~ group, data = within_hour_dist) #nope
 
+#dunn post-hoc test
+dunn_within_days <- dunnTest(dist ~ as.factor(group),
+                        data=within_day_dist,
+                        method="bonferroni")
+
+cldList(P.adj ~ Comparison, data=dunn_within_days$res, threshold = 0.05)
+
+ggboxplot(within_day_dist, x = "group", y = "dist", 
+          color = "group", palette = c("#008585", "#9BBAA0", "#F2E2B0","#DEA868","#C7522B"),
+          order = c("day1", "day2", "day3","day4","day5"),
+          ylab = "average dispersion", xlab = "Sampling Camapigns")
 
 #-------------------------------------------------------------------------------#
 #plot littoral vs pelagic euclidean distances
