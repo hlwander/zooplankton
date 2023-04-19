@@ -274,3 +274,129 @@ Hourly_prop <- plyr::ddply(all_DHM, c("metric", "MSN", "Hour","DateTime"), funct
 
 #export proportion df
 #write.csv(Hourly_prop,"./Summer2021-DataAnalysis/SummaryStats/Hourly_proportions_pelvslit.csv",row.names = FALSE)
+
+#-------------------------------------------------------------------------------
+#plot migration metric vs PAR to see if sunny/cloudy days affect migration metric
+
+#first, read in ctd
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/200/13/27ceda6bc7fdec2e7d79a6e4fe16ffdf" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+
+dt1 <-read.csv(infile1,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Depth_m",     
+                 "Temp_C",     
+                 "DO_mgL",     
+                 "DOsat_percent",     
+                 "Cond_uScm",     
+                 "SpCond_uScm",     
+                 "Chla_ugL",     
+                 "Turbidity_NTU",     
+                 "pH",     
+                 "ORP_mV",     
+                 "PAR_umolm2s",     
+                 "DescRate_ms",     
+                 "Flag_DateTime",     
+                 "Flag_Temp_C",     
+                 "Flag_DO_mgL",     
+                 "Flag_DOsat_percent",     
+                 "Flag_Cond_uScm",     
+                 "Flag_SpCond_uScm",     
+                 "Flag_Chla_ugL",     
+                 "Flag_Turbidity_NTU",     
+                 "Flag_pH",     
+                 "Flag_ORP_mV",     
+                 "Flag_PAR_umolm2s",     
+                 "Flag_DescRate_ms"    ), check.names=TRUE)
+
+unlink(infile1)
+
+#next filter just BVR PAR data from 0.1m
+par_bvr = dt1%>%
+  mutate(Date = as.Date(DateTime))%>%
+  filter(Depth_m >= 0.1 & Depth_m <= 0.11,
+         Site == 50,
+         Reservoir=="BVR",
+         Date %in% c(as.Date("2019-07-10"), as.Date("2019-07-11"),  as.Date("2019-07-24"),
+                          as.Date("2019-07-25"), as.Date("2020-08-12"), as.Date("2020-08-13"),
+                          as.Date("2021-06-15"), as.Date("2021-06-16"), as.Date("2021-07-07"),
+                          as.Date("2021-07-08")))
+
+#average surface PARs by date
+avg_par_bvr <- par_bvr %>% group_by(as.Date(DateTime)) %>% 
+  summarise(avg_par = mean(PAR_umolm2s))
+
+#add msn col and do a more hacky avg
+avg_par_bvr$msn <- c(1,1,2,2,3,4)
+
+avg_par_bvr <- avg_par_bvr %>% group_by(msn) %>%
+  summarise(avg_par = mean(avg_par))
+
+#plot migration metric vs par
+plot(migration_df$DVM_avg[migration_df$metric=="ZoopDensity_No.pL"] ~
+       c(avg_par_bvr$avg_par,NA), pch=19, 
+     xlab = "PAR (ummolm2s)", 
+     ylab = "DVM metric")
+
+plot(migration_df$DHM_avg[migration_df$metric=="ZoopDensity_No.pL"] ~
+       c(avg_par_bvr$avg_par,NA), pch=19,
+     xlab = "PAR (ummolm2s)", 
+     ylab = "DHM metric")
+
+#hmm potential inverse relationship between migration metric and PAR??
+
+#------------------------------------------------------------------------------#
+#read in secchi 
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/198/11/81f396b3e910d3359907b7264e689052" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+dt1 <-read.csv(infile1,header=F 
+               ,skip=1
+               ,sep=","  
+               , col.names=c(
+                 "Reservoir",     
+                 "Site",     
+                 "DateTime",     
+                 "Secchi_m",     
+                 "Flag_DateTime",     
+                 "Flag_Secchi_m"    ), check.names=TRUE)
+
+unlink(infile1)
+
+#create df for secchi data
+secchi_bvr = dt1 %>% 
+  mutate(Date = as.Date(DateTime))%>%
+  filter(Site == 50,
+         Reservoir=="BVR",
+         Date %in% c(as.Date("2019-07-10"), as.Date("2019-07-11"),  as.Date("2019-07-24"),
+                     as.Date("2019-07-25"), as.Date("2020-08-12"), as.Date("2020-08-13"),
+                     as.Date("2021-06-15"), as.Date("2021-06-16"), as.Date("2021-07-07"),
+                     as.Date("2021-07-08"))) %>%
+  select(Date,Secchi_m)
+
+#add the day 5 secchi (calculated using zoop rope at pelagic site)
+secchi_bvr <- data.frame("msn" = c(1,2,3,4,5),
+                         "secchi_m" = c(secchi_bvr$Secchi_m, 1.8))
+
+#now plot
+plot(migration_df$DVM_avg[migration_df$metric=="Rotifera_density_NopL"] ~
+       secchi_bvr$secchi_m, pch=19, 
+     xlab = "Secchi (m)", 
+     ylab = "DVM metric")
+
+plot(migration_df$DHM_avg[migration_df$metric=="Rotifera_density_NopL"] ~
+       secchi_bvr$secchi_m, pch=19,
+     xlab = "Secchi (m)", 
+     ylab = "DHM metric")
+#cool! positive relationship between migration metric and secchi 
+#normal migration with high water clarity and reverse for lower water clarity

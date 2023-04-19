@@ -123,5 +123,61 @@ ggplot(subset(trap_repmeans_long, grepl("percent",metric,ignore.case = TRUE) & c
         legend.text = element_text(size=10),legend.title = element_blank()) + xlab("") 
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/Horizontal_traps_percent_dens.jpg"))
 
+#------------------------------------------------------------------------------#
+#remaking figures for each date pair to better see magnitudes
+
+ggplot(subset(trap_repmeans_long, grepl("percent",metric,ignore.case = TRUE) & 
+                collect_date %in% c("2020-08-12", "2020-08-13")), 
+       aes(x=lab, y=value, fill=collect_date, alpha=position)) +
+  geom_rect(data=subset(trap_repmeans_long,time == 'sunset' &grepl("percent",metric,ignore.case = TRUE) & 
+                          collect_date %in% c("2020-08-12", "2020-08-13")),
+            aes(fill=time),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.01,inherit.aes = FALSE) +
+  geom_bar(stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() + guides(fill=guide_legend(ncol=6))+
+  geom_errorbar(aes(ymin=value-value_SE, ymax=value+value_SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(time+position~metric, scales= 'free',ncol=3, strip.position = "right", labeller=labeller(metric=taxa)) + #change ncol to 4 for dens and biom
+  scale_fill_manual(values=c("#33CCCC","#339999")) + ylab("Percent density (%)") +
+  theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+  theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), 
+        axis.text.y = element_text(size=13, family="Times"), legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),
+        legend.text = element_text(size=10),legend.title = element_blank()) + xlab("") 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/Horizontal_traps_d1_percent_dens.jpg"))
+
+ggplot(subset(trap_repmeans_long, grepl("percent",metric,ignore.case = TRUE) & 
+                collect_date %in% c("2021-06-15", "2021-06-16")), 
+       aes(x=lab, y=value, fill=collect_date, alpha=position)) +
+  geom_rect(data=subset(trap_repmeans_long,time == 'sunset' &grepl("percent",metric,ignore.case = TRUE) & 
+                          collect_date %in% c("2021-06-15", "2021-06-16")),
+            aes(fill=time),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.01,inherit.aes = FALSE) +
+  geom_bar(stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() + guides(fill=guide_legend(ncol=6))+
+  geom_errorbar(aes(ymin=value-value_SE, ymax=value+value_SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(time+position~metric, scales= 'free',ncol=3, strip.position = "right", labeller=labeller(metric=taxa)) + 
+  scale_fill_manual(values=c("#CCCCFF","#9966CC")) + ylab("Percent density (%)") +
+  theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+  theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), 
+        axis.text.y = element_text(size=13, family="Times"), legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),
+        legend.text = element_text(size=10),legend.title = element_blank()) + xlab("") 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/Horizontal_traps_d2_percent_dens.jpg"))
+
+ggplot(subset(trap_repmeans_long, grepl("percent",metric,ignore.case = TRUE) & 
+                collect_date %in% c("2021-07-07", "2021-07-08")), 
+       aes(x=lab, y=value, fill=collect_date, alpha=position)) +
+  geom_rect(data=subset(trap_repmeans_long,time == 'sunset' &grepl("percent",metric,ignore.case = TRUE) & 
+                          collect_date %in% c("2021-07-07", "2021-07-08")),
+            aes(fill=time),xmin=-Inf ,xmax = Inf, ymin = -Inf, ymax = Inf, fill = 'black', alpha = 0.01,inherit.aes = FALSE) +
+  geom_bar(stat="identity", position=position_dodge(),show.legend = TRUE) + theme_bw() + guides(fill=guide_legend(ncol=6))+
+  geom_errorbar(aes(ymin=value-value_SE, ymax=value+value_SE), width=.2,position=position_dodge(.9)) + scale_alpha_manual(values = c(0.4, 1)) +
+  facet_wrap(time+position~metric, scales= 'free',ncol=3, strip.position = "right", labeller=labeller(metric=taxa)) + 
+  scale_fill_manual(values=c("#FF9966","#FF6633")) + ylab("Percent density (%)") +
+  theme(strip.text.y = element_text(size = 11 ,margin = margin(0, -0.01, 0,0.1, "cm")),strip.background = element_blank()) + 
+  theme(panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        axis.text.x=element_text(size=6,family="Times"), plot.title = element_text(hjust = 0.5),
+        legend.position = "bottom", legend.margin = margin(0, 1, 2, 1),plot.margin = margin(0,0,0,0.3,unit = "cm"), 
+        axis.text.y = element_text(size=13, family="Times"), legend.box="vertical", legend.box.spacing = unit(0.1,"cm"),
+        legend.text = element_text(size=10),legend.title = element_blank()) + xlab("") 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/Horizontal_traps_d3_percent_dens.jpg"))
 
 

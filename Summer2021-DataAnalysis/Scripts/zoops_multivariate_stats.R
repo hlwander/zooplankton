@@ -2,7 +2,8 @@
 #created 25Nov2021
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,viridis, egg, ggordiplots, splancs, ggpubr, FSA, rcompanion)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,
+               viridis, egg, ggordiplots, splancs, ggpubr, FSA, rcompanion)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -79,52 +80,52 @@ zoop_temporal_dens_trans <- hellinger(zoop_temporal_dens)
 #-------------------------------------------------------------------------------#
 #                  Bray-curtis dissimilarity --> NMDS figs                      #
 #-------------------------------------------------------------------------------#
-#scree plot to choose dimension #
-dimcheckMDS(zoop_temporal_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
-
-#choosing 4 dimensions (0.07) so stress is between 0.05 and 0.1
-NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-NMDS_temporal_bray$stress
-
-#  Points divided into time groups
-#jpeg("Figures/2019-2021_NMDS_1v2_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites'),choices = c(1,2),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], pch=21,bg="#008585")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], pch=21,bg="#9BBAA0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], pch=21,bg="#F2E2B0")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], pch=21,bg="#DEA868")
-points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], pch=21,bg="#C7522B")
-legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
-ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
-#text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
+##scree plot to choose dimension #
+#dimcheckMDS(zoop_temporal_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
+#
+##choosing 4 dimensions (0.07) so stress is between 0.05 and 0.1
+#NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+#NMDS_temporal_bray$stress
+#
+##  Points divided into time groups
+##jpeg("Figures/2019-2021_NMDS_1v2_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
+#ord <- ordiplot(NMDS_temporal_bray,display = c('sites'),choices = c(1,2),type = "n") 
+#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], pch=21,bg="#008585")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], pch=21,bg="#9BBAA0")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], pch=21,bg="#F2E2B0")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], pch=21,bg="#DEA868")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], pch=21,bg="#C7522B")
+#legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
+#ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
+#         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
+##text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
+##     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
+##dev.off()
+#
+##jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
+#ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
+#points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",2], pch=21,bg="slateblue4")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",2], pch=21,bg="palegreen3")
+#legend("bottomright", legend=c("Pelagic","Littoral"), pch=21, pt.bg=c("slateblue4","palegreen3"),bty = "n") 
+#ordihull(ord, zoop_epi_tows$site, display = "sites", draw = c("polygon"),
+#         col = c("palegreen3","slateblue4"), alpha = 75,cex = 2)
+#text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
 #     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
-
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",2], pch=21,bg="slateblue4")
-points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",2], pch=21,bg="palegreen3")
-legend("bottomright", legend=c("Pelagic","Littoral"), pch=21, pt.bg=c("slateblue4","palegreen3"),bty = "n") 
-ordihull(ord, zoop_epi_tows$site, display = "sites", draw = c("polygon"),
-         col = c("palegreen3","slateblue4"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
-
-
-#jpeg("Figures/2019-2021_NMDS_1v4_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',4], pch=21,bg="#CC79A7")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',4], pch=21,bg="#F0E442")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',4], pch=21,bg="#009E73")
-points(NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',4], pch=21,bg="#0072B2")
-legend("bottomright", legend=c('sunrise','noon', 'sunset', 'midnight'), pch=21, pt.bg=c('#CC79A7', '#F0E442','#009E73','#0072B2'),bty = "n") 
-ordihull(ord, zoop_epi_tows$time, display = "sites", draw = c("polygon"),
-         col = c("#0072B2", "#F0E442","#CC79A7","#009E73"), alpha = 75,cex = 2)
-text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-#dev.off()
+##dev.off()
+#
+#
+##jpeg("Figures/2019-2021_NMDS_1v4_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
+#ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
+#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',4], pch=21,bg="#CC79A7")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',4], pch=21,bg="#F0E442")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',4], pch=21,bg="#009E73")
+#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',4], pch=21,bg="#0072B2")
+#legend("bottomright", legend=c('sunrise','noon', 'sunset', 'midnight'), pch=21, pt.bg=c('#CC79A7', '#F0E442','#009E73','#0072B2'),bty = "n") 
+#ordihull(ord, zoop_epi_tows$time, display = "sites", draw = c("polygon"),
+#         col = c("#0072B2", "#F0E442","#CC79A7","#009E73"), alpha = 75,cex = 2)
+#text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
+#     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
+##dev.off()
 
 #-------------------------------------------------------------------------------#
 #           Averaging zoops by time and campaign/day for new NMDS               #
@@ -154,7 +155,6 @@ zoop_avg <- zoop_epi_tows %>% group_by(groups,site,order) %>%
 #pelagic vs littoral dfs
 zoop_pel <- zoop_avg[zoop_avg$site=="pel",]
 zoop_lit <- zoop_avg[zoop_avg$site=="lit",]
-
 
 #only select data cols
 zoop_temporal_avg_dens <- zoop_avg[,c(grepl("mean",colnames(zoop_avg)))] 
@@ -388,6 +388,67 @@ pair_day <- mean(dist(centroids_days$group.distances))
 pair_day_sd <- sd(dist(centroids_days$group.distances))
 
 #-------------------------------------------------------------------------------#
+#put distance values into a dataset
+euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
+                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
+                                          paste0(round(pair_site,2))),
+                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
+                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
+                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
+                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
+
+#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"),row.names = FALSE)
+
+#-------------------------------------------------------------------------------#
+#Now repeating methods above, but "bootstrapping" so I randomly select 10 points in each group
+
+#create a df to store all the different variability values
+var_results <- data.frame("site_disp"=rep(NA,500))
+
+for (i in 1:500){ 
+  #randomly select 10 points in each group
+  ord_sub <- sample(unique(zoop_epi_tows$order), 2)
+  groups_sub <-  sample(unique(zoop_epi_tows$groups), 2)
+  
+  zoop_sub <-  zoop_epi_tows %>% group_by(order) %>% 
+               filter(order %in% c(ord_sub), groups %in% c(groups_sub)) %>%
+               slice_sample(n=10)
+  
+  #only select data cols
+  zoop_dens_sub <- zoop_sub[,c(grepl("density",colnames(zoop_sub)))] 
+  
+  #hellinger transformation
+  zoop_dens_sub_trans <- hellinger(zoop_dens_sub)
+  
+  #convert ED matrix back into distance structure for next steps
+  zoop_euc_sub <- vegdist(zoop_dens_sub_trans, method='euclidean', upper = TRUE)
+  
+  #Now calculate the centroids of each polygon AND the avg distance of each point to its polygon centroid
+  centroids_sites_sub <- betadisper(zoop_euc_sub, group = as.factor(zoop_sub$site), type="centroid")
+  centroids_days_sub <-  betadisper(zoop_euc_sub, group = as.factor(zoop_sub$groups), type="centroid")
+  centroids_hours_sub <- betadisper(zoop_euc_sub, group = as.factor(zoop_sub$order), type="centroid")
+  
+  #dispersion calcs
+  var_results$site_disp[i] <- mean(centroids_sites_sub$group.distances)
+  var_results$day_disp[i] <- mean(centroids_days_sub$group.distances)
+  var_results$hour_disp[i] <- mean(centroids_hours_sub$group.distances)
+  
+  var_results$site_pair[i] <- mean(dist(centroids_sites_sub$centroids))
+  var_results$day_pair[i] <- mean(dist(centroids_days_sub$centroids))
+  var_results$hour_pair[i] <- mean(dist(centroids_hours_sub$centroids))
+}
+
+#make a df to summarze the bootstrap data
+dist_boot <- data.frame("Method" = c("Dispersion","Pairwise"),
+                        "Site" = c(paste0(round(mean(var_results$site_disp),2), "±", round(sd(var_results$site_disp),2)),
+                                   paste0(round(mean(var_results$site_pair),2), "±", round(sd(var_results$site_pair),2))),
+                        "Day" = c(paste0(round(mean(var_results$day_disp),2), "±", round(sd(var_results$day_disp),2)),
+                                  paste0(round(mean(var_results$day_pair),2), "±", round(sd(var_results$day_pair),2))),
+                        "Hour" = c(paste0(round(mean(var_results$hour_disp),2), "±", round(sd(var_results$hour_disp),2)),
+                                   paste0(round(mean(var_results$hour_pair),2), "±", round(sd(var_results$hour_pair),2))))
+#write.csv(dist_boot, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances_bootstrapped.csv"),row.names = FALSE)
+
+#-------------------------------------------------------------------------------#
 #METHOD 3: average areas of polygons (avg_area) - use NMDS df for this
 
 #site areas             
@@ -467,19 +528,6 @@ area_diff_site <- area_lit - area_pel
 area_diff_day <- area_day2 - area_day4
 
 area_diff_hour <- area_hour7 - area_hour11
-
-#-------------------------------------------------------------------------------
-#put variability values into a dataset
-euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
-                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
-                                          paste0(round(pair_site,2))),
-                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
-                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
-                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
-                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
-  
-#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"),row.names = FALSE)
-
 
 #-------------------------------------------------------------------------------#
 #Kruskal-wallis test to determine if group means are significant (can only do with dispersion and area)
