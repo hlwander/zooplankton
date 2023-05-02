@@ -5,7 +5,7 @@
 #step 4 - plot variability vs group #
 
 #read in libraries
-pacman::p_load(ggplot2, vegan)
+pacman::p_load(ggplot2, vegan, ggordiplots, splancs)
 
 vec <- data.frame("vals1" = runif(110, 0.0, 1),
                   "vals2" = runif(110, 0.0, 1),
@@ -27,14 +27,34 @@ for(j in 2:100){
 }
 
 #create new df to save betadisper results for all different groupings
-var_results <- data.frame("disp"=rep(NA,100))
+var_results <- data.frame("disp" = rep(NA,100),
+                          "pairwise" = rep(NA,100),
+                          "area" = rep(NA,100))
 
 for (i in 2:length(grps)){
+  message(paste0("Running group ",i))
   temp_dist <- vegdist(vec, method="euclidean")
   var <- betadisper(temp_dist, group = as.factor(grps[,i]), type="centroid")
   var_results$disp[i] <- mean(var$group.distances)
   var_results$pairwise[i] <- mean(dist(var$centroids))
+  nmds_temp <- metaMDS(temp_dist, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
+  if(i<50){
+    message(paste0("Area ",i))
+    ord_temp <- ordiplot(nmds_temp,display = c('sites','species'),choices = c(1,2),type = "n")
+    grp_temp <- gg_ordiplot(ord_temp, grps[,i], kind = "ehull", 
+                           ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9)
+    areas = c()
+    for(j in 1:i){
+      area_temp <- areapl(cbind(grp_temp$df_hull$x[grp_temp$df_hull$Group==j],
+                                grp_temp$df_hull$y[grp_temp$df_hull$Group==j]))
+      areas = c(areas,area_temp)
+    }
+    var_results$area[i] <- mean(areas)
+  }else{
+    var_results$area[i] <- 0
+  }
 }
+
 
 #test to make sure for loop is working the way I think it is
 #temp_dist <- vegdist(vec[,7], method="euclidean")
@@ -49,6 +69,8 @@ var_results$grp_num <- c(1:100)
 ggplot(var_results, aes(grp_num, disp)) + geom_point() + theme_bw()
 
 ggplot(var_results, aes(grp_num, pairwise)) + geom_point() + theme_bw()
+
+ggplot(var_results, aes(grp_num, area)) + geom_point() + theme_bw()
 
 #sooo definitely need to bootstrap because the more groups in a df, the lower variability is...
 

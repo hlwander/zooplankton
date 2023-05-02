@@ -77,55 +77,6 @@ zoop_temporal_dens <- zoop_epi_tows[,c(grepl("density_NopL",colnames(zoop_epi_to
 #converts species abundances from absolute to relative - use w/ bray curtis (jaccard might be another one to try later on to look at absolute)
 zoop_temporal_dens_trans <- hellinger(zoop_temporal_dens)
 
-#-------------------------------------------------------------------------------#
-#                  Bray-curtis dissimilarity --> NMDS figs                      #
-#-------------------------------------------------------------------------------#
-##scree plot to choose dimension #
-#dimcheckMDS(zoop_temporal_dens_trans, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
-#
-##choosing 4 dimensions (0.07) so stress is between 0.05 and 0.1
-#NMDS_temporal_bray <- metaMDS(zoop_temporal_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-#NMDS_temporal_bray$stress
-#
-##  Points divided into time groups
-##jpeg("Figures/2019-2021_NMDS_1v2_bray_days.jpg", width = 6, height = 5, units = "in",res = 300)
-#ord <- ordiplot(NMDS_temporal_bray,display = c('sites'),choices = c(1,2),type = "n") 
-#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="1",2], pch=21,bg="#008585")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="2",2], pch=21,bg="#9BBAA0")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="3",2], pch=21,bg="#F2E2B0")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="4",2], pch=21,bg="#DEA868")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",1], NMDS_temporal_bray$points[zoop_epi_tows$groups=="5",2], pch=21,bg="#C7522B")
-#legend("bottomright", legend=c('Day1','Day2','Day3','Day4','Day5'), pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), bty = "n") 
-#ordihull(ord, zoop_epi_tows$groups, display = "sites", draw = c("polygon"),
-#         col = c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), alpha = 75,cex = 2)
-##text(NMDS_temporal_bray$species[,2],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-##     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-##dev.off()
-#
-##jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_sites.jpg"), width = 6, height = 5, units = "in",res = 300)
-#ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-#points(NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="pel",2], pch=21,bg="slateblue4")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",1], NMDS_temporal_bray$points[zoop_epi_tows$site=="lit",2], pch=21,bg="palegreen3")
-#legend("bottomright", legend=c("Pelagic","Littoral"), pch=21, pt.bg=c("slateblue4","palegreen3"),bty = "n") 
-#ordihull(ord, zoop_epi_tows$site, display = "sites", draw = c("polygon"),
-#         col = c("palegreen3","slateblue4"), alpha = 75,cex = 2)
-#text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,2], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-#     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-##dev.off()
-#
-#
-##jpeg("Figures/2019-2021_NMDS_1v4_bray_time.jpg", width = 6, height = 5, units = "in",res = 300)
-#ord <- ordiplot(NMDS_temporal_bray,display = c('sites','species'),choices = c(1,4),type = "n") 
-#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunrise',4], pch=21,bg="#CC79A7")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='noon',4], pch=21,bg="#F0E442")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='sunset',4], pch=21,bg="#009E73")
-#points(NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',1], NMDS_temporal_bray$points[zoop_epi_tows$time=='midnight',4], pch=21,bg="#0072B2")
-#legend("bottomright", legend=c('sunrise','noon', 'sunset', 'midnight'), pch=21, pt.bg=c('#CC79A7', '#F0E442','#009E73','#0072B2'),bty = "n") 
-#ordihull(ord, zoop_epi_tows$time, display = "sites", draw = c("polygon"),
-#         col = c("#0072B2", "#F0E442","#CC79A7","#009E73"), alpha = 75,cex = 2)
-#text(NMDS_temporal_bray$species[,1],NMDS_temporal_bray$species[,4], labels = c("Calanoida","Cyclopoida","Keratella","Kellicottia",
-#     "Bosmina","Daphnia","Ceriodaphnia","nauplius","Collothecidae","Synchaetidae","Conochilidae"), cex=0.9)
-##dev.off()
 
 #-------------------------------------------------------------------------------#
 #           Averaging zoops by time and campaign/day for new NMDS               #
@@ -186,58 +137,6 @@ NMDS_pel_bray$stress
 NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_lit_bray$stress
 
-
-#-----------------------------------------------------------------------------------------#
-#pelagic only tracking density through time
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_pelagic_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_pel_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-ordihull(ord, zoop_pel$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 4)
-lines(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], col="#008585")
-points(NMDS_pel_bray$points[zoop_pel$groups=="1",1], NMDS_pel_bray$points[zoop_pel$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#008585")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], col="#89B199")
-points(NMDS_pel_bray$points[zoop_pel$groups=="2",1], NMDS_pel_bray$points[zoop_pel$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#89B199")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], col="#EFECBF")
-points(NMDS_pel_bray$points[zoop_pel$groups=="3",1], NMDS_pel_bray$points[zoop_pel$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#EFECBF")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",2], col="#DB9B5A")
-points(NMDS_pel_bray$points[zoop_pel$groups=="4",1], NMDS_pel_bray$points[zoop_pel$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#DB9B5A")
-
-lines(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], col="#C7522B")
-points(NMDS_pel_bray$points[zoop_pel$groups=="5",1], NMDS_pel_bray$points[zoop_pel$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C7522B")
-
-legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
-       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
-legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
-#dev.off() 
-
-#littoral only tracking density through time
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2021_NMDS_1v2_bray_littoral_tracking_density_time.jpg"), width = 6, height = 5, units = "in",res = 300)
-ord <- ordiplot(NMDS_lit_bray,display = c('sites','species'),choices = c(1,2),type = "n") 
-ordihull(ord, zoop_lit$groups, display = "sites", draw = c("polygon"),
-         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], col="#369187")
-points(NMDS_lit_bray$points[zoop_lit$groups=="1",1], NMDS_lit_bray$points[zoop_lit$groups=="1",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#369187")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], col="#C4D5B2")
-points(NMDS_lit_bray$points[zoop_lit$groups=="2",1], NMDS_lit_bray$points[zoop_lit$groups=="2",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#C4D5B2")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], col="#EFDBA7")
-points(NMDS_lit_bray$points[zoop_lit$groups=="3",1], NMDS_lit_bray$points[zoop_lit$groups=="3",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col=c(rep("#EFDBA7",10),rep("#EFECBF",10)))
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",2], col="#E4BC80")
-points(NMDS_lit_bray$points[zoop_lit$groups=="4",1], NMDS_lit_bray$points[zoop_lit$groups=="4",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#E4BC80")
-
-lines(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], col="#CA602E")
-points(NMDS_lit_bray$points[zoop_lit$groups=="5",1], NMDS_lit_bray$points[zoop_lit$groups=="5",2], pch=c(0,1,2,3,4,5,6,7,8,9,10),col="#CA602E")
-
-legend("topright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
-       pt.bg=c("#369187","#C4D5B2","#EFDBA7","#E4BC80","#CA602E"),bty = "n",cex=0.8) 
-legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=0.8) 
-#dev.off()
-
 #-------------------------------------------------------------------------------#
 #                                 NMDS ms figs                                  #
 #-------------------------------------------------------------------------------#
@@ -264,10 +163,10 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
         plot.margin = unit(c(0,-0.1,0,0), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-  scale_fill_manual("",values=c("#882255","#3399CC"))+
-  scale_color_manual("",values=c("#882255","#3399CC"),
-                     label=c('littoral','pelagic'))
-
+        annotate("text", x=-0.42, y=0.6, label= "a", size = 3) +
+        scale_fill_manual("",values=c("#882255","#3399CC"))+
+        scale_color_manual("",values=c("#882255","#3399CC"),
+                     label=c('littoral','pelagic')) 
 
 days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
                     ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
@@ -293,9 +192,10 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + 
-  guides(fill="none", color = guide_legend(ncol=2)) +
-  scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
-  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
+        annotate("text", x=-0.42, y=0.6, label= "b", size = 3) +
+        guides(fill="none", color = guide_legend(ncol=2)) +
+        scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+        scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
                      label=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
                              '15-16 Jun 2021', '7-8 Jul 2021'))
 
@@ -325,17 +225,33 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,0,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-  scale_fill_manual("",values=hcl.colors(11,"sunset"))+
-  scale_color_manual("",values=hcl.colors(11,"sunset"),
+        annotate("text", x=-0.42, y=0.6, label= "c", size=3) +
+        scale_fill_manual("",values=hcl.colors(11,"sunset"))+
+        scale_color_manual("",values=hcl.colors(11,"sunset"),
                      label=c('12pm','6pm','7pm','8pm','9pm','12am',
                              '4am','5am','6am','7am','12pm'))
 
 fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
-       fig5, width=5, height=2.5) 
+       fig5, width=5, height=3) 
 
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
 #       NMDS_hour, width=5, height=2) 
+
+#-------------------------------------------------------------------------------#
+#track hours for each campaign
+ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
+         col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2"  & zoop_avg$site=="lit" ,1], 
+      NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),2], col="#C4D5B2")
+
+points(NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),1], 
+       NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),2], 
+       pch=as.character(zoop_avg$order),col="#C4D5B2")
+
+#legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
+#       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
+#legend("bottomleft", legend=c('12pm','6pm','7pm','8pm','9pm','12am','4am','5am','6am','7am','12pm'), pch=c(0,1,2,3,4,5,6,7,8,9,10) ,bty = "n",cex=1.2) 
 
 #-------------------------------------------------------------------------------#
 #                     Calculating euclidean distance                            #
@@ -428,7 +344,7 @@ for (i in 1:500){
   centroids_days_sub <-  betadisper(zoop_euc_sub, group = as.factor(zoop_sub$groups), type="centroid")
   centroids_hours_sub <- betadisper(zoop_euc_sub, group = as.factor(zoop_sub$order), type="centroid")
   
-  #dispersion calcs
+  #distance calcs
   var_results$site_disp[i] <- mean(centroids_sites_sub$group.distances)
   var_results$day_disp[i] <- mean(centroids_days_sub$group.distances)
   var_results$hour_disp[i] <- mean(centroids_hours_sub$group.distances)
@@ -436,7 +352,9 @@ for (i in 1:500){
   var_results$site_pair[i] <- mean(dist(centroids_sites_sub$centroids))
   var_results$day_pair[i] <- mean(dist(centroids_days_sub$centroids))
   var_results$hour_pair[i] <- mean(dist(centroids_hours_sub$centroids))
-}
+  
+  }
+  
 
 #make a df to summarze the bootstrap data
 dist_boot <- data.frame("Method" = c("Dispersion","Pairwise"),
@@ -448,109 +366,23 @@ dist_boot <- data.frame("Method" = c("Dispersion","Pairwise"),
                                    paste0(round(mean(var_results$hour_pair),2), "±", round(sd(var_results$hour_pair),2))))
 #write.csv(dist_boot, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances_bootstrapped.csv"),row.names = FALSE)
 
-#-------------------------------------------------------------------------------#
-#METHOD 3: average areas of polygons (avg_area) - use NMDS df for this
-
-#site areas             
-area_lit <- areapl(cbind(sites$df_hull$x[sites$df_hull$Group=="lit"],
-                             sites$df_hull$y[sites$df_hull$Group=="lit"]))
-
-area_pel <- areapl(cbind(sites$df_hull$x[sites$df_hull$Group=="pel"],
-                             sites$df_hull$y[sites$df_hull$Group=="pel"]))
-
-avg_area_site <- mean(c(area_lit, area_pel))
-avg_sd_site <- sd(c(area_lit, area_pel))
-            
-#day areas
-area_day1 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==1],
-                               days$df_hull$y[days$df_hull$Group==1]))
-
-area_day2 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==2],
-                               days$df_hull$y[days$df_hull$Group==2]))
-
-area_day3 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==3],
-                               days$df_hull$y[days$df_hull$Group==3]))
-
-area_day4 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==4],
-                               days$df_hull$y[days$df_hull$Group==4]))
-
-area_day5 <- areapl(cbind(days$df_hull$x[days$df_hull$Group==5],
-                               days$df_hull$y[days$df_hull$Group==5]))
-
-avg_area_day <- mean(c(area_day1, area_day2, area_day3, area_day4, area_day5))
-avg_sd_day <- sd(c(area_day1, area_day2, area_day3, area_day4, area_day5))
-
-#hour areas
-area_hour1 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==1],
-                           hours$df_hull$y[hours$df_hull$Group==1]))
-
-area_hour2 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==2],
-                           hours$df_hull$y[hours$df_hull$Group==2]))
-
-area_hour3 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==3],
-                           hours$df_hull$y[hours$df_hull$Group==3]))
-
-area_hour4 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==4],
-                           hours$df_hull$y[hours$df_hull$Group==4]))
-
-area_hour5 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==5],
-                           hours$df_hull$y[hours$df_hull$Group==5]))
-
-area_hour6 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==6],
-                           hours$df_hull$y[hours$df_hull$Group==6]))
-
-area_hour7 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==7],
-                           hours$df_hull$y[hours$df_hull$Group==7]))
-
-area_hour8 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==8],
-                           hours$df_hull$y[hours$df_hull$Group==8]))
-
-area_hour9 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==9],
-                           hours$df_hull$y[hours$df_hull$Group==9]))
-
-area_hour10 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==10],
-                            hours$df_hull$y[hours$df_hull$Group==10]))
-
-area_hour11 <- areapl(cbind(hours$df_hull$x[hours$df_hull$Group==11],
-                            hours$df_hull$y[hours$df_hull$Group==11]))
-
-avg_area_hour <- mean(c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
-                        area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
-avg_sd_hour <- sd(c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
-                    area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
 
 #-------------------------------------------------------------------------------#
-#METHOD 4: max area - min area of polygons (area_diff) 
-#note - don't think I can calculate sd of difference because idk what the sample mean is
-
-area_diff_site <- area_lit - area_pel
-
-area_diff_day <- area_day2 - area_day4
-
-area_diff_hour <- area_hour7 - area_hour11
-
-#-------------------------------------------------------------------------------#
-#Kruskal-wallis test to determine if group means are significant (can only do with dispersion and area)
+#Kruskal-wallis test to determine if group means are significant (update with bootstrap values + add pairwise)
 disp_site_df <- data.frame("Group" = c("site","site"),
-                           "dispersion" = c(centroids_sites$group.distances),
-                           "avg_area" = c(area_lit, area_pel)) 
+                           "dispersion" = c(centroids_sites$group.distances)) 
 
 disp_hours_df <- data.frame("Group"=c(rep("hour",11)), 
-                            "dispersion" = c(centroids_hours$group.distances),
-                            "avg_area" = c(area_hour1, area_hour2, area_hour3, area_hour4, area_hour5, area_hour6,
-                                           area_hour7, area_hour8, area_hour9, area_hour10, area_hour11))
+                            "dispersion" = c(centroids_hours$group.distances))
 
 disp_days_df <- data.frame("Group"=c(rep("day",5)), 
-                           "dispersion" = c(centroids_days$group.distances),
-                            "avg_area" = c(area_day1, area_day2, area_day3,
-                                           area_day4, area_day5))
+                           "dispersion" = c(centroids_days$group.distances))
 
 disp_df <- rbind(disp_site_df, disp_days_df, disp_hours_df)
 #write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"),row.names = FALSE)
 
 #KW test to see if groups are significant
 kruskal.test(dispersion ~ Group, data = disp_df) #not significant
-kruskal.test(avg_area ~ Group, data = disp_df) #significant sometimes??
 
 #now dunn test to determine which areas are different from each other
 dunnTest(avg_area ~ as.factor(Group),
@@ -558,10 +390,10 @@ dunnTest(avg_area ~ as.factor(Group),
          method="bonferroni")
 #site avg areas are sig larger from day avg area
 
-ggboxplot(disp_df, x = "Group", y = "avg_area", 
+ggboxplot(disp_df, x = "Group", y = "disp", 
           color = "Group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
           order = c("site", "hour", "day"),
-          ylab = "Average Area", xlab = "Group")
+          ylab = "Dispersion", xlab = "Group")
 
 
 #calculate the range of all areas and dispersion values
@@ -635,3 +467,206 @@ points(euc_distances_df$littoral[5],euc_distances_df$pelagic[5], bg="#C7522B",pc
 legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
 #dev.off()
 
+#------------------------------------------------------------------------------#
+#pull in driver data --> can't use ysi or fp because only have 2 or 3 casts out of 5
+
+chem <- read.csv('~/Documents/VirginiaTech/research/Reservoirs/Data/DataAlreadyUploadedToEDI/EDIProductionFiles/MakeEMLChemistry/2022/chemistry_2013_2022.csv') %>% 
+  mutate(DateTime = as.Date(DateTime)) %>%
+  filter(Reservoir =="BVR" & Site==50 & 
+           DateTime %in% c(as.Date("2019-07-10"), as.Date("2019-07-11"), as.Date("2019-07-24"),
+                           as.Date("2019-07-25"), as.Date("2020-08-12"), as.Date("2020-08-13"),
+                           as.Date("2021-06-15"), as.Date("2021-06-16"), as.Date("2021-07-07"), 
+                           as.Date("2021-07-08"))) #can only do TN/TP for all 5 MSNs
+
+#add msn #
+chem$msn <- ifelse(chem$DateTime=="2019-07-10" | chem$DateTime=="2019-07-11","1",
+                        ifelse(chem$DateTime=="2019-07-24" | chem$DateTime=="2019-07-25","2",
+                               ifelse(chem$DateTime=="2020-08-12" | chem$DateTime=="2020-08-13","3",
+                                      ifelse(chem$DateTime=="2021-06-15" | chem$DateTime=="2021-06-16","4","5"))))
+
+#average across msn and depth
+chem_avg <- chem %>% group_by(Reservoir, Depth_m, msn) %>% summarise(across(everything(), list(mean)))
+
+
+secchi <- read.csv('~/Documents/VirginiaTech/research/Reservoirs/Data/DataAlreadyUploadedToEDI/EDIProductionFiles/MakeEMLYSI_PAR_secchi/2022/Data/Secchi_depth_2013-2022.csv') %>% 
+  mutate(DateTime = as.Date(DateTime)) %>%
+  filter(Reservoir =="BVR" & Site==50 & 
+           DateTime %in% c(as.Date("2019-07-10"), as.Date("2019-07-11"), as.Date("2019-07-24"),
+                           as.Date("2019-07-25"), as.Date("2020-08-12"), as.Date("2020-08-13"),
+                           as.Date("2021-06-15"), as.Date("2021-06-16"), as.Date("2021-07-07"), 
+                           as.Date("2021-07-08"))) #can only do TN/TP for all 5 MSNs
+
+#add secchi for 5th MSN - 1.8m
+secchi[5,] <- c("BVR",50,"2021-07-08",1.8,0,0)
+
+ctd<- read.csv('~/Documents/VirginiaTech/research/BVR_GLM/bvr_glm/field_data/CTD_final_2013_2022.csv') %>% 
+  mutate(DateTime = as.Date(DateTime)) %>%
+  filter(Reservoir =="BVR" & 
+           DateTime %in% c(as.Date("2019-07-10"), as.Date("2019-07-11"), as.Date("2019-07-24"),
+                           as.Date("2019-07-25"), as.Date("2020-08-12"), as.Date("2020-08-13"),
+                           as.Date("2021-06-15"), as.Date("2021-06-16"), as.Date("2021-07-07"), 
+                           as.Date("2021-07-08"), as.Date("2021-07-12"))) #ctd cast from 4 days after MSN 5
+
+#select every 0.5m from casts
+ctd_final <- ctd %>%
+  dplyr::mutate(rdepth = plyr::round_any(Depth_m, 0.5)) %>% 
+  dplyr::group_by(DateTime, rdepth, Reservoir, Site) %>%
+  dplyr::summarise(value = mean(Temp_C)) %>% 
+  dplyr::rename(depth = rdepth) 
+
+
+#calculate thermocline depth by date
+ctd_thermo_depth <- ctd_final %>% group_by(DateTime) %>% filter(depth > 0) %>% 
+  mutate(therm_depth = thermo.depth(value,depth))
+
+#add msn # 
+ctd_thermo_depth$msn <- ifelse(ctd_thermo_depth$DateTime=="2019-07-10" | ctd_thermo_depth$DateTime=="2019-07-11","1",
+                        ifelse(ctd_thermo_depth$DateTime=="2019-07-24" | ctd_thermo_depth$DateTime=="2019-07-25","2",
+                               ifelse(ctd_thermo_depth$DateTime=="2020-08-12" | ctd_thermo_depth$DateTime=="2020-08-13","3",
+                                      ifelse(ctd_thermo_depth$DateTime=="2021-06-15" | ctd_thermo_depth$DateTime=="2021-06-16","4","5"))))
+
+
+
+depths = c(0.1, seq(1, 10, by = 1))
+ctd.final<-data.frame() 
+
+for (i in 1:length(depths)){
+  ctd_layer <- ctd %>% group_by(DateTime) %>% slice(which.min(abs(as.numeric(Depth_m) - depths[i])))
+  # Bind each of the data layers together.
+  ctd.final = bind_rows(ctd.final, ctd_layer)
+}
+
+#round to one decimal place
+ctd.final$Depth_m <- round(ctd.final$Depth_m,1)
+
+#add msn # 
+ctd.final$msn <- ifelse(ctd.final$DateTime=="2019-07-10" | ctd.final$DateTime=="2019-07-11","1",
+                        ifelse(ctd.final$DateTime=="2019-07-24" | ctd.final$DateTime=="2019-07-25","2",
+                               ifelse(ctd.final$DateTime=="2020-08-12" | ctd.final$DateTime=="2020-08-13","3",
+                                      ifelse(ctd.final$DateTime=="2021-06-15" | ctd.final$DateTime=="2021-06-16","4","5"))))
+
+#average across msn and depth
+ctd.final_avg <- ctd.final %>% group_by(Reservoir, Depth_m, msn) %>% summarise(across(everything(), list(mean)))
+
+#make an environmental driver df
+msn_drivers <- data.frame("groups" = as.character(1:5), #epi is 0.1m, hypo is 10m - avg for both noons of msn when available
+                          "epi_temp" = c(ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                         ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                         ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                         ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                         ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]), 
+                          "hypo_temp" = c(ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                                          ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                                          ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                                          ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                                          ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          "epi_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]), 
+                          "hypo_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          "epi_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
+                          "hypo_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          "epi_spcond" = c(ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                           ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                           ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                           ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                           ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
+                          "hypo_spcond" = c(ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          "epi_chl" = c(ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                        ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                        ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                        ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                        ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
+                          "hypo_chl" = c(ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                                         ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                                         ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                                         ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                                         ctd.final_avg$Chla_ugL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          "epi_par" = c(ctd.final_avg$PAR_umolm2s_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                                        ctd.final_avg$PAR_umolm2s_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                                        ctd.final_avg$PAR_umolm2s_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                                        ctd.final_avg$PAR_umolm2s_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                                        ctd.final_avg$PAR_umolm2s_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
+                          "epi_tn" = c(chem_avg$TN_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==1],
+                                       chem_avg$TN_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==2],
+                                       chem_avg$TN_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==3],
+                                       chem_avg$TN_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==4],
+                                       chem_avg$TN_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==5]), 
+                          "epi_tp" = c(chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==1],
+                                       chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==2],
+                                       chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==3],
+                                       chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==4],
+                                       chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==5]), 
+                          "secchi" = secchi$Secchi_m,
+                          "thermo_depth" = c(mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==1]),
+                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==2]),
+                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==3]),
+                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==4]),
+                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==5])))
+
+#join driver and env dfs
+zoops_plus_drivers <- left_join(zoop_avg, msn_drivers)
+
+#fit environmental drivers onto ordination
+fit_env <- envfit(ord$sites, zoops_plus_drivers[,c(15:29)])
+
+#pull out vectors
+scores <- as.data.frame(scores(fit_env, display = "vectors"))
+scores <- cbind(scores, env = rownames(scores))
+
+#plot drivers w/ NMDS
+NMDS_day_env <- days$plot + geom_point() + theme_bw() + geom_path() +
+  geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
+  geom_point(data=days$df_mean.ord, aes(x, y), 
+             color="black", pch=21, size=2, 
+             fill=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B")) +
+  theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), 
+        legend.key.height=unit(0.3,"line"), 
+        legend.key = element_blank(),
+        legend.box.margin=margin(-10,-10,-10,-10),
+        legend.margin=margin(-0,-0,-0,-0),
+        legend.direction = "horizontal",
+        axis.text.x = element_text(vjust = 0.5), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = "right", legend.spacing = unit(-0.5, 'cm'),
+        plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.1,"line")) + 
+  guides(fill="none", color = guide_legend(ncol=1)) +
+  scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
+                     label=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020',
+                             '15-16 Jun 2021', '7-8 Jul 2021')) +
+  geom_segment(data = scores,
+              aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2), linewidth= 0.3,
+              arrow = arrow(length = unit(0.1, "cm")), colour = "black") +
+  geom_text(data = scores, aes(x = NMDS1, y = NMDS2, label = env),
+            size = 2)
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_2v1_envfit.jpg"),
+              NMDS_day_env, width=3.5, height=4) 
+
+#------------------------------------------------------------------------------#
+#plot env variable vs NMDS2 centroids
+
+plot(msn_drivers$epi_DO ~ days$df_mean.ord$y, pch=19, cex=2,
+     col=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), 
+     xlab="NMDS2", ylab="Epilimnetic DO (mgL)")

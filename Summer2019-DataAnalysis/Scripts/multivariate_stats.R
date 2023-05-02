@@ -10,7 +10,7 @@ substrEnd <- function(x, n){
 }
 
 #read in 2019 data
-zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2019.csv',header = TRUE)
+zoop<- read.csv(file.path(getwd(),'Summer2019-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2019.csv'),header = TRUE)
 
 #ignore 20 um and horizontal trap samples
 zoop <- zoop %>% filter(mesh_size_μm >20, na.rm=TRUE)

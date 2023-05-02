@@ -219,9 +219,7 @@ text_df <- data.frame(y=c(0.4, -0.4), x = c(6,6), n = c("Normal Migration", "Rev
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
-              aes(x=as.factor(MSN), y=value, color=metric, shape=migration)) + 
-  geom_rect(aes(xmin=2.5, xmax=3.5, ymin=-Inf, ymax=Inf), fill="#DEDEDE", color=NA, alpha=0.1) +
-  geom_rect(aes(xmin=3.5, xmax=Inf, ymin=-Inf, ymax=Inf), fill="#B5B5B5", color=NA, alpha=0.1) +
+              aes(x=as.factor(MSN), y=value, color=as.factor(MSN), shape=migration)) + 
   geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
   scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) + xlab("") +
   scale_x_discrete(breaks=c("1","2","3","4","5"),
@@ -237,7 +235,7 @@ ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) &
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.7,"line")) + guides(color="none") +
-  scale_color_manual("",values=c("#088f84","#ccae8f","#a61737"))+
+  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric") +
   geom_text(aes(x=5.9, y=c(rep(0,28),0.4,-0.4), label=c(rep(NA,28),"Normal \nMigration", "Reverse \nMigration")), 
             hjust = 0, size = 3, color="black") + coord_cartesian(xlim = c(1, 5), clip = 'off')
