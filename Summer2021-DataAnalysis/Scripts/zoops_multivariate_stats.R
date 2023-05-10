@@ -131,12 +131,6 @@ dimcheckMDS(zoop_euc, distance = "bray", k = 6, trymax = 20, autotransform = TRU
 NMDS_temporal_avg_bray <- metaMDS(zoop_euc, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_avg_bray$stress
 
-NMDS_pel_bray <- metaMDS(zoop_pel_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-NMDS_pel_bray$stress
-
-NMDS_lit_bray <- metaMDS(zoop_lit_dens_trans, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
-NMDS_lit_bray$stress
-
 #-------------------------------------------------------------------------------#
 #                                 NMDS ms figs                                  #
 #-------------------------------------------------------------------------------#
@@ -163,7 +157,7 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
         plot.margin = unit(c(0,-0.1,0,0), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.42, y=0.6, label= "a", size = 3) +
+        annotate("text", x=-0.42, y=0.6, label= "bolditalic(a)", parse=T, size = 3) +
         scale_fill_manual("",values=c("#882255","#3399CC"))+
         scale_color_manual("",values=c("#882255","#3399CC"),
                      label=c('littoral','pelagic')) 
@@ -192,7 +186,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + 
-        annotate("text", x=-0.42, y=0.6, label= "b", size = 3) +
+        annotate("text", x=-0.42, y=0.6, label= "bolditalic(b)", parse=T, size = 3) +
         guides(fill="none", color = guide_legend(ncol=2)) +
         scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
         scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
@@ -209,7 +203,6 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
   geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
   geom_point(data=hours$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, fill=hcl.colors(11,"sunset")) +
-  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
@@ -225,7 +218,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,0,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.42, y=0.6, label= "c", size=3) +
+        annotate("text", x=-0.42, y=0.6, label= "bolditalic(c)", parse=T, size=3) +
         scale_fill_manual("",values=hcl.colors(11,"sunset"))+
         scale_color_manual("",values=hcl.colors(11,"sunset"),
                      label=c('12pm','6pm','7pm','8pm','9pm','12am',
@@ -240,14 +233,15 @@ ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jp
 
 #-------------------------------------------------------------------------------#
 #track hours for each campaign
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
 ordihull(ord, zoop_avg$groups, display = "sites", draw = c("polygon"),
          col = c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), alpha = 75,cex = 2)
-lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="2"  & zoop_avg$site=="lit" ,1], 
-      NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),2], col="#C4D5B2")
+lines(NMDS_temporal_avg_bray$points[zoop_avg$groups=="3"  & zoop_avg$site=="lit" ,1], 
+      NMDS_temporal_avg_bray$points[(zoop_avg$groups=="3" & zoop_avg$site=="lit"),2], col="#EFECBF")
 
-points(NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),1], 
-       NMDS_temporal_avg_bray$points[(zoop_avg$groups=="2" & zoop_avg$site=="lit"),2], 
-       pch=as.character(zoop_avg$order),col="#C4D5B2")
+points(NMDS_temporal_avg_bray$points[(zoop_avg$groups=="3" & zoop_avg$site=="lit"),1], 
+       NMDS_temporal_avg_bray$points[(zoop_avg$groups=="3" & zoop_avg$site=="lit"),2], 
+       pch=as.character(zoop_avg$order),col="#EFECBF")
 
 #legend("bottomright", legend=c('10-11 Jul 2019', '24-25 Jul 2019','12-13 Aug 2020','15-16 Jun 2021', '7-8 Jul 2021'), pch=21, 
 #       pt.bg=c("#008585","#89B199","#EFECBF","#DB9B5A", "#C7522B"),bty = "n",cex=1.2) 
@@ -274,49 +268,9 @@ centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups),
 
 #-------------------------------------------------------------------------------#
 #METHOD 1:average distance of each point to polygon centroid (dispersion approach)
-
-#site variability - MOST VARIABLE!
-disp_site <- mean(centroids_sites$group.distances)
-disp_site_sd <- sd(centroids_sites$group.distances)
-
-#hourly variability
-disp_hour <- mean(centroids_hours$group.distances)
-disp_hour_sd <- sd(centroids_hours$group.distances)
-
-#daily variability - LEAST VARIABLE!
-disp_day <- mean(centroids_days$group.distances)
-disp_day_sd <- sd(centroids_days$group.distances)
-
-#-------------------------------------------------------------------------------#
 #METHOD 2: average distance between all combinations of centroids (pairwise approach)
-#Note - think about bootstrapping for this because sites only have one distance value
 
-#site variability - MOST VARIABLE
-pair_site <- mean(dist(centroids_sites$centroids))
-pair_site_sd <- sd(dist(centroids_sites$centroids)) #NA
-
-#hourly variability
-pair_hour <- mean(dist(centroids_hours$centroids))
-pair_hour_sd <- sd(dist(centroids_hours$centroids))
-
-#annual variability - LEAST VARIABLE!
-pair_day <- mean(dist(centroids_days$group.distances))
-pair_day_sd <- sd(dist(centroids_days$group.distances))
-
-#-------------------------------------------------------------------------------#
-#put distance values into a dataset
-euc_distances_df <- data.frame("Method" = c("Dispersion","Pairwise"),
-                               "Site" = c(paste0(round(disp_site,2)," ± ",round(disp_site_sd,2)),
-                                          paste0(round(pair_site,2))),
-                               "Day" = c(paste0(round(disp_day,2)," ± ",round(disp_day_sd,2)),
-                                         paste0(round(pair_day,2)," ± ",round(pair_day_sd,2))),
-                               "Hour" = c(paste0(round(disp_hour,2)," ± ",round(disp_hour_sd,2)),
-                                          paste0(round(pair_hour,2)," ± ",round(pair_hour_sd,2))))
-
-#write.csv(euc_distances_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances.csv"),row.names = FALSE)
-
-#-------------------------------------------------------------------------------#
-#Now repeating methods above, but "bootstrapping" so I randomly select 10 points in each group
+#"bootstrapping" or randomly select 10 points per group and 2 groups and then calculating values using methods above
 
 #create a df to store all the different variability values
 var_results <- data.frame("site_disp"=rep(NA,500))
@@ -355,56 +309,62 @@ for (i in 1:500){
   
   }
   
-
-#make a df to summarze the bootstrap data
-dist_boot <- data.frame("Method" = c("Dispersion","Pairwise"),
-                        "Site" = c(paste0(round(mean(var_results$site_disp),2), "±", round(sd(var_results$site_disp),2)),
-                                   paste0(round(mean(var_results$site_pair),2), "±", round(sd(var_results$site_pair),2))),
-                        "Day" = c(paste0(round(mean(var_results$day_disp),2), "±", round(sd(var_results$day_disp),2)),
-                                  paste0(round(mean(var_results$day_pair),2), "±", round(sd(var_results$day_pair),2))),
-                        "Hour" = c(paste0(round(mean(var_results$hour_disp),2), "±", round(sd(var_results$hour_disp),2)),
-                                   paste0(round(mean(var_results$hour_pair),2), "±", round(sd(var_results$hour_pair),2))))
-#write.csv(dist_boot, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances_bootstrapped.csv"),row.names = FALSE)
-
-
 #-------------------------------------------------------------------------------#
-#Kruskal-wallis test to determine if group means are significant (update with bootstrap values + add pairwise)
-disp_site_df <- data.frame("Group" = c("site","site"),
-                           "dispersion" = c(centroids_sites$group.distances)) 
+#Kruskal-wallis test to determine if group means are significant
 
-disp_hours_df <- data.frame("Group"=c(rep("hour",11)), 
-                            "dispersion" = c(centroids_hours$group.distances))
+#first convert wide to long
+disp_df <- var_results[,grepl("disp",colnames(var_results))] %>%  pivot_longer(everything(), names_to="group")
+pair_df <- var_results[,grepl("pair",colnames(var_results))] %>%  pivot_longer(everything(), names_to="group")
 
-disp_days_df <- data.frame("Group"=c(rep("day",5)), 
-                           "dispersion" = c(centroids_days$group.distances))
+#now kw test
+kw_disp <- kruskal.test(value ~ group, data = disp_df) #significant
+kw_pair <- kruskal.test(value ~ group, data = pair_df) #significant
 
-disp_df <- rbind(disp_site_df, disp_days_df, disp_hours_df)
-#write.csv(disp_df, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/polygon_area_dispersion.csv"),row.names = FALSE)
-
-#KW test to see if groups are significant
-kruskal.test(dispersion ~ Group, data = disp_df) #not significant
-
-#now dunn test to determine which areas are different from each other
-dunnTest(avg_area ~ as.factor(Group),
+#now dunn test to determine which groups are different from each other
+dunnTest(value ~ as.factor(group),
          data=disp_df,
          method="bonferroni")
-#site avg areas are sig larger from day avg area
 
-ggboxplot(disp_df, x = "Group", y = "disp", 
-          color = "Group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
-          order = c("site", "hour", "day"),
+dunnTest(value ~ as.factor(group),
+         data=pair_df,
+         method="bonferroni")
+
+#sites, days, and hours are all different from each other!
+
+ggboxplot(disp_df, x = "group", y = "value", 
+          color = "group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+          order = c("site_disp", "day_disp", "hour_disp"),
           ylab = "Dispersion", xlab = "Group")
 
+ggboxplot(pair_df, x = "group", y = "value", 
+          color = "group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+          order = c("site_pair", "day_pair", "hour_pair"),
+          ylab = "Pairwise", xlab = "Group")
 
-#calculate the range of all areas and dispersion values
-range(disp_df$avg_area[1:2])[2] - range(disp_df$avg_area[1:2])[1] #largest
-range(disp_df$avg_area[3:7])[2] - range(disp_df$avg_area[3:7])[1] 
-range(disp_df$avg_area[8:18])[2] - range(disp_df$avg_area[8:18])[1] #smallest
 
-range(disp_df$dispersion[1:2])[2] - range(disp_df$dispersion[1:2])[1]
-range(disp_df$dispersion[3:7])[2] - range(disp_df$dispersion[3:7])[1] #smallest
-range(disp_df$dispersion[8:18])[2] - range(disp_df$dispersion[8:18])[1]  #largest
+#calculate the range of all dispersion and pairwise values
+range(disp_df$value[disp_df$group=="site_disp"])[2] - range(disp_df$value[disp_df$group=="site_disp"])[1]
+range(disp_df$value[disp_df$group=="day_disp"])[2] - range(disp_df$value[disp_df$group=="day_disp"])[1]
+range(disp_df$value[disp_df$group=="hour_disp"])[2] - range(disp_df$value[disp_df$group=="hour_disp"])[1]
 
+range(pair_df$value[pair_df$group=="site_pair"])[2] - range(pair_df$value[pair_df$group=="site_pair"])[1]
+range(pair_df$value[pair_df$group=="day_pair"])[2] - range(pair_df$value[pair_df$group=="day_pair"])[1]
+range(pair_df$value[pair_df$group=="hour_pair"])[2] - range(pair_df$value[pair_df$group=="hour_pair"])[1]
+
+#create table for kw test results
+kw_results <- data.frame("Variability" = c(" ", "Dispersion", " ", " ", "Pairwise", " "),
+                         "Scale" = rep(c("Sites", "Sampling campaigns", "Hours of the day"),2),
+                         "n" = c(rep(500,6)),
+                         "mean" = c(round(mean(var_results$site_disp),2), round(mean(var_results$day_disp),2),
+                                    round(mean(var_results$hour_disp),2), round(mean(var_results$site_pair),2),
+                                    round(mean(var_results$day_pair),2), round(mean(var_results$hour_pair),2)),
+                         "sd" = c(round(sd(var_results$site_disp),2), round(sd(var_results$day_disp),2),
+                                  round(sd(var_results$hour_disp),2), round(sd(var_results$site_pair),2),
+                                  round(sd(var_results$day_pair),2), round(sd(var_results$hour_pair),2)),
+                         "df" = c(" ",kw_disp$parameter, " ", " ", kw_pair$parameter, " "),
+                         "χ2" = c(" ",round(kw_disp$statistic,3), " ", " ", round(kw_pair$statistic,3), " "),
+                         "p-value" = c(" ",kw_disp$p.value, " ", " ", kw_pair$p.value, " "))
+#write.csv(kw_results, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/Euclidean_distances_bootstrapped_kw_results.csv"),row.names = FALSE)
 
 #-------------------------------------------------------------------------------#
 #dfs to calculate significance within sites, days, and hours
@@ -438,9 +398,9 @@ within_hour_dist <- data.frame("group" = c(rep("hour1",10),rep("hour2",10),rep("
 
 
 #now kw tests for significance 
-kruskal.test(dist ~ group, data = within_site_dist) #sig! - so pelagic and littoral are different
-kruskal.test(dist ~ group, data = within_day_dist) #sig
-kruskal.test(dist ~ group, data = within_hour_dist) #nope
+kw_sites <- kruskal.test(dist ~ group, data = within_site_dist) #sig! - so pelagic and littoral are different
+kw_days <- kruskal.test(dist ~ group, data = within_day_dist) #sig
+kw_hours <- kruskal.test(dist ~ group, data = within_hour_dist) #nope
 
 #dunn post-hoc test
 dunn_within_days <- dunnTest(dist ~ as.factor(group),
@@ -453,6 +413,57 @@ ggboxplot(within_day_dist, x = "group", y = "dist",
           color = "group", palette = c("#008585", "#9BBAA0", "#F2E2B0","#DEA868","#C7522B"),
           order = c("day1", "day2", "day3","day4","day5"),
           ylab = "average dispersion", xlab = "Sampling Camapigns")
+#day 3 has greatest dispersion!
+
+#create table for within scale kw test results
+kw_results_disp <- data.frame("Group" = c("Littoral", "Pelagic", "10-11 Jul 2019", "24-25 Jul 2019", 
+                                     "12-13 Aug 2020", "15-16 Jun 2021", "7-8 Jul 2021", "12pm",
+                                     "6pm", "7pm", "8pm", "9pm", "12am", "4am", "5am", "6am", "7am", "12pm"),
+                         "n" = c(55, 55, 22, 22, 22, 22, 22, rep(10,11)),
+                         "mean" = c(round(mean(within_site_dist$dist[within_site_dist$group=="lit"]),2), 
+                                    round(mean(within_site_dist$dist[within_site_dist$group=="pel"]),2),
+                                    round(mean(within_day_dist$dist[within_day_dist$group=="day1"]),2),
+                                    round(mean(within_day_dist$dist[within_day_dist$group=="day2"]),2),
+                                    round(mean(within_day_dist$dist[within_day_dist$group=="day3"]),2),
+                                    round(mean(within_day_dist$dist[within_day_dist$group=="day4"]),2),
+                                    round(mean(within_day_dist$dist[within_day_dist$group=="day5"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour1"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour2"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour3"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour4"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour5"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour6"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour7"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour8"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour9"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour10"]),2),
+                                    round(mean(within_hour_dist$dist[within_hour_dist$group=="hour11"]),2)),
+                         "sd" = c(round(sd(within_site_dist$dist[within_site_dist$group=="lit"]),2), 
+                                  round(sd(within_site_dist$dist[within_site_dist$group=="pel"]),2),
+                                  round(sd(within_day_dist$dist[within_day_dist$group=="day1"]),2),
+                                  round(sd(within_day_dist$dist[within_day_dist$group=="day2"]),2),
+                                  round(sd(within_day_dist$dist[within_day_dist$group=="day3"]),2),
+                                  round(sd(within_day_dist$dist[within_day_dist$group=="day4"]),2),
+                                  round(sd(within_day_dist$dist[within_day_dist$group=="day5"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour1"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour2"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour3"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour4"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour5"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour6"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour7"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour8"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour9"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour10"]),2),
+                                  round(sd(within_hour_dist$dist[within_hour_dist$group=="hour11"]),2)),
+                         "df" = c(kw_sites$parameter, " ", rep(" ",2), kw_days$parameter, rep(" ",2),
+                                  rep(" ", 5), kw_hours$parameter, rep(" ", 5)),
+                         "χ2" = c(round(kw_sites$statistic,3), " ", rep(" ",2), round(kw_days$statistic,3), rep(" ",2),
+                                  rep(" ", 5), round(kw_hours$statistic,3), rep(" ", 5)),
+                         "p-value" = c(kw_sites$p.value, " ", rep(" ",2), kw_days$p.value, rep(" ",2),
+                                       rep(" ", 5), kw_hours$p.value, rep(" ", 5)))
+#write.csv(kw_results_disp, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/within_group_dispersion_kw_results.csv"),row.names = FALSE)
+
 
 #-------------------------------------------------------------------------------#
 #plot littoral vs pelagic euclidean distances
