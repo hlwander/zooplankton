@@ -103,19 +103,25 @@ Density.neteff_epi$Actual_dens <- NA
   Density.neteff$Actual_dens[10] <- Schindler_totalCount_final$TotalCount_n[3] / (30*11) #only one midnight schindler taken so using for both reps     
   Density.neteff$Actual_dens[11] <-  Schindler_totalCount_final$TotalCount_n[1] / (30*11)#using noon schindlers from previous day because not collected this day
   Density.neteff$Actual_dens[12] <-  Schindler_totalCount_final$TotalCount_n[2] / (30*11)#using noon schindlers from previous day because not collected this day
-  Density.neteff$Actual_dens[13] <-  Schindler_totalCount_final$TotalCount_n[9] / (30*10)
-  Density.neteff$Actual_dens[14] <-  Schindler_totalCount_final$TotalCount_n[10] / (30*10)
-  Density.neteff$Actual_dens[15] <-  Schindler_totalCount_final$TotalCount_n[7] / (30*10)
-  Density.neteff$Actual_dens[16] <-  Schindler_totalCount_final$TotalCount_n[8] / (30*10)
+  
+  Density.neteff$Actual_dens[13] <-  Schindler_totalCount_final$TotalCount_n[11] / (30*10)
+  Density.neteff$Actual_dens[14] <-  Schindler_totalCount_final$TotalCount_n[12] / (30*10)
+  Density.neteff$Actual_dens[15] <-  Schindler_totalCount_final$TotalCount_n[13] / (30*10)
+  Density.neteff$Actual_dens[16] <-  Schindler_totalCount_final$TotalCount_n[14] / (30*10)
+  
+  Density.neteff$Actual_dens[17] <-  Schindler_totalCount_final$TotalCount_n[9] / (30*10)
+  Density.neteff$Actual_dens[18] <-  Schindler_totalCount_final$TotalCount_n[10] / (30*10)
+  Density.neteff$Actual_dens[19] <-  Schindler_totalCount_final$TotalCount_n[7] / (30*10)
+  Density.neteff$Actual_dens[20] <-  Schindler_totalCount_final$TotalCount_n[8] / (30*10)
   
   #NOTE - need to check this every time because I'm annoying and didn't make this robust/able to deal with changes to data or rows switching positions
   
-  for(i in 1:length(Schindler_totalCount_epi_final$DepthOfTow_m[1:11])){
+  for(i in 1:length(Schindler_totalCount_epi_final$DepthOfTow_m[1:10])){
   Density.neteff_epi$Actual_dens[i] <-  Schindler_totalCount_epi_final$Zooplankton_No.[i]/ (30*11)
   }
   
   #manually calculate actual density for the 4 fcr samples becuase there are 10 (not 11) schindlers collected
-  for(i in 12:length(Schindler_totalCount_epi_final$DepthOfTow_m)){
+  for(i in 11:length(Schindler_totalCount_epi_final$DepthOfTow_m)){
   Density.neteff_epi$Actual_dens[i] <-  Schindler_totalCount_epi_final$Zooplankton_No.[i]/ (30*10)
   }
   
@@ -132,9 +138,9 @@ for(i in 1:length(Density.neteff$sample_ID)){
   Density.neteff_epi$Depth_m <- Schindler_totalCount_epi_final$DepthOfTow_m
   
 #Going to take the average net efficiency across both reps because values are super close to each other
-NetEfficiency2021 <- c(mean(Density.neteff$NetEff[1:12]),mean(Density.neteff$NetEff[c(13:16)])) #BVR, FCR
+NetEfficiency2021 <- c(mean(Density.neteff$NetEff[1:12]),mean(Density.neteff$NetEff[c(13:20)])) #BVR, FCR
 
-epi_neteff_2021 <- mean(Density.neteff_epi$NetEff[12:15])
+epi_neteff_2021 <- mean(Density.neteff_epi$NetEff[15:18]) #just for FCR
 
 #---------------------------#
 #visualize density by depth #

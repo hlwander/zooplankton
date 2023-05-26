@@ -137,7 +137,7 @@ keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","In
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
 #Net efficiencies calculated in the NetEfficiencyCalcs script
-NetEfficiency2021 <- c(0.03844206, 0.06146684)
+NetEfficiency2021 <- c(0.03844206, 0.05513654)
 
 #Calculate the zooplankton density 2 different ways (tows vs. schindler/horiz traps)
 #multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2020 (n=2)) 
