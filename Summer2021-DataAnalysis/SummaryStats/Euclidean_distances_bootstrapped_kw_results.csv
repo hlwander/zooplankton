@@ -1,7 +1,7 @@
-Variability,Scale,n,mean,sd,df,_2,p.value
- ,Sites,500,0.32,0.06, , , 
-Dispersion,Sampling campaigns,500,0.28,0.05,2,254.307,6.00E-56
- ,Hours of the day,500,0.34,0.05, , , 
- ,Sites,500,0.33,0.08, , , 
-Pairwise,Sampling campaigns,500,0.44,0.1,2,678.174,5.45E-148
- ,Hours of the day,500,0.24,0.1, , , 
+"Variability","Scale","n","mean","sd","df","χ2","p.value"
+" ","Sites",500,0.32,0.06," "," "," "
+"Dispersion","Sampling campaigns",500,0.28,0.05,"2","244.599","7.69128527394618e-54"
+" ","Hours of the day",500,0.34,0.05," "," "," "
+" ","Sites",500,0.33,0.08," "," "," "
+"Pairwise","Sampling campaigns",500,0.44,0.1,"2","699.35","1.37433668791296e-152"
+" ","Hours of the day",500,0.23,0.1," "," "," "

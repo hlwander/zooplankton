@@ -3,7 +3,7 @@
 
 #read in libraries
 pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,
-               viridis, egg, ggordiplots, splancs, ggpubr, FSA, rcompanion)
+               viridis, egg, ggordiplots, splancs, ggpubr, FSA, rcompanion, ggrepel)
 
 #function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -127,6 +127,8 @@ zoop_euc <- as.matrix(vegdist(zoop_temporal_dens_avg_trans, method='euclidean'))
 #scree plot to choose dimension #
 dimcheckMDS(zoop_euc, distance = "bray", k = 6, trymax = 20, autotransform = TRUE)
 
+set.seed(3)
+
 #now do NMDS using averages w/ 4 dimensions for consistency
 NMDS_temporal_avg_bray <- metaMDS(zoop_euc, distance='bray', k=4, trymax=20, autotransform=FALSE, pc=FALSE, plot=FALSE)
 NMDS_temporal_avg_bray$stress
@@ -144,6 +146,7 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
   geom_point(data=sites$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, fill=c("#882255","#3399CC")) +
   # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
         legend.key.height=unit(0.3,"line"),
@@ -152,12 +155,14 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
         legend.margin=margin(-0,-0,-0,-0),
         legend.direction = "horizontal",
         axis.text.x = element_text(vjust = 0.5), 
+        axis.ticks.x = element_line(colour = c(rep("black",4), "transparent")), 
         strip.background = element_rect(fill = "transparent"), 
         legend.position = "top", legend.spacing = unit(-0.5, 'cm'),
         plot.margin = unit(c(0,-0.1,0,0), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.42, y=0.6, label= "bolditalic(a)", parse=T, size = 3) +
+        annotate("text", x=-0.27, y=0.4, label= "a: sites", 
+                 fontface = "italic", size = 3) +
         scale_fill_manual("",values=c("#882255","#3399CC"))+
         scale_color_manual("",values=c("#882255","#3399CC"),
                      label=c('littoral','pelagic')) 
@@ -171,6 +176,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
              color="black", pch=21, size=2, 
              fill=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B")) +
   # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
@@ -179,6 +185,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         legend.margin=margin(-0,-0,-0,-0),
         legend.direction = "horizontal",
         axis.text.x = element_text(vjust = 0.5), 
+        axis.ticks.x = element_line(colour = c(rep("black",4), "transparent")), 
         axis.text.y=element_blank(),
         axis.ticks.y = element_blank(),
         strip.background = element_rect(fill = "transparent"), 
@@ -186,7 +193,8 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + 
-        annotate("text", x=-0.42, y=0.6, label= "bolditalic(b)", parse=T, size = 3) +
+        annotate("text", x=-0.05, y=0.4, label= "b: sampling campaigns", 
+                 fontface = "italic", size = 3) +
         guides(fill="none", color = guide_legend(ncol=2)) +
         scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
         scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"),
@@ -203,6 +211,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
   geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
   geom_point(data=hours$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, fill=hcl.colors(11,"sunset")) +
+  scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
@@ -211,6 +220,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         legend.margin=margin(-0,-0,-0,-0),
         legend.direction = "horizontal",
         axis.text.x = element_text(vjust = 0.5), 
+        axis.ticks.x = element_line(colour = c(rep("black",4), "transparent")), 
         axis.text.y=element_blank(),
         axis.ticks.y = element_blank(),
         strip.background = element_rect(fill = "transparent"), 
@@ -218,7 +228,8 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,0,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.42, y=0.6, label= "bolditalic(c)", parse=T, size=3) +
+        annotate("text", x=-0.1, y=0.4, label= "c: hours of the day",
+                 fontface = "italic", size=3) +
         scale_fill_manual("",values=hcl.colors(11,"sunset"))+
         scale_color_manual("",values=hcl.colors(11,"sunset"),
                      label=c('12pm','6pm','7pm','8pm','9pm','12am',
@@ -331,16 +342,36 @@ dunnTest(value ~ as.factor(group),
 
 #sites, days, and hours are all different from each other!
 
-ggboxplot(disp_df, x = "group", y = "value", 
-          color = "group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+disp_box <- ggboxplot(disp_df, x = "group", y = "value", 
+          fill = "group", palette = c("#A4C6B8", "#81858B", "#5E435D"),
           order = c("site_disp", "day_disp", "hour_disp"),
-          ylab = "Dispersion", xlab = "Group")
+          ylab = "Dispersion", xlab = "") +
+  theme(text = element_text(size=7),
+        axis.text.x = element_blank(), 
+        axis.ticks.x = element_blank(),
+        plot.margin = unit(c(0.2,0,-0.5,0), 'lines')) +
+  annotate("text",label=c("b","c","a"), x=c(1.1,2.1,3.1),
+           y=c(mean(disp_df$value[disp_df$group=="site_disp"]) + sd(disp_df$value[disp_df$group=="site_disp"]),
+               mean(disp_df$value[disp_df$group=="day_disp"]) + sd(disp_df$value[disp_df$group=="day_disp"]),
+               mean(disp_df$value[disp_df$group=="hour_disp"]) + sd(disp_df$value[disp_df$group=="hour_disp"]))) +
+  guides(fill = FALSE) 
 
-ggboxplot(pair_df, x = "group", y = "value", 
-          color = "group", palette = c("#00AFBB", "#E7B800", "#FC4E07"),
+pair_box <- ggboxplot(pair_df, x = "group", y = "value", 
+          fill = "group", palette = c("#A4C6B8", "#81858B", "#5E435D"),
           order = c("site_pair", "day_pair", "hour_pair"),
-          ylab = "Pairwise", xlab = "Group")
+          ylab = "Pairwise", xlab = "") +
+  scale_x_discrete(labels = c("sites", "sampling \n\ campaigns", "hours of \n\ the day")) +
+  theme(text = element_text(size=7),
+        plot.margin = unit(c(-0.5,0,0,0), 'lines')) +
+  annotate("text",label=c("b","a","c"), x=c(1.1,2.1,3.1),
+           y=c(mean(pair_df$value[pair_df$group=="site_pair"]) + sd(pair_df$value[pair_df$group=="site_pair"]),
+               mean(pair_df$value[pair_df$group=="day_pair"]) + sd(pair_df$value[pair_df$group=="day_pair"]),
+               mean(pair_df$value[pair_df$group=="hour_pair"]) + sd(pair_df$value[pair_df$group=="hour_pair"]))) +
+  guides(fill = FALSE) 
 
+among_scales <- egg::ggarrange(disp_box, pair_box, nrow=2)
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/among_variability_boxplots.jpg"),
+       among_scales, width=4, height=5) 
 
 #calculate the range of all dispersion and pairwise values
 range(disp_df$value[disp_df$group=="site_disp"])[2] - range(disp_df$value[disp_df$group=="site_disp"])[1]
@@ -409,11 +440,57 @@ dunn_within_days <- dunnTest(dist ~ as.factor(group),
 
 cldList(P.adj ~ Comparison, data=dunn_within_days$res, threshold = 0.05)
 
-ggboxplot(within_day_dist, x = "group", y = "dist", 
-          color = "group", palette = c("#008585", "#9BBAA0", "#F2E2B0","#DEA868","#C7522B"),
-          order = c("day1", "day2", "day3","day4","day5"),
-          ylab = "average dispersion", xlab = "Sampling Camapigns")
-#day 3 has greatest dispersion!
+#-------------------------------------------------------------------------------
+#within boxplot for sites, days, and hours
+
+site_box <- ggboxplot(within_site_dist, x = "group", y = "dist", 
+                     fill = "group", palette = c("#882255","#3399CC"),
+                     order = c("lit", "pel"),
+                     ylab = "Dispersion", xlab = "") +
+           ylim(c(0,1)) +
+           scale_x_discrete(labels = c("littoral", "pelagic")) +
+           theme(text = element_text(size=8),
+                 plot.margin = unit(c(0,-0.4,0,0), 'lines'),
+                 axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8)) +
+           annotate("text", x=0.7, y=1, label= "a: sites",
+                    fontface = "italic", size=3) +
+           guides (fill = FALSE)
+
+day_box <- ggboxplot(within_day_dist, x = "group", y = "dist", 
+              fill = "group", palette = c("#008585", "#9BBAA0", "#F2E2B0","#DEA868","#C7522B"),
+              order = c("day1", "day2", "day3","day4","day5"),
+              ylab = "", xlab = "") + ylim(c(0,1)) +
+          scale_x_discrete(labels = c("10-11 Jul 2019", "24-25 Jul 2019", 
+                              "12-13 Aug 2020", "15-16 Jun 2021", "7-8 Jul 2021")) +
+          theme(text = element_text(size=8),
+                plot.margin = unit(c(0,-0.4,0,-0.4), 'lines'),
+                axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8),
+                axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+          annotate("text",label=c("b","b","a","b","b"), x=c(1.2,2.2,3.2,4.2,5.2), size=4,
+              y=c(0.41, 0.39, 0.5, 0.41, 0.42)) +
+          annotate("text", x=2.6, y=1, label= "b: sampling campaigns",
+                    fontface = "italic", size=3) +
+          guides (fill = FALSE)
+
+hour_box <- ggboxplot(within_hour_dist, x = "group", y = "dist", 
+                      fill = "group", palette = hcl.colors(11,"sunset"),
+                      order = c("hour1", "hour2","hour3","hour4","hour5",
+                                "hour6","hour7","hour8","hour9","hour10","hour11"),
+                      ylab = "", xlab = "") + ylim(c(0,1)) +
+           scale_x_discrete(labels = c("12pm", "6pm", "7pm", "8pm", "9pm", "12am", 
+                                       "4am", "5am", "6am", "7am", "12pm")) +
+           theme(text = element_text(size=8),
+                 plot.margin = unit(c(0,0,0,-0.4), 'lines'),
+                 axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8),
+                 axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
+           annotate("text", x=4.2, y=1, label= "c: hours of the day",
+                    fontface = "italic", size=3) +
+           guides (fill = FALSE)
+
+within_scales <- egg::ggarrange(site_box, day_box, hour_box, nrow=1)
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/within_variability_boxplots.jpg"),
+       within_scales, width=5, height=4) 
+
 
 #create table for within scale kw test results
 kw_results_disp <- data.frame("Group" = c("Littoral", "Pelagic", "10-11 Jul 2019", "24-25 Jul 2019", 
@@ -463,20 +540,6 @@ kw_results_disp <- data.frame("Group" = c("Littoral", "Pelagic", "10-11 Jul 2019
                          "p-value" = c(kw_sites$p.value, " ", rep(" ",2), kw_days$p.value, rep(" ",2),
                                        rep(" ", 5), kw_hours$p.value, rep(" ", 5)))
 #write.csv(kw_results_disp, file.path(getwd(),"/Summer2021-DataAnalysis/SummaryStats/within_group_dispersion_kw_results.csv"),row.names = FALSE)
-
-
-#-------------------------------------------------------------------------------#
-#plot littoral vs pelagic euclidean distances
-#jpeg(file.path(getwd(),"Summer2021-DataAnalysis/Figures/2019-2020_pelagic_vs_littoral_euclidean_dist_daily_sums.jpg"), width = 6, height = 5, units = "in",res = 300)
-plot(euc_distances_df$littoral,euc_distances_df$pelagic, xlab="littoral", ylab="pelagic", 
-     main="Daily euclidean distance sums", cex=2.8, pch=21, cex.lab = 1.5)
-points(euc_distances_df$littoral[1],euc_distances_df$pelagic[1], bg="#008585",pch=21,cex=3)
-points(euc_distances_df$littoral[2],euc_distances_df$pelagic[2], bg="#9BBAA0" ,pch=21,cex=3)
-points(euc_distances_df$littoral[3],euc_distances_df$pelagic[3], bg="#F2E2B0",pch=21,cex=3)
-points(euc_distances_df$littoral[4],euc_distances_df$pelagic[4], bg="#DEA868",pch=21,cex=3)
-points(euc_distances_df$littoral[5],euc_distances_df$pelagic[5], bg="#C7522B",pch=21,cex=3)
-legend("bottomleft",legend=c("day1","day2","day3","day4","day5"),pch=21, pt.bg=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"),bty = "n",cex=1.4)
-#dev.off()
 
 #------------------------------------------------------------------------------#
 #pull in driver data --> can't use ysi or fp because only have 2 or 3 casts out of 5
@@ -626,7 +689,7 @@ msn_drivers <- data.frame("groups" = as.character(1:5), #epi is 0.1m, hypo is 10
                                        chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==3],
                                        chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==4],
                                        chem_avg$TP_ugL_1[chem_avg$Depth_m==0.1 & chem_avg$msn==5]), 
-                          "secchi" = secchi$Secchi_m,
+                          "secchi" = as.numeric(secchi$Secchi_m),
                           "thermo_depth" = c(mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==1]),
                                             mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==2]),
                                             mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==3]),
@@ -644,6 +707,10 @@ scores <- as.data.frame(scores(fit_env, display = "vectors"))
 scores <- cbind(scores, env = rownames(scores))
 
 #plot drivers w/ NMDS
+ord <- ordiplot(NMDS_temporal_avg_bray,display = c('sites','species'),choices = c(1,2),type = "n")
+days <- gg_ordiplot(ord, zoop_avg$groups, kind = "ehull", 
+                    ellipse=FALSE, hull = TRUE, plot = FALSE, pt.size=0.9) 
+
 NMDS_day_env <- days$plot + geom_point() + theme_bw() + geom_path() +
   geom_polygon(data = days$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
   geom_point(data=days$df_mean.ord, aes(x, y), 
@@ -659,7 +726,7 @@ NMDS_day_env <- days$plot + geom_point() + theme_bw() + geom_path() +
         axis.text.x = element_text(vjust = 0.5), 
         strip.background = element_rect(fill = "transparent"), 
         legend.position = "right", legend.spacing = unit(-0.5, 'cm'),
-        plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
+        plot.margin = unit(c(0,1,0,0), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + 
   guides(fill="none", color = guide_legend(ncol=1)) +
@@ -670,14 +737,36 @@ NMDS_day_env <- days$plot + geom_point() + theme_bw() + geom_path() +
   geom_segment(data = scores,
               aes(x = 0, xend = NMDS1, y = 0, yend = NMDS2), linewidth= 0.3,
               arrow = arrow(length = unit(0.1, "cm")), colour = "black") +
-  geom_text(data = scores, aes(x = NMDS1, y = NMDS2, label = env),
-            size = 2)
+  geom_text_repel(data=scores, aes(x = NMDS1, y = NMDS2, label = env), size=2)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_2v1_envfit.jpg"),
-              NMDS_day_env, width=3.5, height=4) 
+              NMDS_day_env, width=3, height=4) 
 
 #------------------------------------------------------------------------------#
-#plot env variable vs NMDS2 centroids
+#multiplot of env variable vs NMDS2 centroids for SI
 
-plot(msn_drivers$epi_DO ~ days$df_mean.ord$y, pch=19, cex=2,
-     col=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"), 
-     xlab="NMDS2", ylab="Epilimnetic DO (mgL)")
+#convert msn_drivers from wide to long
+msn_drivers_long <- msn_drivers %>% pivot_longer(cols = epi_temp:thermo_depth, names_to = "variable")
+
+#add NMDS2 col
+msn_drivers_long$NMDS2 <- ifelse(msn_drivers_long$groups==1, days$df_mean.ord$y[1],
+                                 ifelse(msn_drivers_long$groups==2, days$df_mean.ord$y[2],
+                                        ifelse(msn_drivers_long$groups==3, days$df_mean.ord$y[3],
+                                               ifelse(msn_drivers_long$groups==4, days$df_mean.ord$y[4],
+                                                      days$df_mean.ord$y[5]))))
+
+#multipanel plot
+driver_NMDS <- ggplot(data=msn_drivers_long, aes(NMDS2, value, color=groups)) + geom_point() +
+                      facet_wrap(~variable, scales = "free_y") +
+                      scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), 
+                                         labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020",
+                                                  "15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) +
+                    theme(text = element_text(size=6), axis.text = element_text(size=5, color="black"), 
+                          legend.background = element_blank(), legend.key = element_blank(), 
+                          legend.key.height=unit(0.3,"line"),
+                          axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
+                          strip.background = element_rect(fill = "transparent"), legend.position = c(0.88,0.09), 
+                          legend.spacing = unit(-0.5, 'cm'), panel.grid.major = element_blank(),
+                          panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/driver_vs_NMDS2.jpg"),
+       driver_NMDS, width=3, height=3) 
+
