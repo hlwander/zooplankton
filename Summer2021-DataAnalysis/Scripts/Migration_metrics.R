@@ -216,6 +216,11 @@ migration_long$metric <- factor(migration_long$metric, levels = c(
 #create text df
 text_df <- data.frame(y=c(0.4, -0.4), x = c(6,6), n = c("Normal Migration", "Reverse Migration"))
 
+#change facet labels
+metric_taxa <-c("1", "2", "3", "4", "a: cladocerans","6","b: copepods","8","9","10","11","12",
+                "c: rotifers","14")
+names(metric_taxa) <- c(unique(migration_long$metric))
+
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 

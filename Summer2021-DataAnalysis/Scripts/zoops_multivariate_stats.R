@@ -286,6 +286,8 @@ centroids_days <-  betadisper(zoop_euc, group = as.factor(zoop_epi_tows$groups),
 #create a df to store all the different variability values
 var_results <- data.frame("site_disp"=rep(NA,500))
 
+set.seed(1)
+
 for (i in 1:500){ 
   #randomly select 10 points in each group
   ord_sub <- sample(unique(zoop_epi_tows$order), 2)
@@ -371,7 +373,7 @@ pair_box <- ggboxplot(pair_df, x = "group", y = "value",
 
 among_scales <- egg::ggarrange(disp_box, pair_box, nrow=2)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/among_variability_boxplots.jpg"),
-       among_scales, width=4, height=5) 
+       among_scales, width=3, height=4) 
 
 #calculate the range of all dispersion and pairwise values
 range(disp_df$value[disp_df$group=="site_disp"])[2] - range(disp_df$value[disp_df$group=="site_disp"])[1]
@@ -452,6 +454,8 @@ site_box <- ggboxplot(within_site_dist, x = "group", y = "dist",
            theme(text = element_text(size=8),
                  plot.margin = unit(c(0,-0.4,0,0), 'lines'),
                  axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8)) +
+           annotate("text",label=c("a","b"), x=c(1.2,2.2), size=4,
+                    y=c(0.59, 0.435)) +
            annotate("text", x=0.7, y=1, label= "a: sites",
                     fontface = "italic", size=3) +
            guides (fill = FALSE)
@@ -582,22 +586,38 @@ ctd<- read.csv('~/Documents/VirginiaTech/research/BVR_GLM/bvr_glm/field_data/CTD
                            as.Date("2021-07-08"), as.Date("2021-07-12"))) #ctd cast from 4 days after MSN 5
 
 #select every 0.5m from casts
-ctd_final <- ctd %>%
+ctd_final_temp <- ctd %>%
   dplyr::mutate(rdepth = plyr::round_any(Depth_m, 0.5)) %>% 
   dplyr::group_by(DateTime, rdepth, Reservoir, Site) %>%
   dplyr::summarise(value = mean(Temp_C)) %>% 
   dplyr::rename(depth = rdepth) 
 
+#do the same for DO values now
+ctd_final_DO <- ctd %>%
+  dplyr::mutate(rdepth = plyr::round_any(Depth_m, 0.5)) %>% 
+  dplyr::group_by(DateTime, rdepth, Reservoir, Site) %>%
+  dplyr::summarise(value = mean(DO_mgL)) %>% 
+  dplyr::rename(depth = rdepth) 
 
-#calculate thermocline depth by date
-ctd_thermo_depth <- ctd_final %>% group_by(DateTime) %>% filter(depth > 0) %>% 
+
+#calculate thermocline depth and oxycline depth by date
+ctd_thermo_depth <- ctd_final_temp %>% group_by(DateTime) %>% filter(depth > 0) %>% 
   mutate(therm_depth = thermo.depth(value,depth))
+
+ctd_oxy_depth <- ctd_final_DO %>% group_by(DateTime) %>% filter(depth > 0) %>% 
+  mutate(oxy_depth = thermo.depth(value,depth))
 
 #add msn # 
 ctd_thermo_depth$msn <- ifelse(ctd_thermo_depth$DateTime=="2019-07-10" | ctd_thermo_depth$DateTime=="2019-07-11","1",
                         ifelse(ctd_thermo_depth$DateTime=="2019-07-24" | ctd_thermo_depth$DateTime=="2019-07-25","2",
                                ifelse(ctd_thermo_depth$DateTime=="2020-08-12" | ctd_thermo_depth$DateTime=="2020-08-13","3",
                                       ifelse(ctd_thermo_depth$DateTime=="2021-06-15" | ctd_thermo_depth$DateTime=="2021-06-16","4","5"))))
+
+ctd_oxy_depth$msn <- ifelse(ctd_oxy_depth$DateTime=="2019-07-10" | ctd_oxy_depth$DateTime=="2019-07-11","1",
+                               ifelse(ctd_oxy_depth$DateTime=="2019-07-24" | ctd_oxy_depth$DateTime=="2019-07-25","2",
+                                      ifelse(ctd_oxy_depth$DateTime=="2020-08-12" | ctd_oxy_depth$DateTime=="2020-08-13","3",
+                                             ifelse(ctd_oxy_depth$DateTime=="2021-06-15" | ctd_oxy_depth$DateTime=="2021-06-16","4","5"))))
+
 
 
 
@@ -634,26 +654,26 @@ msn_drivers <- data.frame("groups" = as.character(1:5), #epi is 0.1m, hypo is 10
                                           ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
                                           ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
                                           ctd.final_avg$Temp_C_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
-                          "epi_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
-                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
-                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
-                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
-                                       ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]), 
-                          "hypo_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
-                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
-                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
-                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
-                                        ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
-                          "epi_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
-                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
-                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
-                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
-                                          ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
-                          "hypo_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
-                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
-                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
-                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
-                                           ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          #"epi_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                          #             ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                          #             ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                          #             ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                          #             ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]), 
+                          #"hypo_DO" = c(ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                          #              ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                          #              ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                          #              ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                          #              ctd.final_avg$DO_mgL_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
+                          #"epi_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
+                          #                ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
+                          #                ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
+                          #                ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==4],
+                          #                ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==5]),
+                          #"hypo_DOsat" = c(ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==1],
+                          #                 ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==2],
+                          #                 ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==3],
+                          #                 ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==4],
+                          #                 ctd.final_avg$DOsat_percent_1[ctd.final_avg$Depth_m==10 & ctd.final_avg$msn==5]),
                           "epi_spcond" = c(ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==1],
                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==2],
                                            ctd.final_avg$SpCond_uScm_1[ctd.final_avg$Depth_m==0.1 & ctd.final_avg$msn==3],
@@ -700,7 +720,7 @@ msn_drivers <- data.frame("groups" = as.character(1:5), #epi is 0.1m, hypo is 10
 zoops_plus_drivers <- left_join(zoop_avg, msn_drivers)
 
 #fit environmental drivers onto ordination
-fit_env <- envfit(ord$sites, zoops_plus_drivers[,c(15:29)])
+fit_env <- envfit(ord$sites, zoops_plus_drivers[,c(15:25)])
 
 #pull out vectors
 scores <- as.data.frame(scores(fit_env, display = "vectors"))
