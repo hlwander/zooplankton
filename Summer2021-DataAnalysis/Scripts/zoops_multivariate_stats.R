@@ -714,7 +714,10 @@ msn_drivers <- data.frame("groups" = as.character(1:5), #epi is 0.1m, hypo is 10
                                             mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==2]),
                                             mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==3]),
                                             mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==4]),
-                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==5])))
+                                            mean(ctd_thermo_depth$therm_depth[ctd_thermo_depth$msn==5])),
+                          "hypoxic_depth" = c(6.5, 5.5, 3.5, 6.5, 5)) #don't think I can do this bc we don't trust 2021 ctd data ugh
+
+
 
 #join driver and env dfs
 zoops_plus_drivers <- left_join(zoop_avg, msn_drivers)
@@ -789,4 +792,3 @@ driver_NMDS <- ggplot(data=msn_drivers_long, aes(NMDS2, value, color=groups)) + 
                           panel.grid.minor = element_blank(), legend.key.width =unit(0.7,"line"))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/driver_vs_NMDS2.jpg"),
        driver_NMDS, width=3, height=3) 
-
