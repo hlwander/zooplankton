@@ -217,20 +217,21 @@ migration_long$metric <- factor(migration_long$metric, levels = c(
 text_df <- data.frame(y=c(0.4, -0.4), x = c(6,6), n = c("Normal Migration", "Reverse Migration"))
 
 #change facet labels
-metric_taxa <-c("1", "2", "3", "4", "a: cladocerans","6","b: copepods","8","9","10","11","12",
-                "c: rotifers","14")
+metric_taxa <-c("1", "2", "3", "a: cladocerans", "a: cladocerans",
+                "b: copepods","b: copepods","8","9","10","11",
+                "c: rotifers","c: rotifers","14")
 names(metric_taxa) <- c(unique(migration_long$metric))
 
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
               aes(x=as.factor(MSN), y=value, color=as.factor(MSN), shape=migration)) + 
-  geom_point(position=position_dodge(.9)) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
+  geom_point(position=position_dodge(.9), size=2) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
   scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) + xlab("") +
   scale_x_discrete(breaks=c("1","2","3","4","5"),
                    labels=c("10-11 Jul 2019", "24-25 Jul 2019", "12-13 Aug 2020",
                             "15-16 Jun 2021", "7-8 Jul 2021")) +
-  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.2,position=position_dodge(.9)) +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.4,position=position_dodge(.9), linewidth = 0.8) +
   theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), legend.key = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
