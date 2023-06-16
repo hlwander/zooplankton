@@ -456,7 +456,7 @@ site_box <- ggboxplot(within_site_dist, x = "group", y = "dist",
                  axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8)) +
            annotate("text",label=c("a","b"), x=c(1.2,2.2), size=4,
                     y=c(0.59, 0.435)) +
-           annotate("text", x=0.7, y=1, label= "a: sites",
+           annotate("text", x=1.3, y=1, label= "a: sites",
                     fontface = "italic", size=3) +
            guides (fill = FALSE)
 
@@ -472,7 +472,7 @@ day_box <- ggboxplot(within_day_dist, x = "group", y = "dist",
                 axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
           annotate("text",label=c("b","b","a","b","b"), x=c(1.2,2.2,3.2,4.2,5.2), size=4,
               y=c(0.41, 0.39, 0.5, 0.41, 0.42)) +
-          annotate("text", x=2.6, y=1, label= "b: sampling campaigns",
+          annotate("text", x=2.8, y=1, label= "b: sampling campaigns",
                     fontface = "italic", size=3) +
           guides (fill = FALSE)
 
@@ -487,11 +487,11 @@ hour_box <- ggboxplot(within_hour_dist, x = "group", y = "dist",
                  plot.margin = unit(c(0,0,0,-0.4), 'lines'),
                  axis.text.x = element_text(angle=45, vjust=0.8, hjust=0.8),
                  axis.text.y = element_blank(), axis.ticks.y = element_blank()) +
-           annotate("text", x=4.2, y=1, label= "c: hours of the day",
+           annotate("text", x=2.7, y=1, label= "c: hours of the day",
                     fontface = "italic", size=3) +
            guides (fill = FALSE)
 
-within_scales <- egg::ggarrange(site_box, day_box, hour_box, nrow=1)
+within_scales <- egg::ggarrange(site_box, day_box, hour_box, nrow=1, widths = c(0.9,2.2,4))
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/within_variability_boxplots.jpg"),
        within_scales, width=5, height=4) 
 

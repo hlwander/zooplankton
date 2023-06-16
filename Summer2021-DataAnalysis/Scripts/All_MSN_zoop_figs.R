@@ -274,7 +274,20 @@ mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Rotifera_density_Nop
 mean(zoop_dens_stand$value_max_std[zoop_dens_stand$site_no=="BVR_l"])
 mean(zoop_dens_stand$value_max_std[zoop_dens_stand$site_no=="BVR_50"])
 
+#day vs night differences
+#pull out hour + make separate column (20:00 to 6:00 is night)
+zoop_dens_stand$hr <- hour(zoop_dens_stand$Hour)
 
+#list of night hours
+night <- c(21,22,23,0,1,2,3,4,5)
+
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Cladocera_density_NopL" & zoop_dens_stand$hr %in% night])
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Copepoda_density_NopL" & zoop_dens_stand$hr %in% night])
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Rotifera_density_NopL" & zoop_dens_stand$hr %in% night])
+
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Cladocera_density_NopL" & !zoop_dens_stand$hr %in% night])
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Copepoda_density_NopL" & !zoop_dens_stand$hr %in% night])
+mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Rotifera_density_NopL" & !zoop_dens_stand$hr %in% night])
 
 #-------------------------------------------------------------------------------------#
 #looking at each MSN separately to look for evidence of DHM
