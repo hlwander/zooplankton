@@ -13,7 +13,7 @@ substrEnd <- function(x, n){
 }
 
 #read in zoop data 
-zoop<- read.csv('SummaryStats/FCR_ZooplanktonSummary2021.csv',header = TRUE)
+zoop<- read.csv('Summer2021-DataAnalysis/SummaryStats/FCR_ZooplanktonSummary2021.csv',header = TRUE)
 
 #select cols to keep
 keep <- c("sample_ID","site_no","collect_date","Hour","DepthOfTow_m","Zooplankton_No.","Volume_L","Volume_unadj","mesh_size_μm")

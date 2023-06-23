@@ -134,8 +134,8 @@ ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,F
 keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
-#Net efficiencies from NetEfficiencyCalcs script
-NetEfficiency2020 <- c(0.03485029, 0.05279169)
+#Net efficiencies from NetEfficiencyCalcs script (note that bvr value is averaged from 2020 and 2021 data)
+NetEfficiency2020 <- c(0.03664618, 0.05279169) #fcr is only for 2020 for now
 
 #Calculate the zooplankton density 2 different ways (tows vs. schindler/horiz traps)
 #multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2020 (n=2)) 

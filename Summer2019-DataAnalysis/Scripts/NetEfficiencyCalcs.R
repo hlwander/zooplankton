@@ -35,6 +35,7 @@ zoop_totalcount <- zoop_methods_comparison_calcs %>% select(Reservoir,DateTime,S
 netArea <- pi * (0.1524)^2 *1000 
 zoop_totalcount <- zoop_totalcount %>% group_by(DateTime,CollectionMethod)  %>% 
   mutate(Num_pooled_Depths = length(StartDepth_m))  %>% mutate(Vol_unadj = netArea * StartDepth_m)
+#note: only need pooled depths for schindler data
 
 #replace vol_unadj column with NA if collectionMethod==Schindler
 zoop_totalcount$Vol_unadj[zoop_totalcount$CollectionMethod=="Schindler"] <- NA

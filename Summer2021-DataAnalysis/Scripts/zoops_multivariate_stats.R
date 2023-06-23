@@ -145,7 +145,7 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
   geom_polygon(data = sites$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
   geom_point(data=sites$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, fill=c("#882255","#3399CC")) +
-  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  #ylim(c(-0.3,0.7)) +  #xlim(c(-0.63, 0.6)) + 
   scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
@@ -161,7 +161,7 @@ NMDS_site <- sites$plot + geom_point() + theme_bw() +
         plot.margin = unit(c(0,-0.1,0,0), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.27, y=0.4, label= "a: sites", 
+        annotate("text", x=-0.27, y=0.7, label= "a: sites", 
                  fontface = "italic", size = 3) +
         scale_fill_manual("",values=c("#882255","#3399CC"))+
         scale_color_manual("",values=c("#882255","#3399CC"),
@@ -175,7 +175,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
   geom_point(data=days$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, 
              fill=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B")) +
-  # xlim(c(-0.63, 0.6)) + ylim(c(-0.7,0.64)) +
+  #ylim(c(-0.3,0.7)) +  #xlim(c(-0.63, 0.6)) + 
   scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
@@ -193,7 +193,7 @@ NMDS_day <- days$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,-0.1,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + 
-        annotate("text", x=-0.05, y=0.4, label= "b: sampling campaigns", 
+        annotate("text", x=-0.05, y=0.7, label= "b: sampling campaigns", 
                  fontface = "italic", size = 3) +
         guides(fill="none", color = guide_legend(ncol=2)) +
         scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
@@ -211,6 +211,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
   geom_polygon(data = hours$df_hull, aes(x = x, y = y, fill = Group), alpha=0.2) +
   geom_point(data=hours$df_mean.ord, aes(x, y), 
              color="black", pch=21, size=2, fill=hcl.colors(11,"sunset")) +
+ # ylim(c(-0.3,0.7)) +  #xlim(c(-0.63, 0.6)) + 
   scale_x_continuous(labels=c('-0.4', '-0.2', '0.0', '0.2', '')) +
   theme(text = element_text(size=7), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), 
@@ -228,7 +229,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
         plot.margin = unit(c(0,0,0,-0.1), 'lines'),
         panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
         legend.key.width =unit(0.1,"line")) + guides(fill="none") +
-        annotate("text", x=-0.1, y=0.4, label= "c: hours of the day",
+        annotate("text", x=-0.1, y=0.7, label= "c: hours of the day",
                  fontface = "italic", size=3) +
         scale_fill_manual("",values=hcl.colors(11,"sunset"))+
         scale_color_manual("",values=hcl.colors(11,"sunset"),
@@ -237,7 +238,7 @@ NMDS_hour <- hours$plot + geom_point() + theme_bw() + geom_path() + ylab(NULL) +
 
 fig5 <- egg::ggarrange(NMDS_site, NMDS_day, NMDS_hour, nrow=1)
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_multipanel_2v1.jpg"),
-       fig5, width=5, height=3) 
+       fig5, width=5, height=3.5) 
 
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/NMDS_hours_2v1.jpg"),
 #       NMDS_hour, width=5, height=2) 

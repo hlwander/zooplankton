@@ -253,6 +253,7 @@ ggplot(zoop_dens_stand, aes(Hour,value_max_std, color=as.factor(MSN))) +
   scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")
 ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_percent_density_over_max_std.jpg"), width=5, height=4) 
 
+
 mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Cladocera_density_NopL"])
 mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Copepoda_density_NopL"])
 mean(zoop_dens_stand$value_max_std[zoop_dens_stand$metric=="Rotifera_density_NopL"])

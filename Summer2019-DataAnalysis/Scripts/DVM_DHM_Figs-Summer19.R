@@ -122,7 +122,7 @@ df1 <- zoop_DHM %>% gather(metric,value,all_of(variables))
 df2 <- zoop_DHM %>% gather(metric.SE,value.SE, all_of(SE))
 
 #cut and paste to merge df
-zoop_DHM_long <- df1[,c(1:4,17:18)]
+zoop_DHM_long <- df1[,c(1:4,21:22)]
 #zoop_DHM_long$metric.SE <- df2$metric.SE
 zoop_DHM_long$value.SE <- df2$value.SE
 
@@ -422,6 +422,9 @@ SE.diffMean<- function(x,y){
 #initialize df
 BVR.DVM.calcs<- data.frame("Hour"=unique(BVR_pelagic_DVM_raw$Hour))
   
+#averaged from bvr 2020+2021 data
+NetEfficiency2019<- c(0.03664618)
+
 #for loop to fill out epi vs hypo calcs 
 #hypo density and biomass calculated by subtracting epi raw zoop # from full zoop # and then dividing by the (full volume - epi volume) 
 #NOTE: using epi density/L and biomass/L but calculating hypo using raw # and ug values. 
@@ -430,8 +433,8 @@ variables<- colnames(BVR_pelagic_DVM_raw[,c(7:20)])
 percent<- colnames(BVR_pelagic_DVM_percent[,c(7:12)])
 for(i in 1:length(variables)){
   BVR.DVM.calcs[,paste0(column.names,"_epi")[i]]<- BVR_pelagic_DVM_vol_calculated[substrEnd(BVR_pelagic_DVM_vol_calculated$sample_ID,3)=="epi",paste0(column.names)[i]]
-  BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi"  ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/NetEfficiency2016)) - 
-                                                     ((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "proportional_vol"]) *  BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]] * (1/NetEfficiency2016)))/
+  BVR.DVM.calcs[,paste0(column.names,"_hypo")[i]] <- (((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi"  ,"proportional_vol"]) * BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,paste0(variables)[i]] * (1/NetEfficiency2019)) - 
+                                                     ((1/BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "proportional_vol"]) *  BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi",paste0(variables)[i]]))/ #no neteff needed for epi tows bc pretty much 100% efficient
                                                      (BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)!="epi" ,"Volume_unadj"] - BVR_pelagic_DVM_raw[substrEnd(BVR_pelagic_DVM_raw$sample_ID,3)=="epi", "Volume_unadj"])  
 
 }

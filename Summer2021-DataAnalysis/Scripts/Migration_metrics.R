@@ -225,13 +225,15 @@ names(metric_taxa) <- c(unique(migration_long$metric))
 #plot migration metrics
 ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) & 
                 metric %in% c("Cladocera_density_NopL","Copepoda_density_NopL","Rotifera_density_NopL")), 
-              aes(x=as.factor(MSN), y=value, color=as.factor(MSN), shape=migration)) + 
-  geom_point(position=position_dodge(.9), size=2) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
-  scale_shape_manual("",values = c(1, 19), labels = c("DHM","DVM")) + xlab("") +
+              aes(x=as.factor(MSN), y=value, fill=as.factor(MSN), shape=migration)) + 
+  scale_shape_manual("",values = c(24,21), labels = c("DHM","DVM")) + xlab("") +
   scale_x_discrete(breaks=c("1","2","3","4","5"),
                    labels=c("10-11 Jul 2019", "24-25 Jul 2019", "12-13 Aug 2020",
                             "15-16 Jun 2021", "7-8 Jul 2021")) +
-  geom_errorbar(aes(ymin=value-SE, ymax=value+SE), width=.4,position=position_dodge(.9), linewidth = 0.8) +
+  geom_errorbar(aes(ymin=value-SE, ymax=value+SE, color=as.factor(MSN)), width=.4,position=position_dodge(.9), linewidth = 0.8) +
+  geom_point(position=position_dodge(.9), size=2) + theme_bw() + geom_hline(yintercept = 0, linetype="dotted")+
+  scale_fill_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
   theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
         legend.background = element_blank(), legend.key = element_blank(), 
         legend.key.height=unit(0.3,"line"), 
@@ -240,8 +242,7 @@ ggplot(subset(migration_long, grepl("density",metric, ignore.case=T) &
         plot.margin = unit(c(0,3,0,0), 'lines'),
         legend.position = c(0.92,0.94), legend.spacing = unit(-0.5, 'cm'),
         panel.grid.major = element_blank(), panel.grid.minor = element_blank(), 
-        legend.key.width =unit(0.7,"line")) + guides(color="none") +
-  scale_color_manual("",values=c("#008585","#89B199","#EFECBF","#DB9B5A","#C7522B"))+
+        legend.key.width =unit(0.7,"line")) + guides(fill="none", color='none') +
   facet_wrap(~metric, labeller = labeller(metric=metric_taxa)) + ylab("Density migration metric") +
   geom_text(aes(x=5.9, y=c(rep(0,28),0.4,-0.4), label=c(rep(NA,28),"Normal \nMigration", "Reverse \nMigration")), 
             hjust = 0, size = 3, color="black") + coord_cartesian(xlim = c(1, 5), clip = 'off')

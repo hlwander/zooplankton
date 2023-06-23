@@ -135,11 +135,12 @@ ZoopDensityCalcs$mesh_size_μm<-aggregate(mesh_size_μm~sample_ID,data=Density,F
 keep<-c("Project","site_no","collect_date","Hour","sample_ID","DepthOfTow_m","InitialSampleVolume_mL","Zooplankton_No.","INT","Volume_L","Volume_unadj","proportional_vol","mesh_size_μm")
 ZoopDensityCalcs<-ZoopDensityCalcs[,keep]
 
-NetEfficiency2016<- 0.06138154
+#Net efficiencies from NetEfficiencyCalcs script (note that bvr value is averaged from 2020 and 2021 data)
+NetEfficiency2019<- c(0.03664618) #add fcr??? 
 
 #Calculate the zooplankton density
-#multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2016) 
-ZoopDensityCalcs$ZoopDensity_No.pL<-ZoopDensityCalcs$Zooplankton_No. * (1/NetEfficiency2016)/ZoopDensityCalcs$Volume_L
+#multiplying # by net efficiency ratio (calculated from tow (apparent dens) / schindler (actual dens) counts in 2020+2021) 
+ZoopDensityCalcs$ZoopDensity_No.pL<-ZoopDensityCalcs$Zooplankton_No. * (1/NetEfficiency2019)/ZoopDensityCalcs$Volume_L
 
 #########################################
 #Here calculate the density for each sample
@@ -345,9 +346,9 @@ for(taxa.index in 1:length(taxaOfInterest)){
     #now calculate total biomass by multiplying biom_unadj by count/zoops_measured
     ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")]<- ZoopFinal[,paste(taxa,"_biomass_unadj",sep="")] * (ZoopFinal[,paste(taxa,"Count_n",sep="")] / ZoopFinal[,paste(taxa,"_zoops_measured",sep="")])
     #Taxa density
-    ZoopFinal[,paste(taxa,"_density_NopL",sep="")]<-ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/NetEfficiency2016)/ZoopFinal$Volume_L
+    ZoopFinal[,paste(taxa,"_density_NopL",sep="")]<-ZoopFinal[,paste(taxa,"Count_n",sep="")]* (1/NetEfficiency2019)/ZoopFinal$Volume_L
     #Taxa biomass concentration
-    ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<-ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/NetEfficiency2016)/ZoopFinal$Volume_L
+    ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]<-ZoopFinal[,paste(taxa,"_totalbiomass_ug",sep="")] * (1/NetEfficiency2019)/ZoopFinal$Volume_L
     #Percent biomass concentration of total
     ZoopFinal[,paste(taxa,"_PercentOftotalbiomassConcentration",sep="")]<-ZoopFinal[,paste(taxa,"_BiomassConcentration_ugpL",sep="")]*100/ZoopFinal$BiomassConcentration_ugpL
   }   
@@ -363,7 +364,7 @@ TaxaforTotalCalcs<- c("Calanoida","Cyclopoida","nauplius","Cladocera","Rotifera"
 #Calculate raw biomass 
 ZoopFinal$TotalBiomass_ug<- rowSums(ZoopFinal[,paste0(TaxaforTotalCalcs,"_totalbiomass_ug")], na.rm=TRUE)
 #Calculate biomass concentration as biomass relative to total volume counted
-ZoopFinal$BiomassConcentration_ugpL<-ZoopFinal$TotalBiomass_ug *(1/NetEfficiency2016)/ZoopFinal$Volume_L
+ZoopFinal$BiomassConcentration_ugpL<-ZoopFinal$TotalBiomass_ug *(1/NetEfficiency2019)/ZoopFinal$Volume_L
 
 #Replace NA with 0's for the relevant cells (count, density, biomass, biomass concentration)
 ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))][is.na(ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_PercentOfTotal",sep=""),paste(taxaOfInterest,"_totalbiomass_ug",sep=""),paste(taxaOfInterest,"_density_NopL",sep=""),paste(taxaOfInterest,"_BiomassConcentration_ugpL",sep=""),paste(taxaOfInterest,"_PercentOftotalbiomassConcentration",sep=""))])] <- 0
