@@ -391,3 +391,94 @@ ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_epimetahypo_percen
 # DVM for MSN 1 - cyclopoids and calanoids, MSN 2 - cladocera and cyclopoids, 
       #MSN 3 - cladocerans and cyclopoids (reverse DVM) and rotifers,
       #BUT, nothing for MSN 4/5 
+
+#-------------------------------------------------------------------------------------#
+# create new df for avg size
+zoop_size <- zoop %>% select(sample_ID,site_no,collect_date,Hour, which(grepl("MeanSize",colnames(zoop)))) %>%
+  group_by(sample_ID, site_no, Hour, collect_date) %>%
+  summarise_at(vars(OverallMeanSize_mm:LecaneMeanSize_mm), list(rep.mean=mean, rep.SE=stderr))
+
+#merge collect_date and hour in a new column
+zoop_size$datetime<- paste(zoop_size$collect_date,zoop_size$Hour,sep=" ")
+#get times into date format (character here)
+zoop_size$datetime<- format(as.POSIXct(zoop_size$datetime,format="%Y-%m-%d %H:%M"), format="%Y-%m-%d %H:%M:%S")
+#convert to posixct date format
+zoop_size$datetime<- as.POSIXct(zoop_size$datetime, format="%Y-%m-%d %H:%M")
+
+zoop_size$dates <- ifelse(zoop_size$collect_date=="2019-07-10" | zoop_size$collect_date=="2019-07-24"| 
+                            zoop_size$collect_date=="2020-08-12" | zoop_size$collect_date=="2021-06-15" |
+                            zoop_size$collect_date=="2021-07-07","2022-10-15","2022-10-16")
+
+#only select hour and then add arbitrary dates for plotting
+zoop_size$Hour <- format(zoop_size$Hour, format='%H:%M')
+
+#combine hour and date
+zoop_size$Hour <- strptime(paste0(as.character(zoop_size$dates), zoop_size$Hour),format="%Y-%m-%d %H:%M")
+zoop_size$Hour <- as.POSIXct(zoop_size$Hour)
+
+#make sure zoop_size is a dataframe
+zoop_size <- data.frame(zoop_size)
+
+#order by hour for plotting
+zoop_size <- zoop_size[order(zoop_size$Hour),]
+
+#only select epi samples for DHM plots
+zoop_size_epi <- zoop_size[grepl("epi",zoop_size$sample_ID) |grepl("sunrise",zoop_size$sample_ID) | grepl("sunset",zoop_size$sample_ID) | zoop_size$site_no=="BVR_l",]
+
+#convert new dfs from tibble to dataframe 
+zoop_size_DHM <- data.frame(zoop_size_epi)
+
+#convert df from wide to long (kinda hacky way bc having problems doing this)
+df1_size <- zoop_size_DHM %>% gather(metric,value,OverallMeanSize_mm_rep.mean:LecaneMeanSize_mm_rep.mean)
+df2_size <- zoop_size_DHM %>% gather(metric.SE,value.SE, OverallMeanSize_mm_rep.SE:LecaneMeanSize_mm_rep.SE)
+
+##cut and paste to merge df
+zoop_size_DHM_long <- df1_size[,c(1:4,31,32)]
+zoop_size_DHM_long$value.SE <- df2_size$value.SE
+
+#drop _rep.mean from all metric names
+zoop_size_DHM_long$metric <- substr(zoop_size_DHM_long$metric,1,nchar(zoop_size_DHM_long$metric)-9)
+
+#add column for MSN #
+zoop_size_DHM_long$MSN <- ifelse(zoop_size_DHM_long$collect_date=="2019-07-10" | zoop_size_DHM_long$collect_date=="2019-07-11",1,
+                            ifelse(zoop_size_DHM_long$collect_date=="2019-07-24" | zoop_size_DHM_long$collect_date=="2019-07-25",2,
+                                   ifelse(zoop_size_DHM_long$collect_date=="2020-08-12" | zoop_size_DHM_long$collect_date=="2020-08-13",3,
+                                          ifelse(zoop_size_DHM_long$collect_date=="2021-06-15" | zoop_size_DHM_long$collect_date=="2021-06-16",4,5))))
+
+#change facet labels
+size_taxa <-c("Total","Daphniidae","Copepoda","Calanoida",
+                "Cladocera", "Cyclopoida", "Rotifera", "Keratella",
+                "Kellicottia","Crustacea","Bosminidae","Nauplius","Ceriodaphnia",
+                "Daphnia", "Bosmina", "Ploima", "Gastropidae", "Collothecidae",
+                "Conochilidae", "Synchaetidae", "Trichocercidae", "Lepadella",
+                "Monostyla", "Lecane")
+names(size_taxa) <- c(unique(zoop_size_DHM_long$metric))
+
+#plot
+ggplot(subset(zoop_size_DHM_long, metric %in% c("CladoceraMeanSize_mm","CopepodaMeanSize_mm","RotiferaMeanSize_mm")),
+       aes(Hour,value, color=as.factor(MSN))) + 
+  geom_rect(aes(xmin=as.POSIXct("2022-10-15 11:30:00"),xmax=as.POSIXct("2022-10-15 20:41:00"), 
+                ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2022-10-15 20:42:00"),xmax=as.POSIXct("2022-10-16 06:10:00"), 
+                ymin=-Inf, ymax= Inf, fill= "Midnight"),color=NA) +
+  geom_rect(aes(xmin=as.POSIXct("2022-10-16 06:11:00"),xmax=as.POSIXct("2022-10-16 12:30:00"), 
+                ymin=-Inf, ymax= Inf, fill= "Noon"),color=NA) +
+  geom_point(size=2) + theme_bw() + 
+  facet_grid(site_no~metric,scales="free_y",labeller = labeller(metric=size_taxa, site_no=sites)) + 
+  xlab("")+ coord_cartesian(clip = 'off') +
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), legend.key = element_blank(), 
+        legend.key.height=unit(0.3,"line"), 
+        axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = c(0.9,0.95), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.7,"line")) + 
+  scale_x_datetime(expand = c(0,0),labels = date_format("%H-%M",tz="EST5EDT")) +
+  scale_color_manual("",values=c("#008585","#9BBAA0","#F2E2B0","#DEA868","#C7522B"), 
+                     labels=c("10-11 Jul 2019","24-25 Jul 2019","12-13 Aug 2020",
+                              "15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
+  geom_line()+ ylab("Size (mm)") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+
+  geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
+ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_size.jpg"), width=5, height=4) 
+
