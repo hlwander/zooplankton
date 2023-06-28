@@ -1,4 +1,4 @@
-﻿Project,site_no,collect_date,Hour,sample_ID,Subsample,LowestTaxonomicLevelOfID,TaxaID,Nauplius,ObjectiveMagnification,MarksInOcularMicrometer_No.,MarksInOcularMicrometer_width_No.,MarksInOcularMicrometer_height_No.,Initials,Notes
+﻿Project,site_no,collect_date,Hour,sample_ID,Subsample,LowestTaxonomicLevelOfID,TaxaID,Nauplius,ObjectiveMagnification,MarksInOcularMicrometer_No.,MarksInOcularMicrometer_Width_No.,MarksInOcularMicrometer_Height_No.,Initials,Notes
 FCR2019,FCR_50,17-Jun-19,,F17Jun19_50_6.5_20,A,Order,Cyclopoida,,30x,2.3,,,HLW,This is a practice sample; I definitely lost some zoops when I was trying to concentrate
 FCR2019,FCR_50,17-Jun-19,,F17Jun19_50_6.5_20,A,Genus,Daphnia,,50x,4,,,HLW,
 FCR2019,FCR_50,17-Jun-19,,F17Jun19_50_6.5_20,A,Order,Calanoida,,75x,3.2,,,HLW,
