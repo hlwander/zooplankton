@@ -363,6 +363,7 @@ ggplot(subset(DVM_metric_df, grepl("density",metric, ignore.case=T) &
   geom_text(aes(x=5.9, y=c(rep(0,13),0.02,-0.02), label=c(rep(NA,13),"Normal \nMigration", "Reverse \nMigration")), 
             hjust = 0, size = 3, color="black") + coord_cartesian(xlim = c(1, 5), clip = 'off')
 #ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/fcr_mom/FCR_MSNs_DVM_metric_dens_3taxa.jpg"), width=5, height=4) 
+#I think this counts as NO MIGRATION bc magnitude never exceeds 0.1 (bvr ranges from ~ 0.6 to -0.4)
 
 #---------------------------------------------------------------------------------------#
 #also do same thing but with Schindler trap data
@@ -441,7 +442,7 @@ ggplot(schindler_mom_long, aes(metric.raw, value.per,fill=WaterColumn)) + ylab("
         plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), panel.grid.major = element_blank(),
         legend.title = element_blank(),legend.text  = element_text(size = 4.5), panel.spacing=unit(0, "cm"),
         axis.text.x = element_text(angle=45, vjust = 0.7,size=6, hjust = 0.6), axis.text.y = element_text(size=6)) 
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/fcr_mom/FCR_schind_taxa_percent_dens.jpg"), width=4, height=3) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/fcr_mom/FCR_schind_taxa_percent_dens.jpg"), width=4, height=3) 
 
 
 #----------------------------------------------#
@@ -538,6 +539,7 @@ ggplot(data=schindlers_long,aes(x=value/30, y=depth_m,color=collect_date)) + geo
         axis.text.x = element_text(angle = 90, vjust = 0.5,size=6), 
         axis.text.y = element_text(size=6)) 
 #ggsave(paste0(getwd(),"/Summer2021-DataAnalysis/Figures/fcr_mom/Schindler_density_vs_depth.jpg"))
+#looks like rotifers are migrating!
 
 #summarize schindler_totalCount so one # per depth
 Schindler_avgCount <- schindlers_long %>% group_by(depth_m, collect_date, metric) %>% summarise(mean_num = mean(value))
@@ -552,22 +554,32 @@ ggplot(data=subset(Schindler_avgCount, !collect_date %in% c("2020-09-11","2020-0
         axis.text.x = element_text(angle = 90, vjust = 0.5,size=6), 
         axis.text.y = element_text(size=6)) 
 #ggsave(paste0(getwd(),"/Summer2021-DataAnalysis/Figures/fcr_mom/AvgSchindler_density_vs_depth_2021-2022.jpg"))
-#wow this could actually be really cool! look at copepods
+#wow this could actually be really cool! look at copepods - some are migrating and others aren't??
 
 #-------------------------------------------------------------------------------#
 #new dfs for multivariate stats
 zoops_summary <- fcr_zoops_mom %>% select(sample_ID,site_no,collect_date,Hour, 
-                                          Bosminidae_density_NopL, Bosminidae_BiomassConcentration_ugpL,
+                                          Bosmina_density_NopL, Bosmina_BiomassConcentration_ugpL,
                                           Daphnia_density_NopL, Daphnia_BiomassConcentration_ugpL,
                                           Ceriodaphnia_density_NopL, Ceriodaphnia_BiomassConcentration_ugpL,
                                           Cyclopoida_density_NopL, Cyclopoida_BiomassConcentration_ugpL, 
-                                          Rotifera_density_NopL,Rotifera_BiomassConcentration_ugpL, 
+                                          Keratella_density_NopL,Keratella_BiomassConcentration_ugpL, 
+                                          Kellicottia_density_NopL,Kellicottia_BiomassConcentration_ugpL, 
+                                          Ploima_density_NopL, Ploima_BiomassConcentration_ugpL,
+                                          Gastropidae_density_NopL, Gastropidae_BiomassConcentration_ugpL,
+                                          Collothecidae_density_NopL, Collothecidae_BiomassConcentration_ugpL,
+                                          Conochilidae_density_NopL, Conochilidae_BiomassConcentration_ugpL,
+                                          Synchaetidae_density_NopL, Synchaetidae_BiomassConcentration_ugpL,
+                                          Trichocercidae_density_NopL, Trichocercidae_BiomassConcentration_ugpL,
+                                          Lepadella_density_NopL, Lepadella_BiomassConcentration_ugpL,
+                                          Monostyla_density_NopL, Monostyla_BiomassConcentration_ugpL,
+                                          Lecane_density_NopL, Lecane_BiomassConcentration_ugpL,
                                           Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, 
                                           nauplius_density_NopL, nauplius_BiomassConcentration_ugpL) |>
   mutate(depth = substrEnd(fcr_zoops_mom$sample_ID,3)) |>
   filter(site_no %in% c("FCR_schind"), collect_date %in% c(dates)) |>
   group_by(sample_ID, collect_date ,Hour, depth) |>
-  summarise_at(vars(Bosminidae_density_NopL:nauplius_BiomassConcentration_ugpL,), funs(rep.mean=mean))
+  summarise_at(vars(Bosmina_density_NopL:nauplius_BiomassConcentration_ugpL,), funs(rep.mean=mean))
   
 
 #change 2022 midnight date so that all dates are unique for for loop below
@@ -587,3 +599,19 @@ schind_biom <- zoops_summary[ ,c(1:4,19, which(grepl("Biomass",colnames(zoops_su
 
 write.csv(schind_dens, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopdens.csv", row.names = FALSE)
 write.csv(schind_biom, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopbiom.csv", row.names = FALSE)
+
+#look at schindlers for all taxa
+
+schind_dens_long <- schind_dens |> pivot_longer(Bosmina_density_NopL_rep.mean:nauplius_density_NopL_rep.mean)
+  
+ggplot(data=subset(schind_dens_long, !collect_date %in% c("2020-09-11","2020-09-15")),
+       aes(x=value, y=as.numeric(depth),color=collect_date)) + 
+  geom_point() + scale_y_reverse() + geom_path() + xlab("Density (#/L)") + 
+  ylab("Depth (m)")  + facet_wrap(~name, scales="free") +
+  theme(text = element_text(size=8), 
+        panel.grid.minor = element_blank(), 
+        panel.grid.major = element_blank(), 
+        axis.text.x = element_text(angle = 90, vjust = 0.5,size=6), 
+        axis.text.y = element_text(size=6)) 
+#ggsave("Summer2021-DataAnalysis/Figures/fcr_mom/Schindler_density_vs_depth_2021-2022_all_taxa.jpg")
+
