@@ -582,23 +582,46 @@ zoops_summary <- fcr_zoops_mom %>% select(sample_ID,site_no,collect_date,Hour,
   summarise_at(vars(Bosmina_density_NopL:nauplius_BiomassConcentration_ugpL,), funs(rep.mean=mean))
   
 
+zoops_summary_3groups <- fcr_zoops_mom %>% select(sample_ID,site_no,collect_date,Hour, 
+                                          Cladocera_density_NopL, Cladocera_BiomassConcentration_ugpL,
+                                          Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL,
+                                          Rotifera_density_NopL, Rotifera_BiomassConcentration_ugpL) |>
+  mutate(depth = substrEnd(fcr_zoops_mom$sample_ID,3)) |>
+  filter(site_no %in% c("FCR_schind"), collect_date %in% c(dates)) |>
+  group_by(sample_ID, collect_date ,Hour, depth) |>
+  summarise_at(vars(Cladocera_density_NopL:Rotifera_BiomassConcentration_ugpL,), funs(rep.mean=mean))
+
+
 #change 2022 midnight date so that all dates are unique for for loop below
 zoops_summary$collect_date[zoops_summary$collect_date=="2022-07-01" & 
                              zoops_summary$Hour==0] <- "2022-06-30"
 
+zoops_summary_3groups$collect_date[zoops_summary_3groups$collect_date=="2022-07-01" & 
+                                     zoops_summary_3groups$Hour==0] <- "2022-06-30"
+
 #add a column for campaign #
 zoops_summary$campaign_num <- ifelse(zoops_summary$collect_date %in% c("2020-09-11"), 1,
-                                          ifelse(zoops_summary$collect_date %in% c("2020--09-15"), 2,
+                                          ifelse(zoops_summary$collect_date %in% c("2020-09-15"), 2,
                                                  ifelse(zoops_summary$collect_date %in% c("2021-06-10","2021-06-11"), 3, 4)))
+
+zoops_summary_3groups$campaign_num <- ifelse(zoops_summary_3groups$collect_date %in% c("2020-09-11"), 1,
+                                     ifelse(zoops_summary_3groups$collect_date %in% c("2020-09-15"), 2,
+                                            ifelse(zoops_summary_3groups$collect_date %in% c("2021-06-10","2021-06-11"), 3, 4)))
 
 
 #create dfs for multivariate zoop script (depth specific)
 schind_dens <- zoops_summary[ ,c(1:4,19, which(grepl("density",colnames(zoops_summary))))]
+schind_dens_3groups <- zoops_summary_3groups[ ,c(1:4,11, which(grepl("density",colnames(zoops_summary_3groups))))]
 
 schind_biom <- zoops_summary[ ,c(1:4,19, which(grepl("Biomass",colnames(zoops_summary))))]
+schind_biom_3groups <- zoops_summary_3groups[ ,c(1:4,11, which(grepl("Biomass",colnames(zoops_summary_3groups))))]
 
 write.csv(schind_dens, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopdens.csv", row.names = FALSE)
 write.csv(schind_biom, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopbiom.csv", row.names = FALSE)
+
+write.csv(schind_dens_3groups, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopdens_3groups.csv", row.names = FALSE)
+write.csv(schind_biom_3groups, "Summer2021-DataAnalysis/SummaryStats/FCR_MOM_schind_2020-2022_zoopbiom_3groups.csv", row.names = FALSE)
+
 
 #look at schindlers for all taxa
 
