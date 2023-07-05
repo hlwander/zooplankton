@@ -2,7 +2,8 @@
 #created 16 Oct 2022
 
 #read in libraries
-pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, ggplot2,tidyr,lubridate, scales, colorblindcheck, viridis)
+pacman::p_load(dplyr, vegan, labdsv, goeveg, rLakeAnalyzer, 
+               ggplot2,tidyr,lubridate, scales, colorblindcheck, viridis)
 
 #create function to count characters starting at the end of the string
 substrEnd <- function(x, n){
@@ -480,5 +481,5 @@ ggplot(subset(zoop_size_DHM_long, metric %in% c("CladoceraMeanSize_mm","Copepoda
                               "15-16 Jun 2021","7-8 Jul 2021"), guide=guide_legend(order=1)) + 
   geom_line()+ ylab("Size (mm)") + scale_fill_manual("",values=c("#CCCCCC","white"), guide = "none")+
   geom_errorbar(aes(ymin=value-value.SE, ymax=value+value.SE), width=.2,position=position_dodge(.9))
-ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_size.jpg"), width=5, height=4) 
+#ggsave(file.path(getwd(),"Summer2021-DataAnalysis/Figures/BVR_MSNs_taxa_size.jpg"), width=5, height=4) 
 
