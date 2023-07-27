@@ -409,6 +409,20 @@ if(sum(!is.na(SizeID[,c(taxa)]))>0){
   ZoopFinal[,c(paste(taxa,"Richness",sep=""),paste(taxa,"ShannonDiversity",sep=""),paste(taxa,"Evenness",sep=""))]<-NA
 }
 
+#For Family, calculate richness, ShannonDiversity, and Evenness
+taxa<-"Family"
+if(sum(!is.na(SizeID[,c(taxa)]))>0){
+  #Richness
+  ZoopFinal<-merge(ZoopFinal,setNames(aggregate(Family~sample_ID,data=SizeID,FUN=function(x) length(unique(x))),c("sample_ID",paste(taxa,"Richness",sep=""))),by=c("sample_ID"),all.x=T)
+  #ShannonDiversity
+  ZoopFinal<-merge(ZoopFinal,setNames(aggregate(Family~sample_ID,data=SizeID,FUN=function(x) -sum(prop.table(table(x[!is.na(x)]))*log(prop.table(table(x[!is.na(x)]))))),c("sample_ID",paste(taxa,"ShannonDiversity",sep=""))),by=c("sample_ID"),all.x=T)
+  #Evenness
+  ZoopFinal<-merge(ZoopFinal,setNames(aggregate(Family~sample_ID,data=SizeID,FUN=function(x) -sum(prop.table(table(x[!is.na(x)]))*log(prop.table(table(x[!is.na(x)]))))/log(length(unique(x)))),c("sample_ID",paste(taxa,"Evenness",sep=""))),by=c("sample_ID"),all.x=T)
+  
+}else{
+  ZoopFinal[,c(paste(taxa,"Richness",sep=""),paste(taxa,"ShannonDiversity",sep=""),paste(taxa,"Evenness",sep=""))]<-NA
+}
+
 #For Order/Suborder, calculate richness, ShannonDiversity, and Evenness
 taxa<-"OrderSubOrder"
 #Create dataframe that is the order and suborder with sample_no
@@ -428,4 +442,5 @@ if(sum(!is.na(SizeID.Order[,c(taxa)]))>0){
   ZoopFinal[,c(paste(taxa,"Richness",sep=""),paste(taxa,"ShannonDiversity",sep=""),paste(taxa,"Evenness",sep=""))]<-NA
 }
 
-
+#export richness, evenness, and diversity 
+write.csv(ZoopFinal[,c(1:6,204:212)], "SummaryStats/zoop_diversity_2021.csv", row.names=FALSE)

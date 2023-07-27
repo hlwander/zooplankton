@@ -62,7 +62,7 @@ zoop.repmeans <- fcr_zoops_mom %>% select(sample_ID,site_no,collect_date,Hour, V
                                           Calanoida_density_NopL, Calanoida_BiomassConcentration_ugpL, CalanoidaCount_n, Calanoida_PercentOfTotal, Calanoida_totalbiomass_ug,
                                           Copepoda_density_NopL, Copepoda_BiomassConcentration_ugpL, CopepodaCount_n, Copepoda_PercentOfTotal, Copepoda_totalbiomass_ug) %>%
   group_by(sample_ID, site_no, collect_date ,Hour) %>%
-  summarise_at(vars(Volume_L:Copepoda_totalbiomass_ug,), funs(rep.mean=mean, rep.SE=stderr))
+  summarise_at(vars(Volume_L:Copepoda_totalbiomass_ug,), list(rep.mean=mean, rep.SE=stderr))
 
 #separate tow vs schindler data
 zoop_repmeans_tows <- zoop.repmeans[zoop.repmeans$site_no=="FCR_50",]

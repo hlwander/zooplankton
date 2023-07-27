@@ -57,4 +57,71 @@ mean(zoop_dens_long$value[zoop_dens_long$DO=="anoxic"])
 mean(zoop_dens_long$value[zoop_dens_long$DO=="MOM"])
 #so greater density during anoxic conditions interesting
 
+#-------------------------------------------------------------------------------#
+#richness, evenness, and diversity during MOM vs anoxic days
+
+#read in 2020-2022 zoop diversity data
+zoop_div_2020 <- read.csv("Summer2020-DataAnalysis/SummaryStats/zoop_diversity_2020.csv", header=TRUE)
+zoop_div_2021 <- read.csv("Summer2021-DataAnalysis/SummaryStats/zoop_diversity_2021.csv", header=TRUE)
+
+#combine dfs
+zoop_div <- rbind(zoop_div_2020, zoop_div_2021) 
+
+#only pull schindler trap data
+zoop_div_schind <- zoop_div |> filter(site_no %in% c("FCR_schind"), 
+                                      sample_ID %in% c(zoop_div$sample_ID[grepl("noon",zoop_div$sample_ID)]))
+                                
+#add DO col
+zoop_div_schind$DO <- ifelse(zoop_div_schind$collect_date %in% c("2020-09-11", "2020-09-15"), "MOM", "anoxic")
+
+#summarise across DO and depth (note - taking out depth bc no crazy differences w/ depth)
+zoop_div_schind_avg <- zoop_div_schind |> group_by(DO) |> #DepthOfTow_m
+  summarise_at(vars(GenusRichness:OrderSubOrderEvenness), list(mean=mean))
+
+#convert from wide to long
+zoop_div_schind_avg_long <- zoop_div_schind_avg |> 
+  pivot_longer(GenusRichness_mean:OrderSubOrderEvenness_mean)
+
+#plot MOM vs anoxic diversity values (unfortunately not super interesting...)
+ggplot(data=subset(zoop_div_schind_avg_long, name %in% 
+                     c(zoop_div_schind_avg_long$name[grepl("Genus", zoop_div_schind_avg_long$name)])),
+       aes(x=name, y=value, fill=name)) + geom_bar(stat="identity") +
+  facet_wrap(~DO) + theme_bw() + 
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), legend.key = element_blank(), 
+        legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 45, hjust=1), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = c(0.1,0.44), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.7,"line"))+ 
+  guides(fill="none") + xlab("")
+
+ggplot(data=subset(zoop_div_schind_avg_long, name %in% 
+                     c(zoop_div_schind_avg_long$name[grepl("Family", zoop_div_schind_avg_long$name)])),
+       aes(x=name, y=value, fill=name)) + geom_bar(stat="identity") +
+  facet_wrap(~DO) + theme_bw() + 
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), legend.key = element_blank(), 
+        legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 45, hjust=1), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = c(0.1,0.44), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.7,"line"))+ 
+  guides(fill="none") + xlab("")
+
+ggplot(data=subset(zoop_div_schind_avg_long, name %in% 
+                     c(zoop_div_schind_avg_long$name[grepl("Order", zoop_div_schind_avg_long$name)])),
+       aes(x=name, y=value, fill=name)) + geom_bar(stat="identity") +
+  facet_wrap(~DO) + theme_bw() + 
+  theme(text = element_text(size=8), axis.text = element_text(size=7, color="black"), 
+        legend.background = element_blank(), legend.key = element_blank(), 
+        legend.key.height=unit(0.3,"line"),
+        axis.text.x = element_text(angle = 45, hjust=1), 
+        strip.background = element_rect(fill = "transparent"), 
+        legend.position = c(0.1,0.44), legend.spacing = unit(-0.5, 'cm'),
+        panel.grid.major = element_blank(),panel.grid.minor = element_blank(), 
+        legend.key.width =unit(0.7,"line"))+ 
+  guides(fill="none") + xlab("")
 
