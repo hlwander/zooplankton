@@ -493,22 +493,101 @@ ysi <- ysi[order(ysi$Depth_m),]
 for(i in 1:length(unique(ysi$DateTime))){
 plot <- ggplot(data = subset(ysi, DateTime==unique(ysi$DateTime)[i]), aes(DO_mgL, Depth_m, col="DO (mg/L)")) + 
     geom_point() + geom_path() + theme_bw() + ylim(rev(range(ysi$Depth_m))) +
+    geom_vline(xintercept=2, lty=2)+
     geom_point(data = subset(ysi, DateTime==unique(ysi$DateTime)[i]), aes(Temp_C, Depth_m, col="Temp (C)")) +
     geom_path(data = subset(ysi, DateTime==unique(ysi$DateTime)[i]), aes(Temp_C, Depth_m, col="Temp (C)")) +
     scale_x_continuous(sec.axis = sec_axis(~ . * 0.9, name = "Temperature")) +
     ggtitle(unique(ysi$DateTime)[i]) +
     scale_color_manual(values = c("black", "red")) +
-    theme(text = element_text(size=8), axis.text = element_text(size=6, color="black"), 
+    theme(text = element_text(size=10), axis.text = element_text(size=8, color="black"), 
           legend.position = c(0.72,0.94),
           legend.background = element_blank(),legend.direction = "horizontal", 
           panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
           plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), 
           panel.grid.major = element_blank(), legend.title = element_blank(),
-          legend.text  = element_text(size = 4.5), panel.spacing=unit(0, "cm"),
-          axis.text.x = element_text(vjust = 0.5,size=6), axis.text.y = element_text(size=6)) 
+          legend.text  = element_text(size = 6), panel.spacing=unit(0, "cm"),
+          axis.text.x = element_text(vjust = 0.5,size=8), axis.text.y = element_text(size=6)) 
 print(plot)
-#ggsave(paste0(getwd(),"/Summer2021-DataAnalysis/Figures/fcr_mom/2021_Temp_O2_",unique(ysi$DateTime)[i],".jpg"))
+#ggsave(paste0(getwd(),"/Figures/fcr_mom/2021_Temp_O2_",unique(ysi$DateTime)[i],"_ysi.jpg"))
 }
+
+#check the ctd data to confirm anoxia in 2021 and 2022
+inUrl1  <- "https://pasta.lternet.edu/package/data/eml/edi/200/13/27ceda6bc7fdec2e7d79a6e4fe16ffdf" 
+infile1 <- tempfile()
+try(download.file(inUrl1,infile1,method="curl"))
+if (is.na(file.size(infile1))) download.file(inUrl1,infile1,method="auto")
+
+ctd<- read.csv(infile1) |> 
+  mutate(DateTime = as.Date(DateTime)) |> 
+  filter(Reservoir =="FCR" & Depth_m > 0 &
+           DateTime %in% c(as.Date("2020-09-10"), as.Date("2020-09-11"), as.Date("2020-09-14"),
+                           as.Date("2020-09-15"), as.Date("2021-06-10"), as.Date("2021-06-11"),
+                           as.Date("2022-06-30"), as.Date("2022-07-01")))
+
+
+depths <- seq(0,10, by = 1)
+newDepths <- depths
+df.final.raw<- ctd %>%
+  group_by(DateTime) %>%
+  slice(which.min(abs(as.numeric(Depth_m) - depths[1]))) #Create a new dataframe
+df.final.raw$Depth_m <- newDepths[1]
+#loop through all depths and add the closest values to the final dataframe
+for (i in 2:length(depths)){
+  ctd_atThisDepth <- ctd %>%
+    group_by(DateTime) %>%
+    slice(which.min(abs(as.numeric(Depth_m) - depths[i])))
+  ctd_atThisDepth <- ctd_atThisDepth %>%
+    #only include if the measured depth is within 0.1 of the depth label
+    filter(abs(Depth_m-newDepths[i])<0.1)
+  ctd_atThisDepth$Depth_m <- newDepths[i]
+  df.final.raw <- rbind(df.final.raw,ctd_atThisDepth)
+}
+
+for(i in 1:length(unique(df.final.raw$DateTime))){
+  plot <- ggplot(data = subset(df.final.raw, DateTime==unique(df.final.raw$DateTime)[i]), aes(DO_mgL, Depth_m, col="DO (mg/L)")) + 
+    geom_point() + geom_path() + theme_bw() + ylim(rev(range(df.final.raw$Depth_m))) +
+    geom_vline(xintercept=2, lty=2)+
+    geom_point(data = subset(df.final.raw, DateTime==unique(df.final.raw$DateTime)[i]), aes(Temp_C, Depth_m, col="Temp (C)")) +
+    geom_path(data = subset(df.final.raw, DateTime==unique(df.final.raw$DateTime)[i]), aes(Temp_C, Depth_m, col="Temp (C)")) +
+    scale_x_continuous(sec.axis = sec_axis(~ . * 0.9, name = "Temperature")) +
+    ggtitle(unique(df.final.raw$DateTime)[i]) +
+    scale_color_manual(values = c("black", "red")) +
+    theme(text = element_text(size=10), axis.text = element_text(size=8, color="black"), 
+          legend.position = c(0.72,0.94),
+          legend.background = element_blank(),legend.direction = "horizontal", 
+          panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
+          plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), 
+          panel.grid.major = element_blank(), legend.title = element_blank(),
+          legend.text  = element_text(size = 6), panel.spacing=unit(0, "cm"),
+          axis.text.x = element_text(vjust = 0.5,size=8), axis.text.y = element_text(size=6)) 
+  print(plot)
+  #ggsave(paste0(getwd(),"/Figures/fcr_mom/2021_Temp_O2_",unique(df.final.raw$DateTime)[i],"_ctd.jpg"))
+}
+
+#date list with both ctd and ysi casts
+dates_ctd_ysi <- c("2020-09-11","2020-09-15","2021-06-11")
+
+#ysi + ctd DO on same plot
+for(i in 1:length(dates_ctd_ysi)){
+  plot <- ggplot(data = subset(df.final.raw, DateTime==dates_ctd_ysi[i]), aes(DO_mgL, Depth_m, col="CTD DO (mg/L)")) + 
+    geom_point() + geom_path() + theme_bw() + ylim(rev(range(df.final.raw$Depth_m))) +
+    geom_point(data = subset(ysi, DateTime==dates_ctd_ysi[i]), aes(DO_mgL, Depth_m, col="YSI DO (mg/L)")) +
+    geom_path(data = subset(ysi, DateTime==dates_ctd_ysi[i]), aes(DO_mgL, Depth_m, col="YSI DO (mg/L)")) +
+    geom_vline(xintercept=2, lty=2)+
+    ggtitle(dates_ctd_ysi[i]) +
+    scale_color_manual(values = c("black", "red")) +
+    theme(text = element_text(size=10), axis.text = element_text(size=8, color="black"), 
+          legend.position = c(0.72,0.94),
+          legend.background = element_blank(),legend.direction = "horizontal", 
+          panel.grid.minor = element_blank(), legend.key=element_rect(fill=NA),
+          plot.margin = unit(c(0,0.05,0,0), "cm"),legend.key.size = unit(0.5, "lines"), 
+          panel.grid.major = element_blank(), legend.title = element_blank(),
+          legend.text  = element_text(size = 6), panel.spacing=unit(0, "cm"),
+          axis.text.x = element_text(vjust = 0.5,size=8), axis.text.y = element_text(size=6)) 
+  print(plot)
+  #ggsave(paste0(getwd(),"/Figures/fcr_mom/2021_CTD_YSI_DO_comp_",dates_ctd_ysi[i],".jpg"))
+}
+
 
 #------------------------------------------------------------------------------#
 #Look at schindler data because tows aren't super interesting

@@ -44,6 +44,10 @@ zoop_totalcount$Vol_unadj[zoop_totalcount$CollectionMethod=="Schindler"] <- NA
 Schindler_totalCount <- zoop_totalcount[zoop_totalcount$CollectionMethod=="Schindler",]
 Tow_totalCount_final <- zoop_totalcount[zoop_totalcount$CollectionMethod=="Tow",colnames(zoop_totalcount)!="Num_pooled_Depths" & colnames(zoop_totalcount)!="CollectionMethod"]
 
+#multiply # of zoops by 2 bc each schindler trap is only ~0.5m
+Schindler_totalCount$TotalCount_n <-
+  Schindler_totalCount$TotalCount_n * 2
+
 #sum total count for DateTime 
 Schindler_totalCount_final <- Schindler_totalCount %>% select(DateTime,StartDepth_m,TotalCount_n) %>%
   group_by(DateTime)  %>% summarise(StartDepth_m=last(StartDepth_m),TotalCount_n=sum(TotalCount_n))
@@ -81,7 +85,13 @@ for(i in 1:length(Density.neteff$DateTime)){
 }
 
 #Going to take the average 10m net efficiency across noon samples only
-NetEfficiency2016 <- mean(Density.neteff$NetEff_10m[Density.neteff$DateTime=="2016-08-03 12:00:00" | Density.neteff$DateTime=="2016-08-04 12:00:00"])
+NetEfficiency2016_10m <- mean(Density.neteff$NetEff_10m[Density.neteff$DateTime=="2016-08-03 12:00:00" | 
+                                                      Density.neteff$DateTime=="2016-08-04 12:00:00"])
+
+NetEfficiency2016_7m <- mean(Density.neteff$NetEff_7m[Density.neteff$DateTime=="2016-08-03 12:00:00" | 
+                                                      Density.neteff$DateTime=="2016-08-04 12:00:00"])
+
+mean(NetEfficiency2016_7m, NetEfficiency2016_10m)
 
 #---------------------------#
 #visualize density by depth #
