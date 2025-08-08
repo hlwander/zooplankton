@@ -2,7 +2,7 @@
 # 7 August 2025
 
 #read in libraries
-pacman::p_load(tidyr, dplyr)
+pacman::p_load(tidyr, dplyr, stringr)
 
 #set wd
 setwd("/Users/heatherwander/Documents/VirginiaTech/research/zooplankton/Summer2022-2025-DataAnalysis")
@@ -61,6 +61,9 @@ zoops_final$DateTime <- as.POSIXct(paste(zoops_final$collect_date, zoops_final$H
 #drop density_nopl from end of taxon
 zoops_final$Taxon <- substr(zoops_final$Taxon,1,nchar(zoops_final$Taxon)-13)
 
+#add rep col (all these tows only have 1 rep but consider changing this to an ifelse statement for future sampling campaigns)
+zoops_final$Rep <- 1
+
 #add collection method col
 zoops_final$CollectionMethod <- "Tow" #all tows for these years
 
@@ -74,7 +77,7 @@ zoops_final$EndDepth_m <- 0
 zoops_final <- zoops_final |> select(-c(sample_ID, Project, site_no, collect_date, Hour))
 
 #change order of cols
-zoops_final <- zoops_final |> select(Reservoir, Site, DateTime, StartDepth_m, EndDepth_m,
+zoops_final <- zoops_final |> select(Reservoir, Site, DateTime, StartDepth_m, EndDepth_m, Rep,
                                              CollectionMethod, Taxon, Density_IndPerL, MeanLength_mm,
                                              MeanWeight_ug, Biomass_ugL)
 
@@ -89,12 +92,12 @@ zoops_final$Biomass_ugL <- ifelse(zoops_final$Density_IndPerL!=0 & zoops_final$B
                                         NA, zoops_final$Biomass_ugL)
 
 #add flag cols
-zoops_final$Flag_Length <- ifelse(is.na(zoops_final$MeanLength_mm), 1, 0)
-zoops_final$Flag_Weight <- ifelse(is.na(zoops_final$MeanWeight_ug), 1, 0)
-zoops_final$Flag_Biomass <- ifelse(is.na(zoops_final$Biomass_ugL), 1, 0)
+zoops_final$Flag_MeanLength_mm <- ifelse(is.na(zoops_final$MeanLength_mm), 1, 0)
+zoops_final$Flag_MeanWeight_ug <- ifelse(is.na(zoops_final$MeanWeight_ug), 1, 0)
+zoops_final$Flag_Biomass_ugL <- ifelse(is.na(zoops_final$Biomass_ugL), 1, 0)
 
 #export file 
-write.csv(zoops_final, file.path(getwd(),'SummaryStats/zoop_summary_2022-2025.csv'), row.names = FALSE)
+write.csv(zoops_final, file.path(getwd(),'SummaryStats/EDI_zoop_summary_2022-2025.csv'), row.names = FALSE)
 
 #-------------------------------------------------------------------------------#
 #raw density data sheet for EDI
@@ -135,7 +138,7 @@ zoops_dens_new <- zoops_dens_new |> select(Reservoir, Site, DateTime, StartDepth
                                              SubsampleVolume_mL, Zooplankton_No.)
 
 #export density file
-write.csv(zoops_dens_new, file.path(getwd(),'SummaryStats/zoop_raw_dens_2022-2025.csv'), row.names = FALSE)
+write.csv(zoops_dens_new, file.path(getwd(),'SummaryStats/EDI_zoop_raw_dens_2022-2025.csv'), row.names = FALSE)
 
 #-------------------------------------------------------------------------------#
 #raw biomass data sheet for EDI
@@ -156,8 +159,19 @@ zoops_biom_new$Site <- 50
 zoops_biom_new$DateTime <- as.POSIXct(paste(zoops_biom_new$collect_date, zoops_biom_new$Hour), 
                                 format = "%d-%b-%y %H:%M")
 
+#start depth
+zoops_biom_new <- zoops_biom_new |>
+  mutate(StartDepth_m = substrEnd(sample_ID,4) |>
+           str_remove(".*_") |> # remove everything before underscore
+           str_sub(1, -2))      # drop the m at the end of each depth
+  
+#end depth is 0 for tows and start depth for schindlers 
+zoops_biom_new$EndDepth_m <- 0.1
+
 #add collection method
 zoops_biom_new$CollectionMethod <- "Tow"
+
+zoops_biom_new$OcularMagnification <- "10x"
 
 #drop unnecessary cols
 zoops_biom_new <- zoops_biom_new |> select(-c(sample_ID, Project, site_no, collect_date, 
@@ -166,11 +180,12 @@ zoops_biom_new <- zoops_biom_new |> select(-c(sample_ID, Project, site_no, colle
                                   
 
 #change order of cols
-zoops_biom_new <- zoops_biom_new |> select(Reservoir, Site, DateTime, Rep,
-                               CollectionMethod, Subsample, LowestTaxonomicLevelOfID,
-                               TaxaID, Nauplius, ObjectiveMagnification, 
-                               MarksInOcularMicrometer_No.)
+zoops_biom_new <- zoops_biom_new |> select(Reservoir, Site, DateTime, StartDepth_m,
+                                           EndDepth_m, Rep, CollectionMethod, 
+                                           Subsample, LowestTaxonomicLevelOfID,
+                                            TaxaID, Nauplius, ObjectiveMagnification, 
+                                           OcularMagnification, MarksInOcularMicrometer_No.)
 
 #export density file
-write.csv(zoops_biom_new, file.path(getwd(),'SummaryStats/zoop_raw_biom_2022-2025.csv'), row.names = FALSE)
+write.csv(zoops_biom_new, file.path(getwd(),'SummaryStats/EDI_zoop_raw_biom_2022-2025.csv'), row.names = FALSE)
 
