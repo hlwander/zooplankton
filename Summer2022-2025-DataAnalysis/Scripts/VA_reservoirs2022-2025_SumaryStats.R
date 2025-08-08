@@ -308,8 +308,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae","Lepadella","Monostyla","Lecane") #,"Holopedium" --> not observed
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family","Genus","Genus","Genus") #,"Genus"
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Conochilidae","Synchaetidae","Trichocercidae","Monostyla","Lecane") #,"Holopedium", "Collothecidae", "Lepadella" --> not observed
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Genus","Genus") #,"Genus", "Family, "Genus"
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)
@@ -357,7 +357,7 @@ ZoopFinal<- ZoopFinal[, -grep("biomass_unadj", colnames(ZoopFinal))]
 ZoopFinal<- ZoopFinal[, -grep("zoops_measured", colnames(ZoopFinal))]
 
 #taxa used to calculate total biomass and biomass concentration
-TaxaforTotalCalcs<- c("Calanoida","Cyclopoida","nauplius","Cladocera","Rotifera") #not sure if this should be copepod instead of cyc and cals bc not all were IDed to order (some are subclass cope)
+TaxaforTotalCalcs<- c("Calanoida","Cyclopoida","nauplius","Cladocera","Rotifera") 
 #Calculate raw biomass 
 ZoopFinal$TotalBiomass_ug<- rowSums(ZoopFinal[,paste0(TaxaforTotalCalcs,"_totalbiomass_ug")], na.rm=TRUE)
 #Calculate biomass concentration as biomass relative to total volume counted
@@ -436,4 +436,4 @@ if(sum(!is.na(SizeID.Order[,c(taxa)]))>0){
 }
 
 #export richness, evenness, and diversity 
-write.csv(ZoopFinal[,c(1:6,204:212)], "SummaryStats/zoop_diversity_2021.csv", row.names=FALSE)
+write.csv(ZoopFinal[,c(1:6,188:196)], paste0("SummaryStats/zoop_diversity_",year,".csv"), row.names=FALSE)
