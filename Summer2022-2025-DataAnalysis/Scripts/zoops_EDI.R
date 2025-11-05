@@ -13,7 +13,7 @@ substrEnd <- function(x, n){
 }
 
 #read in zoop data from most recent year
-zoops_new <- read.csv(file.path(getwd(),"SummaryStats/FCR_ZooplanktonSummary2022-2025.csv"))
+zoops_new <- read.csv(file.path(getwd(),"SummaryStats/BVR_ZooplanktonSummary2022-2025.csv"))
 
 #drop daphniidae and bsominidae bc I already have the genera
 zoops_new <- zoops_new[,!c(grepl("Daphniidae", colnames(zoops_new)) |
@@ -48,7 +48,7 @@ zoops_biom <- zoops_new |>
                values_to = "Biomass_ugL") 
 
 #combine dfs
-zoops_final <- zoops_dens[,c(1:6, 71, 72)]
+zoops_final <- zoops_dens[,c(1:6, 80, 81)]
 zoops_final$MeanLength_mm <- zoops_size$MeanLength_mm
 zoops_final$MeanWeight_ug <- zoops_weight$MeanWeight_ug
 zoops_final$Biomass_ugL <- zoops_biom$Biomass_ugL

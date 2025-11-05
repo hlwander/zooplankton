@@ -56,7 +56,7 @@ CrustaceanBiomassConversions$Suborder[CrustaceanBiomassConversions$Family=="Daph
 year<-"2022-2025"
 
 #Names of the two files for a particular year
-dataFiles<-c(paste("FCR",year,"_ZooplanktonCounting_Density_DataEntry.csv",sep=""),paste("FCR",year,"_ZooplanktonCounting_SizeID_DataEntry.csv",sep=""))
+dataFiles<-c(paste("BVR",year,"_ZooplanktonCounting_Density_DataEntry.csv",sep=""),paste("BVR",year,"_ZooplanktonCounting_SizeID_DataEntry.csv",sep=""))
 
 #Create Density and SizeID data frames for that year
 Density<-read.csv(paste0(getwd(),"/RawData/",dataFiles[1]), fill = TRUE,as.is=TRUE)
@@ -308,8 +308,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Conochilidae","Synchaetidae","Trichocercidae","Monostyla","Lecane") #,"Holopedium", "Collothecidae", "Lepadella" --> not observed
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Genus","Genus") #,"Genus", "Family, "Genus"
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Conochilus","Conochiloides","Synchaetidae","Trichocercidae","Monostyla","Lecane","Hexarthra", "Polyarthra") #,"Holopedium", "Collothecidae", "Lepadella" --> not observed
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Genus","Genus","Family","Family","Genus","Genus","Genus","Genus") #,"Genus", "Family, "Genus"
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)
@@ -374,7 +374,7 @@ ZoopFinal[c(paste(taxaOfInterest,"Count_n",sep=""),paste(taxaOfInterest,"_Percen
 ZoopFinal$INT<-as.character(ZoopFinal$INT)
 
 #Export the final Zoop table
-write.csv(ZoopFinal,paste("SummaryStats/FCR_ZooplanktonSummary",year,".csv",sep=""),row.names = FALSE)
+write.csv(ZoopFinal,paste("SummaryStats/BVR_ZooplanktonSummary",year,".csv",sep=""),row.names = FALSE)
 
 ZoopFinal$BiomassConcentration_ugpL
 ZoopFinal$Cladocera_BiomassConcentration_ugpL
