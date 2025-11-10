@@ -315,8 +315,8 @@ ZoopFinal$BiomassConcentration_ugpL <- NA
 ###original calc was biom_unadj * count/zoops_measured, but this means that smaller zoop biomass is largely overestimated because I generally measure a lot more of the large zoops (i.e., total biomass/zoops measured is skewed towards the laeger zoops). 
 
 #Create columns broken down by the following taxa
-taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","Bosminidae","nauplius","Ceriodaphnia","Daphnia","Bosmina","Ploima","Gastropidae","Collothecidae","Conochilidae","Synchaetidae","Trichocercidae","Lepadella","Monostyla","Lecane") #,"Holopedium" --> not observed
-CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Family","Nauplius","Genus","Genus","Genus","Order","Family","Family","Family","Family","Family","Genus","Genus","Genus") #,"Genus"
+taxaOfInterest<-c("Daphniidae","Copepoda","Calanoida","Cladocera","Cyclopoida","Rotifera","Keratella","Kellicottia","Crustacea","nauplius","Ceriodaphnia","Daphnia","Bosmina","Gastropus","Collotheca","Conochilus","Conochiloides","Synchaeta","Trichocerca","Lepadella","Monostyla","Lecane","Hexarthra","Polyarthra","Asplanchna","Ascomorpha") #,"Holopedium" --> not observed
+CorrespondingTaxaLevel<-c("Family","Subclass","Order","Suborder","Order","Phylum","Genus","Genus","Subphylum","Nauplius","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus","Genus") #,"Genus"
 #Here crustacean is the sum of copepoda and cladocera; 
 
 #For loop that runs through all the taxa of interest and generates output (including nauplius!)

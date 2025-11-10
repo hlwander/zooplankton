@@ -59,7 +59,7 @@ all_zoops_biom <- all_zoops |>
                values_to = "Biomass_ugL") 
 
 #combine dfs
-all_zoops_final <- all_zoops_dens[,c(1:6, 77, 78)]
+all_zoops_final <- all_zoops_dens[,c(1:6, 89, 90)]
 all_zoops_final$MeanLength_mm <- all_zoops_size$MeanLength_mm
 all_zoops_final$MeanWeight_ug <- all_zoops_weight$MeanWeight_ug
 all_zoops_final$Biomass_ugL <- all_zoops_biom$Biomass_ugL
